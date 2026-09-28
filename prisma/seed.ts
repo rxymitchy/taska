@@ -1,3 +1,11 @@
+// Demo data for `npm run db:seed`. Run it after migrations, with the database up.
+// It deletes users, tasks, and payments, then recreates them. Do not run it
+// against a database you need to keep.
+// Password comes from DEMO_PASSWORD (default demo1234):
+// worker@taska.demo, employer@taska.demo, admin@taska.demo.
+// The .env loader below is here because the Prisma seed process does not always
+// put those variables in the environment before this file runs.
+
 import { readFileSync } from "fs"
 import { PrismaClient, type Task } from "@prisma/client"
 import { hash } from "bcryptjs"

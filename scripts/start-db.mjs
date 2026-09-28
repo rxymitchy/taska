@@ -1,3 +1,12 @@
+// Local database for `npm run db`. Leave this process running, then migrate and seed
+// from another terminal. Data lives in data/pglite, which is gitignored.
+//
+// This is PGlite speaking the Postgres wire protocol. The official Postgres
+// binaries refuse to start under a Windows administrator account.
+// Docker Compose also binds port 5432, so run only one of them.
+// Copy the DATABASE_URL this script prints. The pgbouncer and connection_limit
+// parameters stop Prisma error 42P05 ("prepared statement already exists").
+
 import { PGlite } from "@electric-sql/pglite"
 import { PGLiteSocketServer } from "@electric-sql/pglite-socket"
 import path from "path"

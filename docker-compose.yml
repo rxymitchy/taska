@@ -1,3 +1,8 @@
+# Optional Postgres 16. Alternative to `npm run db`, not something to run beside it.
+# Both listen on 5432. Point DATABASE_URL at:
+# postgresql://taska:taska@localhost:5432/taska?schema=public
+# Then run `npx prisma migrate deploy` and `npm run db:seed`.
+
 services:
   db:
     image: postgres:16

@@ -9,7 +9,8 @@ import type {
  * Payment rail for Taska.
  *
  * The rest of the app talks to LightningService, not to a specific node.
- * LIGHTNING_PROVIDER=mock uses MockLightningProvider.
+ * LIGHTNING_PROVIDER=mock uses MockLightningProvider. That is the setup default
+ * in .env.example, and it does not need node credentials.
  * Add a real provider by implementing LightningProvider and branching below.
  * Keys stay in server environment variables. Never import this module from client code.
  */

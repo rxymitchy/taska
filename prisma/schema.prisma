@@ -1,3 +1,7 @@
+// Postgres through DATABASE_URL.
+// Locally: start `npm run db` (or Docker Compose), then `npx prisma migrate deploy`.
+// `npm install` runs `prisma generate`, which rebuilds the client from this file.
+
 generator client {
   provider = "prisma-client-js"
 }

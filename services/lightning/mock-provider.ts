@@ -43,6 +43,7 @@ export class MockLightningProvider implements LightningProvider {
   }
 
   async getBalance() {
+    // MOCK_LIGHTNING_BALANCE_SATS is only the number this sandbox reports.
     const balanceSats = Number(process.env.MOCK_LIGHTNING_BALANCE_SATS || 2_000_000)
     return { balanceSats }
   }
