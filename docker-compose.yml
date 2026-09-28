@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: taska
+      POSTGRES_PASSWORD: taska
+      POSTGRES_DB: taska
+    ports:
+      - "5432:5432"
+    volumes:
+      - taska-pg:/var/lib/postgresql/data
+
+volumes:
+  taska-pg:

@@ -1,0 +1,178 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  WORKER
+  EMPLOYER
+  ADMIN
+}
+
+enum TaskStatus {
+  FUNDED
+  CLOSED
+}
+
+enum TaskType {
+  AI_RESPONSE_EVALUATION
+  GENERIC
+}
+
+enum ItemStatus {
+  AVAILABLE
+  ASSIGNED
+  SUBMITTED
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PaymentStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum LightningStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+model User {
+  id              String           @id @default(cuid())
+  email           String           @unique
+  passwordHash    String
+  role            Role
+  createdAt       DateTime         @default(now())
+  workerProfile   WorkerProfile?
+  employerProfile EmployerProfile?
+}
+
+model WorkerProfile {
+  id               String           @id @default(cuid())
+  userId           String           @unique
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name             String
+  country          String
+  bio              String           @default("")
+  skills           String[]
+  languages        String[]
+  cvFileName       String?
+  githubUrl        String?
+  portfolioUrl     String?
+  lightningAddress String?
+  tasksCompleted   Int              @default(0)
+  approvalRate     Float            @default(0)
+  qualityScore     Float            @default(0)
+  createdAt        DateTime         @default(now())
+  submissions      TaskSubmission[]
+  payments         Payment[]
+  assignments      TaskItem[]
+}
+
+model EmployerProfile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName        String
+  companyDescription String   @default("")
+  createdAt          DateTime @default(now())
+  tasks              Task[]
+}
+
+model Task {
+  id                String           @id @default(cuid())
+  employerId        String
+  employer          EmployerProfile  @relation(fields: [employerId], references: [id])
+  title             String
+  description       String
+  category          String
+  instructions      String
+  rewardSats        Int
+  quantity          Int
+  completedQuantity Int              @default(0)
+  language          String
+  requiredSkills    String[]
+  estimatedMinutes  Int
+  status            TaskStatus       @default(FUNDED)
+  taskType          TaskType         @default(GENERIC)
+  autoApprove       Boolean          @default(false)
+  createdAt         DateTime         @default(now())
+  items             TaskItem[]
+  submissions       TaskSubmission[]
+
+  @@index([status, category])
+}
+
+model TaskItem {
+  id               String           @id @default(cuid())
+  taskId           String
+  task             Task             @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  prompt           String
+  responseA        String
+  responseB        String
+  referenceChoice  String?
+  status           ItemStatus       @default(AVAILABLE)
+  assignedWorkerId String?
+  assignedWorker   WorkerProfile?   @relation(fields: [assignedWorkerId], references: [id])
+  assignedAt       DateTime?
+  submission       TaskSubmission?
+
+  @@index([taskId, status])
+}
+
+model TaskSubmission {
+  id           String            @id @default(cuid())
+  taskId       String
+  task         Task              @relation(fields: [taskId], references: [id])
+  taskItemId   String?           @unique
+  taskItem     TaskItem?         @relation(fields: [taskItemId], references: [id])
+  workerId     String
+  worker       WorkerProfile     @relation(fields: [workerId], references: [id])
+  answers      Json
+  status       SubmissionStatus  @default(PENDING)
+  qualityScore Int?
+  submittedAt  DateTime          @default(now())
+  reviewedAt   DateTime?
+  payment      Payment?
+
+  @@index([workerId, submittedAt])
+  @@index([status])
+}
+
+model Payment {
+  id               String            @id @default(cuid())
+  workerId         String
+  worker           WorkerProfile     @relation(fields: [workerId], references: [id])
+  submissionId     String            @unique
+  submission       TaskSubmission    @relation(fields: [submissionId], references: [id])
+  amountSats       Int
+  paymentMethod    String            @default("LIGHTNING")
+  paymentReference String?
+  status           PaymentStatus     @default(PENDING)
+  createdAt        DateTime          @default(now())
+  lightningPayment LightningPayment?
+
+  @@index([workerId, createdAt])
+}
+
+model LightningPayment {
+  id          String          @id @default(cuid())
+  paymentId   String          @unique
+  payment     Payment         @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  invoice     String
+  paymentHash String
+  destination String
+  amountSats  Int
+  status      LightningStatus
+  createdAt   DateTime        @default(now())
+}
