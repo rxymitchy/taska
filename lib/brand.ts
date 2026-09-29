@@ -1,6 +1,5 @@
 export const brand = {
   name: "Taska",
-  tagline: "Small tasks. African talent. Instant payments.",
-  support:
-    "Businesses get digital work done by skilled African workers. Workers complete tasks and get paid across borders through Lightning.",
+  tagline: "Does the AI speak your language?",
+  support: "Local people check AI answers in African languages, so companies know they sound right.",
 } as const

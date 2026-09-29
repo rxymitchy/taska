@@ -42,13 +42,13 @@ export function LoginForm({
             <form action={demoAction}>
               <input type="hidden" name="role" value="worker" />
               <button className={btnSecondary} disabled={demoPending}>
-                Worker
+                Evaluator
               </button>
             </form>
             <form action={demoAction}>
               <input type="hidden" name="role" value="employer" />
               <button className={btnSecondary} disabled={demoPending}>
-                Employer
+                Company
               </button>
             </form>
             <form action={demoAction}>

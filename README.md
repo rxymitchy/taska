@@ -1,45 +1,136 @@
 # Taska
 
-Small tasks. African talent. Instant payments.
+Does the AI speak your language?
 
-Taska is a work platform for AI and data microtasks. Businesses post clearly defined tasks. African workers complete them. Approved work is paid across borders with Bitcoin Lightning.
+Taska checks whether AI answers work for African languages and local context. A company submits a question and the answer its AI gave. A local speaker checks it. A reviewer confirms the check. The company gets a validated result, and the people who did the work are paid with Bitcoin Lightning.
 
-Lightning is the payment rail. The product is the work.
+Built for Hack4Freedom 2026.
 
-## Problem
-
-Small digital tasks are hard to pay for across borders. A few hundred sats is too small for ordinary bank transfers, and a marketplace that holds the money becomes a wallet. Workers also get judged on a CV instead of work they have actually finished.
-
-## Solution
-
-A business posts a task with a reward, a language, and instructions. A worker completes it. A reviewer approves or rejects it. Approval sends a Lightning payment to the worker's own destination. Taska does not custody funds and does not store wallet keys.
-
-The first task type is **AI response evaluation**: compare two answers and choose the more helpful one.
-
-## How Lightning is used
-
-1. The worker saves a Lightning address or invoice on their profile.
-2. When a submission is approved, the server asks `LightningService` to create an invoice and pay it.
-3. The payment hash, invoice, and amount are stored as history.
-4. The worker sees "+500 sats" and "Paid via Lightning".
-
-`LIGHTNING_PROVIDER=mock` uses `MockLightningProvider`. Those invoices start with `lnmock1` and do not move real bitcoin. They exist so the full task → review → payment flow can be demonstrated.
-
-## Architecture
+## How it works
 
 ```
-app/            pages, server actions, route handlers
-components/     UI
-lib/            auth helpers, catalog, validation
-services/       reviews, payments, Lightning
-prisma/         schema and seed
+Company submits a question + AI answer (language, local context)
+  → Taska assigns an evaluator
+  → Evaluator answers: Is it true? Does it sound natural? Does it know the place?
+      If any answer is No, they write a better answer
+  → Reviewer approves or rejects (rejected goes back to the evaluator)
+  → Company sees the validated result
+  → Evaluator and reviewer payments recorded as "Lightning — Pending"
 ```
 
-Country and language are separate profile fields. New countries or languages are added in `lib/catalog.ts`. Payment providers implement `LightningProvider` in `services/lightning/types.ts`.
+Status flow: `Pending → Assigned → Worker completed → Under review → Approved → Completed`.
 
-Roles: `worker`, `employer`, `admin`.
+Example: a company asks its AI, in Swahili, "Ninaweza kutumia M-Pesa kulipa bili hii?" (Can I pay this bill with M-Pesa?). A Kenyan evaluator checks the facts, the Swahili, and whether the steps match how M-Pesa actually works.
 
-See [docs/architecture.md](docs/architecture.md) for the data model and how to replace the mock Lightning provider.
+## Tech stack
+
+| Layer | Tool |
+| --- | --- |
+| Framework | Next.js 16 (App Router, Server Actions, Turbopack) |
+| UI | React 19, Tailwind CSS 4 |
+| Language | TypeScript |
+| Database | PostgreSQL through Prisma 6. PGlite locally, any hosted Postgres (for example Neon) in production |
+| Auth | Auth.js (NextAuth v5), email and password, JWT sessions, bcrypt hashing |
+| Validation | Zod 4 |
+| Payments | Bitcoin Lightning through `services/lightning`. Only a mock provider exists today |
+| Hosting (planned) | Vercel + Neon |
+
+## What is built
+
+- Sign up, log in, and three roles: evaluator (`WORKER`), company (`EMPLOYER`), reviewer (`ADMIN`). Reviewer accounts cannot be created from signup.
+- Company: create an evaluation, list its evaluations, see the validated result.
+- Evaluator: list of assigned evaluations, the three-question form, and the required better answer after a No.
+- Reviewer: review queue, approve or reject.
+- Full status flow, stored in Postgres, with each role only seeing its own data.
+- Pending Lightning payout records for the evaluator and the reviewer after approval.
+- Placeholder modules in `services/` that teammates replace. The app works end to end with them as they are. See [docs/team.md](docs/team.md).
+- Demo accounts and seed data.
+
+## What each teammate builds
+
+Status: **Done** works today, **Partly** exists but needs more, **To do** is not started. Start from the file in the last column.
+
+### 1. Backend Developer
+
+| Task | Status | Where to start |
+| --- | --- | --- |
+| Build the backend/API | Partly | Server Actions in `app/actions/evaluations.ts`. There is no public REST API for companies to call yet |
+| Create the database | Done | `prisma/schema.prisma`, `prisma/migrations/` |
+| Handle user registration and login | Done | `app/actions/auth.ts`, `auth.ts` |
+| Manage users and their roles | Partly | Roles work. There is no screen to add reviewers or disable users. Module F in `docs/team.md` |
+| Create and manage AI-data projects | To do | Evaluations are single items. Add a project that groups them, plus edit and delete |
+| Create and assign tasks to contributors | Partly | `services/assignment/index.ts` gives everything to the demo evaluator. Match by language and workload (module B) |
+| Receive and store contributor submissions | Done | `submitHumanEvaluation`, `EvaluationSubmission` table |
+| Calculate contributor quality scores | To do | Nothing for evaluations yet. Score from approval rate and agreement with other evaluators |
+| Manage task status | Done | Every status change lives in `app/actions/evaluations.ts` |
+| Store AI evaluation results | Partly | Human results are stored. Automatic AI scores have no table yet |
+| Handle dataset export (CSV/JSON) | To do | Add a route that exports a company's validated evaluations, including better answers |
+| Prepare the system for future Lightning payments | Partly | `EvaluationPayout` rows are recorded as Pending. Paying them is module A in `services/settlement/index.ts` |
+| Connect the frontend with the AI system and database | Partly | Database is connected. AI is a placeholder in `services/ai/index.ts` |
+
+### 2. Frontend Developer
+
+| Task | Status | Where to start |
+| --- | --- | --- |
+| Build the website/interface | Done | `app/page.tsx`, `components/` |
+| Create the client dashboard | Done | `app/employer/` |
+| Create the contributor dashboard | Done | `app/dashboard/` |
+| Create the task/evaluation page | Done | `app/dashboard/evaluations/[id]`, `components/human-evaluation-form.tsx` |
+| Create the admin dashboard | Partly | `app/admin/` has the review queue only. Add users, totals, and past decisions |
+| Display project progress and results | Partly | Each evaluation shows its status and result. Add counts and progress per project once projects exist |
+| Display contributor scores/earnings | Partly | Shows "Lightning — Pending" only. Add amounts and scores once the backend has them |
+| Connect the frontend to the backend APIs | Done | Forms call Server Actions directly |
+| Make the application responsive and user-friendly | Partly | Works on mobile, but the signed-in header wraps on small screens (`components/site-header.tsx`) |
+| Handle frontend validation and error messages | Done | Required fields, plus server errors shown on each form |
+
+### 3. AI/ML Developer
+
+| Task | Status | Where to start |
+| --- | --- | --- |
+| Research suitable AI models and specialised AI SDKs | To do | Keep API keys in server environment variables |
+| Test which models/SDKs support African languages | To do | Languages Taska offers are in `lib/catalog.ts` |
+| Build AI-assisted task generation | To do | `generateAiResponse` in `services/ai/index.ts` returns `null` today, so companies paste answers by hand |
+| Build language detection | To do | Check the submitted answer matches the chosen language before it is assigned |
+| Build AI response evaluation | To do | A first automatic pass before the human check |
+| Check fluency, accuracy and cultural relevance | To do | Humans do this today. An AI pre-score would sit beside their three answers |
+| Detect low-quality or suspicious submissions | To do | For example, an evaluator who always answers Yes, or submits too fast |
+| Detect duplicate submissions | To do | Repeated better answers, or the same evaluation submitted twice |
+| Assist with translation | To do | Help reviewers read languages they do not speak |
+| Compare AI scores with human evaluations | To do | Needs the AI evaluation first |
+| Build the AI/human consensus system | To do | `services/consensus/index.ts` sends everything to review after one answer (module C) |
+| Document the AI models, SDKs and methods used | To do | Add `docs/ai.md` |
+
+### 4. Documentation Lead
+
+| Task | Status | Where to start |
+| --- | --- | --- |
+| Research and document the problem | Partly | Short version at the top of this README |
+| Document the project's solution | Partly | "How it works" above |
+| Document target users and customers | To do | AI companies and teams shipping to African markets, evaluators, reviewers |
+| Maintain the README | Partly | This file. Keep the tables here up to date |
+| Document the system architecture | To do | `docs/architecture.md` still describes the older task marketplace and needs rewriting |
+| Document the APIs | To do | List the Server Actions in `app/actions/evaluations.ts`, and any REST routes once added |
+| Document the AI component | To do | With the AI/ML developer |
+| Document the data-quality process | To do | Evaluator → better answer → reviewer → consensus |
+| Document how the platform works | Partly | `docs/team.md` has the flow and demo steps |
+| Keep screenshots and important project evidence | To do | Add a `docs/screenshots/` folder |
+| Prepare the final technical documentation | To do | |
+| Help prepare the presentation/pitch | To do | Use the Swahili M-Pesa demo below |
+
+### 5. Group Lead / Project Lead
+
+These are coordination tasks, so none of them are code. The things to track:
+
+| Task | Status | Notes |
+| --- | --- | --- |
+| Coordinate the team, divide tasks, set deadlines | To do | Use the tables above. Module letters A–F are in `docs/team.md` |
+| Track everyone's progress and run meetings | To do | Update the Status column as work lands |
+| Make sure the parts integrate properly | Partly | Each module has one file and one call site in `docs/team.md`. Changes to `EvaluationStatus` need the team's agreement |
+| Resolve blockers and make major decisions | To do | First decisions: keep or delete the old task marketplace code (see below), and how many evaluators each answer needs |
+| Keep the project focused on the main problem | Ongoing | AI answers that work for African languages and local context |
+| Coordinate final testing | To do | Run the demo below after every merge. `npx tsc --noEmit` must pass |
+| Coordinate the final demo and presentation | To do | |
+| Make sure the project is ready for submission | To do | Not deployed yet. Needs Vercel + Neon, a production `AUTH_SECRET`, and a decision on `DEMO_LOGIN` |
 
 ## Local development
 
@@ -61,7 +152,9 @@ npm run dev
 
 Open http://localhost:3000.
 
-`npm run db` is for local development. Production should use a hosted Postgres and set `DATABASE_URL`. Docker Compose in this repo starts Postgres 16 if you prefer that:
+On Windows, stop `npm run dev` before running `npx prisma generate` or `npx prisma migrate deploy`. The running server locks Prisma's engine file.
+
+`npm run db` is for local development only. Production uses a hosted Postgres through `DATABASE_URL`. Docker Compose in this repo can start Postgres 16 instead:
 
 ```bash
 docker compose up -d
@@ -75,25 +168,43 @@ Password for every demo account: `demo1234`
 
 | Role | Email |
 | --- | --- |
-| Worker | worker@taska.demo |
-| Employer | employer@taska.demo |
+| Evaluator | worker@taska.demo |
+| Company | employer@taska.demo |
 | Reviewer | admin@taska.demo |
 
-The login page can enter these when `DEMO_LOGIN=true`.
+The login page has one-click buttons for these when `DEMO_LOGIN=true`.
 
-Suggested demo, about three minutes:
+1. Log in as the **company**. Open **New evaluation**, choose Swahili and Kenya / M-Pesa, paste a question and the AI's answer, and submit.
+2. Log in as the **evaluator**. Open **My evaluations**, answer the three questions, and submit. Answering No asks for a better answer.
+3. Log in as the **reviewer**. Open **Review queue** and approve.
+4. Log in as the **company** again. The evaluation shows **Validated** with the results.
+5. The evaluator and reviewer screens show **Lightning — Pending**.
 
-1. Open the landing page.
-2. Choose Find Tasks.
-3. Log in as the worker.
-4. Open **Evaluate AI Responses**.
-5. Start the task, compare the two responses, and submit.
-6. The screen moves through review, approval, and a Lightning payment.
-7. Open the dashboard. Earnings and payment history include the new payment.
+`npm run db:seed` also creates one Swahili evaluation already assigned to the evaluator.
 
-The employer account can post a task. The reviewer account can approve or reject the pending submission under Review. Approval pays the worker. Rejection does not.
+Set `DEMO_LOGIN=false` before a public deployment.
 
-Turn off one-click demo login with `DEMO_LOGIN=false` before a public deployment.
+## Project structure
+
+```
+app/actions/evaluations.ts   every evaluation status change
+app/employer/                company pages
+app/dashboard/               evaluator pages
+app/admin/                   reviewer pages
+components/                  UI
+lib/                         auth helpers, catalog, validation
+services/                    teammate modules (assignment, consensus, ai, reports, settlement) and Lightning
+prisma/                      schema, migrations, seed
+docs/team.md                 input, processing, output, and connection point for each module
+```
+
+The first version of Taska was a general task marketplace. Its code is still in the repo (`app/tasks`, `app/workers`, `app/profile`, `app/actions/tasks.ts`, `app/actions/reviews.ts`, `services/reviews.ts`, `services/payments.ts`), but nothing links to it. The team should decide whether to delete it.
+
+## Lightning
+
+Taska never holds user funds and never stores wallet keys. After a reviewer approves, `services/settlement/index.ts` records one Pending payout for the evaluator and one for the reviewer. Paying them is module A.
+
+`LIGHTNING_PROVIDER=mock` uses `MockLightningProvider` in `services/lightning`. Its invoices start with `lnmock1` and move no real bitcoin. A real provider implements `LightningProvider` in `services/lightning/types.ts`, with keys in server environment variables only.
 
 ## Environment variables
 
@@ -107,7 +218,7 @@ Turn off one-click demo login with `DEMO_LOGIN=false` before a public deployment
 | `DEMO_LOGIN` | Enables demo account buttons |
 | `DEMO_PASSWORD` | Password seeded for demo accounts |
 
-Never put Lightning keys, seeds, or wallet credentials in the frontend or in the database. The mock provider does not use keys.
+Never commit `.env`. Never put Lightning keys, seeds, or wallet credentials in the frontend or the database.
 
 ## Scripts
 

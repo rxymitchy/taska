@@ -186,6 +186,9 @@ async function recordOutcome(input: {
 }
 
 async function main() {
+  await prisma.evaluationPayout.deleteMany()
+  await prisma.evaluationSubmission.deleteMany()
+  await prisma.evaluation.deleteMany()
   await prisma.lightningPayment.deleteMany()
   await prisma.payment.deleteMany()
   await prisma.taskSubmission.deleteMany()
@@ -479,6 +482,20 @@ async function main() {
   for (const person of profiles) {
     await refreshWorkerStats(person.id)
   }
+
+  await prisma.evaluation.create({
+    data: {
+      companyId: employerId,
+      prompt: "Ninaweza kutumia M-Pesa kulipa bili hii?",
+      aiResponse:
+        "Ndiyo, unaweza kutumia M-Pesa kulipa bili yako. Chagua Lipa na M-Pesa, kisha Pay Bill, weka nambari ya biashara na nambari ya akaunti iliyo kwenye bili.",
+      language: "Swahili",
+      context: "Kenya / M-Pesa",
+      status: "ASSIGNED",
+      assignedWorkerId: amina.id,
+      assignedAt: daysAgo(0),
+    },
+  })
 }
 
 function openTask(

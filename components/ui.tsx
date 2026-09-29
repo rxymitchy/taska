@@ -36,15 +36,28 @@ export function Stat({ label, value, hint }: { label: string; value: string; hin
 export function StatusPill({ status }: { status: string }) {
   const styles: Record<string, string> = {
     APPROVED: "bg-good/10 text-good",
+    COMPLETED: "bg-good/10 text-good",
     FUNDED: "bg-good/10 text-good",
     SENT: "bg-good/10 text-good",
     PAID: "bg-good/10 text-good",
     PENDING: "bg-warn/10 text-warn",
+    ASSIGNED: "bg-warn/10 text-warn",
+    WORKER_COMPLETED: "bg-warn/10 text-warn",
+    UNDER_REVIEW: "bg-warn/10 text-warn",
     REJECTED: "bg-bad/10 text-bad",
     FAILED: "bg-bad/10 text-bad",
     CLOSED: "bg-black/5 text-muted",
   }
-  const label = status.charAt(0) + status.slice(1).toLowerCase()
+  const labels: Record<string, string> = {
+    PENDING: "Pending",
+    ASSIGNED: "Assigned",
+    WORKER_COMPLETED: "Worker completed",
+    UNDER_REVIEW: "Under review",
+    APPROVED: "Approved",
+    COMPLETED: "Validated",
+    REJECTED: "Rejected",
+  }
+  const label = labels[status] ?? status.charAt(0) + status.slice(1).toLowerCase()
   return (
     <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${styles[status] ?? "bg-black/5 text-muted"}`}>
       {label}

@@ -15,32 +15,24 @@ export async function SiteHeader() {
           {brand.name}
         </Link>
         <nav className="flex items-center gap-1 text-sm font-medium">
-          <Link className={btnQuiet} href="/tasks">
-            Tasks
-          </Link>
           {role === "WORKER" ? (
-            <>
-              <Link className={btnQuiet} href="/dashboard">
-                Dashboard
-              </Link>
-              <Link className={btnQuiet} href="/profile">
-                Profile
-              </Link>
-            </>
+            <Link className={btnQuiet} href="/dashboard">
+              My evaluations
+            </Link>
           ) : null}
           {role === "EMPLOYER" ? (
             <>
               <Link className={btnQuiet} href="/employer">
-                My tasks
+                Evaluations
               </Link>
-              <Link className={btnPrimary} href="/employer/tasks/new">
-                Post a task
+              <Link className={btnPrimary} href="/employer/evaluations/new">
+                New evaluation
               </Link>
             </>
           ) : null}
           {role === "ADMIN" ? (
             <Link className={btnQuiet} href="/admin">
-              Review
+              Review queue
             </Link>
           ) : null}
           {session ? (

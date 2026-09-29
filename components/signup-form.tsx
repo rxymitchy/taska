@@ -24,7 +24,7 @@ export function SignupForm() {
               checked={role === "WORKER"}
               onChange={() => setRole("WORKER")}
             />
-            Find tasks
+            Evaluate AI responses
           </label>
           <label className="flex items-center gap-2">
             <input
@@ -34,7 +34,7 @@ export function SignupForm() {
               checked={role === "EMPLOYER"}
               onChange={() => setRole("EMPLOYER")}
             />
-            Post tasks
+            Submit AI responses for evaluation
           </label>
         </div>
       </fieldset>

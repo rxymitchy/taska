@@ -5,7 +5,7 @@ export function SiteFooter() {
     <footer className="mt-16 border-t border-line">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
         <p>{brand.name} · Hack4Freedom 2026</p>
-        <p>Approved work is paid to the worker over Lightning.</p>
+        <p>AI answers checked by local people.</p>
       </div>
     </footer>
   )

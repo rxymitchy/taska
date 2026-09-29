@@ -28,6 +28,13 @@ export const languages = [
   "Afrikaans",
 ] as const
 
+export const contexts = [
+  "Kenya / M-Pesa",
+  "Nigeria / bank transfer",
+  "Ghana / mobile money",
+  "Everyday conversation",
+] as const
+
 export const categories = [
   "AI Evaluation",
   "Data Labeling",
@@ -39,3 +46,4 @@ export const categories = [
 export type Country = (typeof countries)[number]
 export type Language = (typeof languages)[number]
 export type Category = (typeof categories)[number]
+export type ContextLabel = (typeof contexts)[number]

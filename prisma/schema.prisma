@@ -51,6 +51,23 @@ enum LightningStatus {
   FAILED
 }
 
+// Company → evaluator → reviewer. Teammate modules must not invent a second status list.
+enum EvaluationStatus {
+  PENDING
+  ASSIGNED
+  WORKER_COMPLETED
+  UNDER_REVIEW
+  APPROVED
+  COMPLETED
+  REJECTED
+}
+
+enum PayoutStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
 model User {
   id              String           @id @default(cuid())
   email           String           @unique
@@ -78,9 +95,11 @@ model WorkerProfile {
   approvalRate     Float            @default(0)
   qualityScore     Float            @default(0)
   createdAt        DateTime         @default(now())
-  submissions      TaskSubmission[]
-  payments         Payment[]
-  assignments      TaskItem[]
+  submissions            TaskSubmission[]
+  payments               Payment[]
+  assignments            TaskItem[]
+  assignedEvaluations    Evaluation[]             @relation("AssignedEvaluator")
+  evaluationSubmissions  EvaluationSubmission[]
 }
 
 model EmployerProfile {
@@ -91,6 +110,7 @@ model EmployerProfile {
   companyDescription String   @default("")
   createdAt          DateTime @default(now())
   tasks              Task[]
+  evaluations        Evaluation[]
 }
 
 model Task {
@@ -179,4 +199,63 @@ model LightningPayment {
   amountSats  Int
   status      LightningStatus
   createdAt   DateTime        @default(now())
+}
+
+// One AI response submitted by a company for human evaluation.
+// Assignment, extra evaluators, model calls, and real Lightning stay outside this row.
+model Evaluation {
+  id               String             @id @default(cuid())
+  companyId        String
+  company          EmployerProfile    @relation(fields: [companyId], references: [id])
+  prompt           String
+  aiResponse       String
+  language         String
+  context          String
+  status           EvaluationStatus   @default(PENDING)
+  assignedWorkerId String?
+  assignedWorker   WorkerProfile?     @relation("AssignedEvaluator", fields: [assignedWorkerId], references: [id])
+  assignedAt       DateTime?
+  createdAt        DateTime           @default(now())
+  completedAt      DateTime?
+  submissions      EvaluationSubmission[]
+  payouts          EvaluationPayout[]
+
+  @@index([companyId, createdAt])
+  @@index([status])
+  @@index([assignedWorkerId])
+}
+
+model EvaluationSubmission {
+  id                  String        @id @default(cuid())
+  evaluationId        String
+  evaluation          Evaluation    @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  workerId            String
+  worker              WorkerProfile @relation(fields: [workerId], references: [id])
+  factuallyCorrect    Boolean
+  languageNatural     Boolean
+  understandsContext  Boolean
+  // Required by the form whenever any of the three answers is No.
+  betterAnswer        String        @default("")
+  comment             String        @default("")
+  submittedAt         DateTime      @default(now())
+  reviewedAt          DateTime?
+  reviewerUserId      String?
+
+  @@index([evaluationId, submittedAt])
+  @@index([workerId])
+}
+
+// Placeholder until the Lightning module settles a real payment.
+model EvaluationPayout {
+  id           String       @id @default(cuid())
+  evaluationId String
+  evaluation   Evaluation   @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  payeeRole    Role
+  payeeUserId  String
+  rail         String       @default("LIGHTNING")
+  status       PayoutStatus @default(PENDING)
+  createdAt    DateTime     @default(now())
+
+  @@unique([evaluationId, payeeRole])
+  @@index([payeeUserId])
 }
