@@ -7,12 +7,12 @@ export type ValidatedPayout = {
 }
 
 /**
- * Teammate A owns real settlement.
+ * The backend developer owns real settlement. See docs/team.md.
  *
  * Input: the validated evaluation and the two user ids to pay.
  * Processing: create Lightning invoices and pay them.
  * Output: payout rows moving from PENDING to SENT or FAILED.
- * Connects at approveEvaluation(), which only records Lightning — Pending.
+ * Connects at decideEvaluation() after approval. Today it only records Lightning — Pending.
  *
  * Do not call this from the company or evaluator forms.
  * The core flow stays complete when this function only writes PENDING.

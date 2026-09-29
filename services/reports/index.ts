@@ -28,7 +28,7 @@ type ReportSource = {
 }
 
 /**
- * Teammate E owns the shape of this report.
+ * The backend developer owns the shape of this report. See docs/team.md.
  *
  * Input: one evaluation and its submissions.
  * Processing: turn the latest validated answers into what the company reads.

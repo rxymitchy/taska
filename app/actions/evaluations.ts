@@ -6,7 +6,6 @@ import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
 import { aiEvaluationSchema, humanEvaluationSchema } from "@/lib/validators"
 import { assignEvaluation } from "@/services/assignment"
-import { shouldEnterReview } from "@/services/consensus"
 import { recordPendingLightningPayouts } from "@/services/settlement"
 
 export async function createEvaluation(_prev: { error: string }, formData: FormData) {
@@ -85,13 +84,10 @@ export async function submitHumanEvaluation(_prev: { error: string }, formData: 
     data: { status: "WORKER_COMPLETED" },
   })
 
-  const submissionCount = await prisma.evaluationSubmission.count({ where: { evaluationId: evaluation.id } })
-  if (shouldEnterReview(submissionCount)) {
-    await prisma.evaluation.update({
-      where: { id: evaluation.id },
-      data: { status: "UNDER_REVIEW" },
-    })
-  }
+  await prisma.evaluation.update({
+    where: { id: evaluation.id },
+    data: { status: "UNDER_REVIEW" },
+  })
 
   revalidatePath("/dashboard")
   revalidatePath("/admin")

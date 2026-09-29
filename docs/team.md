@@ -12,12 +12,14 @@ Company creates evaluation → Pending → Assigned → Evaluator submits → Wo
 
 Reviewer rejection sets the evaluation back to Assigned. The evaluator edits the answers and submits again.
 
+The README lists who builds what. This file explains how the three code modules connect to the core.
+
 ## Rules for every module
 
 - Do not add or rename values in `EvaluationStatus`. Change the status only in `app/actions/evaluations.ts`.
 - Each module has one entry file under `services/`. Keep its exported function name and argument shape unless the whole team agrees.
 - The placeholder in each file works today. Replace its body. Do not delete the call site.
-- A new table needs its own Prisma migration. Do not edit `20260929180000_evaluations`.
+- A database change needs its own Prisma migration. Do not edit existing migrations.
 - Run `npx tsc --noEmit` and the demo below before opening a pull request.
 
 ## Demo
@@ -38,97 +40,53 @@ Password for every account: `demo1234`.
 | --- | --- |
 | `prisma/schema.prisma` | `Evaluation`, `EvaluationSubmission`, `EvaluationPayout`, `EvaluationStatus` |
 | `app/actions/evaluations.ts` | `createEvaluation`, `submitHumanEvaluation`, `decideEvaluation`, every status change |
+| `services/assignment/index.ts` | Gives each new evaluation to the demo evaluator |
 | `app/employer/evaluations/` | Company form and result page |
 | `app/dashboard/` | Evaluator list and form |
 | `app/admin/` | Review queue and approve or reject |
 
 ---
 
-## A. Lightning payouts
+## Lightning payouts (Backend Developer)
 
 **File:** `services/settlement/index.ts`, function `recordPendingLightningPayouts`
 
 **Input:** `{ evaluationId, workerUserId, reviewerUserId }`, sent after a reviewer approves.
 
-**Processing:** create and pay a Lightning invoice for the evaluator and for the reviewer. Store the payment hash. Retry without paying twice.
+**Processing:** pay the evaluator and the reviewer over Lightning. Store the payment hash. Retry without paying twice.
 
 **Output:** each `EvaluationPayout` row moves from `PENDING` to `SENT` or `FAILED`.
 
 **Connects:** `decideEvaluation` calls this after the evaluation becomes `COMPLETED`. The existing `services/lightning` provider interface can be reused.
 
-A failed payment must not undo the validated evaluation. Keys stay in server environment variables. Do not hold user funds.
+A failed payment must not undo the validated evaluation. Keys stay in server environment variables. Do not hold user funds. If a real payment is not safe to ship in time, keep the mock.
 
-## B. Evaluator assignment
-
-**File:** `services/assignment/index.ts`, functions `pickEvaluator` and `assignEvaluation`
-
-**Input:** a new evaluation's id, language, and context.
-
-**Processing:** choose an evaluator by language, availability, and current workload. Never give one evaluation to two people.
-
-**Output:** a `WorkerProfile` id, or `null` to leave the evaluation `PENDING` until someone is free.
-
-**Connects:** `createEvaluation` calls `assignEvaluation` right after the row is created. The placeholder assigns everything to the demo evaluator.
-
-Keep the conditional update in `assignEvaluation`. It is what stops two requests from claiming the same evaluation.
-
-## C. Multiple evaluators and agreement
-
-**File:** `services/consensus/index.ts`, function `shouldEnterReview`
-
-**Input:** how many evaluator answers exist. Widen this to the submissions themselves when you need to compare answers.
-
-**Processing:** decide whether enough evaluators have answered. Compare their yes/no answers and flag disagreement for the reviewer.
-
-**Output:** `true` when the evaluation should go to the review queue.
-
-**Connects:** `submitHumanEvaluation` calls it after saving answers. Returning `true` for one submission keeps the single-evaluator demo working.
-
-Each evaluator's answers are already separate `EvaluationSubmission` rows. Assigning more than one evaluator also needs a change from module B.
-
-## D. AI model responses
+## AI model (AI/ML Developer)
 
 **File:** `services/ai/index.ts`, function `generateAiResponse`
 
 **Input:** `{ prompt, language, context }`
 
-**Processing:** call a model provider, handle timeouts and errors, and choose the model.
+**Processing:** call a model that handles the chosen language, with timeouts and error handling.
 
 **Output:** the response text, or `null` when the company should paste one.
 
 **Connects:** beside `createEvaluation`, before the evaluation is stored. The company form must keep a manual response field so an API outage does not block evaluation.
 
-Keep API keys on the server. Store which model produced a response if the report needs it.
+The AI pre-check goes in this file too: the model answers the same three questions before the evaluator does. It needs a new column or table (with the backend developer), and the company and reviewer pages show it next to the human answers (with the frontend developer).
 
-## E. Company report
+Keep API keys on the server. Store which model produced a response.
+
+## Company report and export (Backend and Frontend)
 
 **File:** `services/reports/index.ts`, function `buildCompanyReport`
 
 **Input:** one evaluation with its submissions.
 
-**Processing:** turn the validated answers into a result the company can use: correctness, naturalness, local context, the evaluator's better answer, comments, and agreement once module C exists.
+**Processing:** turn the validated answers into a result the company can use: correctness, naturalness, local context, the better answer, comments, and the AI pre-check once it exists.
 
 **Output:** `CompanyReport`
 
-**Connects:** `app/employer/evaluations/[id]/page.tsx`. Add fields to `CompanyReport` rather than querying from the page.
+**Connects:** `app/employer/evaluations/[id]/page.tsx`. Add fields to `CompanyReport` rather than querying from the page. CSV/JSON export should build its rows from `CompanyReport` too, so the page and the file always match.
 
 Only report as validated when the status is `COMPLETED`.
-
-## F. Permissions and database hardening
-
-**Files:** `lib/session.ts`, the `layout.tsx` in each role folder, `app/actions/evaluations.ts`, `prisma/schema.prisma`
-
-**Input:** the signed-in user and role.
-
-**Processing:** confirm each person can only read and change their own data. Tighten database constraints and input validation.
-
-**Output:** tests or checks that block the wrong role.
-
-**Connects:** roles and route guards already exist. `requireRole` protects each area, and each page checks ownership. Extend those checks rather than adding another auth system.
-
-Start with these:
-
-- A company can open only its own evaluation. It must not see another company's rows.
-- An evaluator can submit only an evaluation assigned to them.
-- Only a reviewer can approve or reject.
-- Reviewer accounts cannot be created from signup today.

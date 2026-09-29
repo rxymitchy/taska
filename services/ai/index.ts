@@ -5,7 +5,7 @@ export type GenerateInput = {
 }
 
 /**
- * Teammate D owns this function.
+ * The AI/ML developer owns this function. See docs/team.md.
  *
  * Input: the company prompt, language, and context.
  * Processing: call a model and return its text.

@@ -1,15 +1,8 @@
 import { prisma } from "@/lib/prisma"
 
 /**
- * Teammate B owns this function.
- *
- * Input: a new evaluation id, plus whatever availability data you add later.
- * Processing: choose one evaluator.
- * Output: that worker's WorkerProfile id, or null to leave the evaluation pending.
- * Connects at createEvaluation(), which calls assignEvaluation() after the row exists.
- *
- * The placeholder prefers the demo evaluator so the core flow works before matching exists.
- * Replace the body. Do not change Evaluation.status values.
+ * Picks the demo evaluator, otherwise the oldest evaluator account.
+ * Returns null to leave the evaluation pending.
  */
 export async function pickEvaluator(_evaluation: { id: string; language: string; context: string }) {
   const demo = await prisma.workerProfile.findFirst({
