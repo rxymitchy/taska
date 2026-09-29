@@ -47,57 +47,81 @@ Example: a company asks its AI, in Swahili, "Ninaweza kutumia M-Pesa kulipa bili
 
 ## What each teammate builds
 
-The app already works end to end. This is the remaining work, kept to what makes the submission convincing.
-
-**Must** means the submission is weak without it. **Should** clearly improves it; start once your Must items are done. How each code module connects is in [docs/team.md](docs/team.md).
+Status: **Done** works today, **Partly** exists but needs more, **To do** is not started. Start from the file in the last column. How each code module connects is in [docs/team.md](docs/team.md).
 
 ### 1. Backend Developer
 
-| Task | Priority | Where to start |
+| Task | Status | Where to start |
 | --- | --- | --- |
-| Deploy to Vercel + Neon with the project lead | Must | Production `DATABASE_URL` and `AUTH_SECRET`, run `npx prisma migrate deploy`, seed the demo accounts |
-| Pay the evaluator and reviewer over Lightning | Must | `services/settlement/index.ts`. Keys in server environment variables, no user funds held. Keep the mock if a real payment is not safe in time |
-| Export a company's validated evaluations as CSV/JSON | Should | New route that builds rows from `buildCompanyReport` in `services/reports/index.ts`, including better answers |
-| Store the AI pre-check result | Should | New migration, with the AI/ML developer |
+| Build the backend/API | Done | Server Actions in `app/actions/evaluations.ts` |
+| Create the database | Done | `prisma/schema.prisma`, `prisma/migrations/` |
+| Handle user registration and login | Done | `app/actions/auth.ts`, `auth.ts` |
+| Manage users and their roles | Done | Evaluator, company, and reviewer roles. Reviewer accounts come from the seed, not signup |
+| Create and assign tasks to contributors | Done | `services/assignment/index.ts` gives each new evaluation to the demo evaluator |
+| Receive and store contributor submissions | Done | `submitHumanEvaluation`, `EvaluationSubmission` table |
+| Manage task status | Done | Every status change lives in `app/actions/evaluations.ts` |
+| Store AI evaluation results | Partly | Human results are stored. The AI pre-check needs a new migration, with the AI/ML developer |
+| Handle dataset export (CSV/JSON) | To do | Add a route that exports a company's validated evaluations, including better answers. Build rows from `buildCompanyReport` in `services/reports/index.ts` |
+| Prepare the system for future Lightning payments | Partly | Payouts are recorded as Pending. Paying them is `services/settlement/index.ts`. Keep the mock if a real payment is not safe in time |
+| Connect the frontend with the AI system and database | Partly | Database is connected. AI is a placeholder in `services/ai/index.ts` |
 
 ### 2. Frontend Developer
 
-| Task | Priority | Where to start |
+| Task | Status | Where to start |
 | --- | --- | --- |
-| Fix the signed-in header wrapping on phones | Must | `components/site-header.tsx` |
-| Screenshots of every screen for the documentation lead | Must | Company, evaluator, and reviewer flows |
-| Show the AI pre-check next to the human answers | Should | "AI said Yes, local speaker said No" on `app/employer/evaluations/[id]` and `app/admin/evaluations/[id]` |
-| Totals on the reviewer page | Should | Waiting, approved, and rejected counts on `app/admin/page.tsx` |
-| Export button on the company page | Should | Links to the backend export route |
+| Build the website/interface | Done | `app/page.tsx`, `components/` |
+| Create the client dashboard | Done | `app/employer/` |
+| Create the contributor dashboard | Done | `app/dashboard/` |
+| Create the task/evaluation page | Done | `app/dashboard/evaluations/[id]`, `components/human-evaluation-form.tsx` |
+| Create the admin dashboard | Partly | `app/admin/` has the review queue. Add waiting, approved, and rejected totals |
+| Display project progress and results | Done | Each evaluation shows its status and validated result |
+| Display contributor scores/earnings | Partly | Shows "Lightning — Pending". Show amounts once real payments work |
+| Connect the frontend to the backend APIs | Done | Forms call Server Actions directly |
+| Make the application responsive and user-friendly | Partly | Works on mobile, but the signed-in header wraps on small screens (`components/site-header.tsx`) |
+| Handle frontend validation and error messages | Done | Required fields, plus server errors shown on each form |
 
 ### 3. AI/ML Developer
 
-| Task | Priority | Where to start |
+| Task | Status | Where to start |
 | --- | --- | --- |
-| Choose a model that handles Swahili and test two or three other languages | Must | Languages Taska offers are in `lib/catalog.ts` |
-| Generate the AI answer instead of pasting it | Must | `generateAiResponse` in `services/ai/index.ts`. Keep the manual field for when the API fails. Keys on the server |
-| AI pre-check: the model answers the same three questions first | Should | Same file. Stored by the backend, shown by the frontend |
-| Write `docs/ai.md` | Should | Which model, why, and which languages worked |
+| Research suitable AI models and specialised AI SDKs | To do | Keep API keys in server environment variables |
+| Test which models/SDKs support African languages | To do | Languages Taska offers are in `lib/catalog.ts`. Start with Swahili |
+| Build AI-assisted task generation | To do | `generateAiResponse` in `services/ai/index.ts` returns `null` today, so companies paste answers by hand. Keep the manual field for when the API fails |
+| Build AI response evaluation | To do | An AI pre-check that answers the same three questions before the evaluator |
+| Check fluency, accuracy and cultural relevance | To do | These are the three questions of the pre-check |
+| Compare AI scores with human evaluations | To do | Show "AI said Yes, local speaker said No" on the company and reviewer pages, with the frontend developer |
+| Document the AI models, SDKs and methods used | To do | Add `docs/ai.md` |
 
 ### 4. Documentation Lead
 
-| Task | Priority | Where to start |
+| Task | Status | Where to start |
 | --- | --- | --- |
-| Problem, solution, and target users | Must | Expand the top of this README |
-| Pitch and a three-minute demo script | Must | Use the Swahili M-Pesa demo below |
-| Collect screenshots and project evidence | Must | From the frontend developer, into `docs/screenshots/` |
-| Rewrite the architecture doc | Should | `docs/architecture.md` still describes the older task marketplace |
-| Describe the quality process | Should | Evaluator checks, writes a better answer after a No, reviewer confirms |
+| Research and document the problem | Partly | Short version at the top of this README |
+| Document the project's solution | Partly | "How it works" above |
+| Document target users and customers | To do | AI companies and teams shipping to African markets, evaluators, reviewers |
+| Maintain the README | Partly | This file. Keep the tables here up to date |
+| Document the system architecture | To do | `docs/architecture.md` still describes the older task marketplace and needs rewriting |
+| Document the AI component | To do | With the AI/ML developer |
+| Document the data-quality process | To do | Evaluator checks, writes a better answer after a No, reviewer confirms |
+| Document how the platform works | Partly | `docs/team.md` has the flow and demo steps |
+| Keep screenshots and important project evidence | To do | Add a `docs/screenshots/` folder |
+| Prepare the final technical documentation | To do | |
+| Help prepare the presentation/pitch | To do | Use the Swahili M-Pesa demo below |
 
 ### 5. Group Lead / Project Lead
 
-| Task | Priority | Notes |
+These are coordination tasks, so none of them are code. The things to track:
+
+| Task | Status | Notes |
 | --- | --- | --- |
-| Set a deadline for every Must task and check in daily | Must | Use the tables above |
-| Own the deployment with the backend developer | Must | Judges need a working link |
-| Run the final test after every merge | Must | The demo below, plus `npx tsc --noEmit` |
-| Submission checklist | Must | Live link, repository, README, pitch, and a decision on `DEMO_LOGIN` |
-| Decide whether to delete the old marketplace code | Should | See "Project structure" below |
+| Coordinate the team, divide tasks, set deadlines | To do | Use the tables above |
+| Track everyone's progress and run meetings | To do | Update the Status column as work lands |
+| Make sure the parts integrate properly | Partly | Each module has one file and one call site in `docs/team.md`. Changes to `EvaluationStatus` need the team's agreement |
+| Resolve blockers and make major decisions | To do | First decision: keep or delete the old task marketplace code (see below) |
+| Keep the project focused on the main problem | Ongoing | AI answers that work for African languages and local context |
+| Coordinate final testing | To do | Run the demo below after every merge. `npx tsc --noEmit` must pass |
+| Coordinate the final demo and presentation | To do | |
+| Make sure the project is ready for submission | To do | Not deployed yet. Needs Vercel + Neon, a production `AUTH_SECRET`, and a decision on `DEMO_LOGIN` |
 
 ## Local development
 
@@ -169,7 +193,7 @@ The first version of Taska was a general task marketplace. Its code is still in 
 
 ## Lightning
 
-Taska never holds user funds and never stores wallet keys. After a reviewer approves, `services/settlement/index.ts` records one Pending payout for the evaluator and one for the reviewer. Paying them is the backend developer's Must task.
+Taska never holds user funds and never stores wallet keys. After a reviewer approves, `services/settlement/index.ts` records one Pending payout for the evaluator and one for the reviewer. Paying them is on the backend developer's list.
 
 `LIGHTNING_PROVIDER=mock` uses `MockLightningProvider` in `services/lightning`. Its invoices start with `lnmock1` and move no real bitcoin. A real provider implements `LightningProvider` in `services/lightning/types.ts`, with keys in server environment variables only.
 
