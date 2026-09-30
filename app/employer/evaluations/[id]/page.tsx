@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { Container, StatusPill } from "@/components/ui"
-import { yesNo } from "@/lib/evaluation-copy"
+import { checkLabels, yesNo } from "@/lib/evaluation-copy"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
 import { buildCompanyReport } from "@/services/reports"
@@ -25,7 +25,7 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted">
           {report.language} · {report.context}
-          {evaluation.assignedWorker ? ` · ${evaluation.assignedWorker.name}` : " · waiting for a speaker"}
+          {evaluation.assignedWorker ? ` · ${evaluation.assignedWorker.name}` : " · waiting for someone"}
         </p>
         <StatusPill status={evaluation.status} />
       </div>
@@ -43,18 +43,18 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
       </section>
       {report.validated ? (
         <section className="mt-8 rounded-lg border border-line bg-card p-4">
-          <h2 className="text-xl tracking-tight">Validated evaluation</h2>
+          <h2 className="text-xl tracking-tight">Checked answer</h2>
           <dl className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between gap-4">
-              <dt>Factually correct</dt>
+              <dt>{checkLabels.factuallyCorrect}</dt>
               <dd>{yesNo(report.factuallyCorrect)}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt>Language sounds natural</dt>
+              <dt>{checkLabels.languageNatural}</dt>
               <dd>{yesNo(report.languageNatural)}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt>Understands local context</dt>
+              <dt>{checkLabels.understandsContext}</dt>
               <dd>{yesNo(report.understandsContext)}</dd>
             </div>
           </dl>
@@ -69,8 +69,8 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
       ) : (
         <p className="mt-8 text-sm text-muted">
           {evaluation.status === "PENDING" && !evaluation.assignedWorkerId
-            ? "Waiting for a speaker of this language. Credits stay held until then."
-            : "A local speaker is checking this. The validated result appears here after a reviewer agrees — then sats move."}
+            ? "Waiting for someone who speaks this language. Your credit stays held until then."
+            : "Someone is checking this. The result shows up here after a reviewer agrees — then they get paid."}
         </p>
       )}
     </Container>

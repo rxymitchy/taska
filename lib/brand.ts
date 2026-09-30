@@ -1,8 +1,9 @@
 export const brand = {
   name: "Taska",
-  tagline: "Does the AI speak your language?",
-  kicker: "One person. One language. Paid in sats.",
+  tagline: "Is AI speaking your language correctly?",
+  kicker: "Help train it. Get paid while you do.",
   support:
-    "When an AI tells someone in Kisumu they can pay a bill with M-Pesa, Rita checks the Swahili a neighbor would actually follow. If it is wrong, she writes a better answer. She is paid in sats — to a Lightning wallet Taska never holds.",
-  footer: "Rita checks the Swahili. Lightning pays her. Taska never holds the keys.",
+    "Greetings, new slang, and how things work where you live — if the answer is off, you say so and write it the way people talk. The AI gets better. You get paid. Everyone can use it well. Win-win.",
+  cta: "Sign me up",
+  footer: "Check an answer. Get paid. No minimum.",
 } as const

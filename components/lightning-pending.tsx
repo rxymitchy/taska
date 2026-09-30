@@ -19,7 +19,7 @@ export function LightningPending({
   return (
     <p className="rounded-md border border-line bg-card px-3 py-2 text-sm">
       {who}
-      {amountSats ? ` · ${formatSats(amountSats)}` : ""} over Lightning — {labels[status]}
+      {amountSats ? ` · ${formatSats(amountSats)}` : ""} — {labels[status]}
     </p>
   )
 }

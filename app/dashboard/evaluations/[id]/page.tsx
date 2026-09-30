@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { HumanEvaluationForm } from "@/components/human-evaluation-form"
 import { LightningPending } from "@/components/lightning-pending"
 import { Container, StatusPill } from "@/components/ui"
-import { yesNo } from "@/lib/evaluation-copy"
+import { checkLabels, yesNo } from "@/lib/evaluation-copy"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
 
@@ -33,7 +33,7 @@ export default async function WorkerEvaluationPage({ params }: { params: Promise
         </p>
         <StatusPill status={evaluation.status} />
       </div>
-      <h1 className="mt-3 text-3xl tracking-tight">Would a neighbor follow this?</h1>
+      <h1 className="mt-3 text-3xl tracking-tight">Does this sound right?</h1>
       <section className="mt-6 space-y-4">
         <div>
           <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Question</h2>
@@ -49,22 +49,21 @@ export default async function WorkerEvaluationPage({ params }: { params: Promise
         <div className="mt-8">
           {!worker.lightningAddress ? (
             <p className="mb-4 text-sm text-warn">
-              Add a Lightning address on your profile before you send this. That is where sats go. Taska never holds
-              your keys.
+              Add where you get paid on your profile before you send this.
             </p>
           ) : null}
           <HumanEvaluationForm evaluationId={evaluation.id} defaults={latest} />
         </div>
       ) : null}
       {evaluation.status === "UNDER_REVIEW" || evaluation.status === "WORKER_COMPLETED" ? (
-        <p className="mt-8 text-sm text-muted">A reviewer is checking your work. If they agree, sats go to your Lightning address.</p>
+        <p className="mt-8 text-sm text-muted">A reviewer is checking your work. If they agree, you get paid.</p>
       ) : null}
       {evaluation.status === "COMPLETED" && latest ? (
         <section className="mt-8 space-y-3">
           <dl className="space-y-2 text-sm">
-            <div className="flex justify-between gap-4"><dt>Factually correct</dt><dd>{yesNo(latest.factuallyCorrect)}</dd></div>
-            <div className="flex justify-between gap-4"><dt>Language sounds natural</dt><dd>{yesNo(latest.languageNatural)}</dd></div>
-            <div className="flex justify-between gap-4"><dt>Understands local context</dt><dd>{yesNo(latest.understandsContext)}</dd></div>
+            <div className="flex justify-between gap-4"><dt>{checkLabels.factuallyCorrect}</dt><dd>{yesNo(latest.factuallyCorrect)}</dd></div>
+            <div className="flex justify-between gap-4"><dt>{checkLabels.languageNatural}</dt><dd>{yesNo(latest.languageNatural)}</dd></div>
+            <div className="flex justify-between gap-4"><dt>{checkLabels.understandsContext}</dt><dd>{yesNo(latest.understandsContext)}</dd></div>
           </dl>
           {latest.betterAnswer ? <p className="whitespace-pre-wrap text-sm text-muted">{latest.betterAnswer}</p> : null}
           {payout ? <LightningPending who="Evaluator" status={payout.status} amountSats={payout.amountSats} /> : null}

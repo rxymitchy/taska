@@ -35,8 +35,7 @@ export default async function AdminPage() {
         <div>
           <h1 className="text-3xl tracking-tight">Review queue</h1>
           <p className="mt-2 text-muted">
-            If you agree with the check, the speaker gets paid in sats. If you don’t, the work comes back and nobody is
-            charged.
+            If you agree, they get paid. If you don’t, it comes back and nobody is charged.
           </p>
         </div>
         <Link className="text-sm font-semibold text-accent underline" href="/admin/invite">
@@ -46,7 +45,7 @@ export default async function AdminPage() {
       {failedPayouts.length > 0 ? (
         <form action={retryFailedPayouts} className="mt-6 rounded-lg border border-line bg-card px-4 py-3">
           <p className="text-sm">
-            {failedPayouts.length === 1 ? "One Lightning payout failed." : `${failedPayouts.length} Lightning payouts failed.`}{" "}
+            {failedPayouts.length === 1 ? "One payment failed." : `${failedPayouts.length} payments failed.`}{" "}
             Retry pays the address on the profile now. It does not pay a row that already says Sent.
           </p>
           <button className={`${btnSecondary} mt-3`} type="submit">

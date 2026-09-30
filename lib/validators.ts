@@ -19,7 +19,7 @@ const destination = z
       value.length === 0 ||
       /^ln/i.test(value) ||
       /^[a-zA-Z0-9._~+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value),
-    "Enter a Lightning address (name@provider.com) or an invoice",
+    "Enter where you get paid (name@wallet.com)",
   )
 
 export const destinationSchema = destination

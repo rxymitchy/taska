@@ -14,16 +14,15 @@ export default async function InvitePage() {
     <Container className="max-w-2xl py-10">
       <h1 className="text-3xl tracking-tight">Invite reviewers</h1>
       <p className="mt-2 text-muted">
-        Invite someone who can catch a bad answer before a neighbor follows it. They set a password, add a Lightning
-        address, and get paid in sats. Taska never holds their keys.
+        Invite someone who can catch a bad answer. They set a password and get paid when they agree a check.
       </p>
       <div className="mt-8">
         <InviteForm />
       </div>
       <section className="mt-12">
-        <h2 className="text-lg">Your Lightning address</h2>
+        <h2 className="text-lg">Where you get paid</h2>
         <p className="mt-1 text-sm text-muted">
-          Approved reviews pay you here. This is an address, not a seed.
+          Approved reviews pay you here.
         </p>
         <div className="mt-4">
           <ReviewerLightningForm current={me?.lightningAddress ?? ""} />

@@ -5,8 +5,8 @@ import { submitHumanEvaluation } from "@/app/actions/evaluations"
 import { btnPrimary, inputClass, labelClass } from "@/lib/styles"
 
 const questions = [
-  ["factuallyCorrect", "Is this true enough for a neighbor to follow?"],
-  ["languageNatural", "Would a local person actually say it this way?"],
+  ["factuallyCorrect", "Is this true enough to follow — greeting, slang, or fact?"],
+  ["languageNatural", "Would someone from here actually say it this way?"],
   ["understandsContext", "Does it know how things work here?"],
 ] as const
 
@@ -66,7 +66,7 @@ export function HumanEvaluationForm({
       {anyNo ? (
         <label className="block space-y-1.5">
           <span className={labelClass}>Better answer</span>
-          <span className="block text-sm text-muted">Write what you would tell a neighbor.</span>
+          <span className="block text-sm text-muted">Write it the way people actually say it.</span>
           <textarea
             className={inputClass}
             name="betterAnswer"

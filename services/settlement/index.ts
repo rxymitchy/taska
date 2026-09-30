@@ -33,10 +33,10 @@ export async function payoutDestinationsReady(input: { workerUserId: string; rev
     currentDestination("ADMIN", input.reviewerUserId),
   ])
   if (!worker) {
-    return { ok: false as const, error: "The speaker has no live Lightning address. They must add one before sats can move." }
+    return { ok: false as const, error: "They have no pay address yet. They must add one before anyone can be paid." }
   }
   if (!reviewer) {
-    return { ok: false as const, error: "Add your Lightning address before you pay out. Taska never holds keys — only the address." }
+    return { ok: false as const, error: "Add where you get paid before you pay out." }
   }
   return { ok: true as const }
 }

@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
 import { decideEvaluation } from "@/app/actions/evaluations"
 import { Container } from "@/components/ui"
-import { yesNo } from "@/lib/evaluation-copy"
+import { checkLabels, yesNo } from "@/lib/evaluation-copy"
 import { prisma } from "@/lib/prisma"
 import { btnPrimary, btnSecondary } from "@/lib/styles"
 import { requireRole } from "@/lib/session"
@@ -37,8 +37,7 @@ export default async function ReviewEvaluationPage({
       <h1 className="mt-2 text-3xl tracking-tight">Does this check hold?</h1>
       {pay === "need-address" ? (
         <p className="mt-4 rounded-md border border-line bg-card px-3 py-2 text-sm">
-          Live Lightning needs a real address on the speaker’s profile and on yours. Demo placeholders are not paid.
-          Nobody is charged until that is fixed.
+          They need a real pay address on their profile, and so do you, before anyone gets paid.
         </p>
       ) : null}
       <section className="mt-6 space-y-4">
@@ -52,9 +51,9 @@ export default async function ReviewEvaluationPage({
           <p className="mt-1 text-sm text-muted">Model: {evaluation.aiModel}</p>
         </div>
         <dl className="space-y-2 rounded-lg border border-line bg-card p-4 text-sm">
-          <div className="flex justify-between gap-4"><dt>Factually correct</dt><dd>{yesNo(answers.factuallyCorrect)}</dd></div>
-          <div className="flex justify-between gap-4"><dt>Language sounds natural</dt><dd>{yesNo(answers.languageNatural)}</dd></div>
-          <div className="flex justify-between gap-4"><dt>Understands local context</dt><dd>{yesNo(answers.understandsContext)}</dd></div>
+          <div className="flex justify-between gap-4"><dt>{checkLabels.factuallyCorrect}</dt><dd>{yesNo(answers.factuallyCorrect)}</dd></div>
+          <div className="flex justify-between gap-4"><dt>{checkLabels.languageNatural}</dt><dd>{yesNo(answers.languageNatural)}</dd></div>
+          <div className="flex justify-between gap-4"><dt>{checkLabels.understandsContext}</dt><dd>{yesNo(answers.understandsContext)}</dd></div>
           {answers.comment ? <p className="pt-2 text-muted">{answers.comment}</p> : null}
         </dl>
         {answers.betterAnswer ? (
@@ -67,7 +66,7 @@ export default async function ReviewEvaluationPage({
       <form action={decideEvaluation} className="mt-6 flex flex-wrap gap-3">
         <input type="hidden" name="evaluationId" value={evaluation.id} />
         <button className={btnPrimary} name="decision" value="approve">
-          Agree — pay the speaker
+          Agree — they get paid
         </button>
         <button className={btnSecondary} name="decision" value="reject">
           Send it back

@@ -7,7 +7,7 @@ import { companyCostPerEvaluation, evaluatorPayoutSats, reviewerPayoutSats, ligh
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
 
-export const metadata: Metadata = { title: "Pay Lightning" }
+export const metadata: Metadata = { title: "Add credit" }
 
 export default async function CreditsPage() {
   const user = await requireRole(["EMPLOYER"])
@@ -26,12 +26,14 @@ export default async function CreditsPage() {
 
   return (
     <Container className="max-w-2xl py-10">
-      <h1 className="text-3xl tracking-tight">Pay Lightning so a speaker can get paid</h1>
+      <h1 className="text-3xl tracking-tight">Add credit so people can get paid</h1>
       <p className="mt-2 text-muted">
-        You pay an invoice. Taska records a credit — not a wallet. Each approved check costs {formatSats(cost)} ({formatSats(evaluatorPayoutSats())} to the speaker, {formatSats(reviewerPayoutSats())} to the reviewer, 2% to Taska). If the check is rejected, the hold comes back. The speaker never has a Taska balance; sats go to their Lightning address.
+        Pay once, then send answers to check. Each agreed check costs {formatSats(cost)} (
+        {formatSats(evaluatorPayoutSats())} to the person who checked it, {formatSats(reviewerPayoutSats())} to the
+        reviewer). If the check is sent back, that hold comes back to you.
         {rail === "nwc"
-          ? " This invoice is created on Taska’s Alby Hub over Nostr Wallet Connect. The seed stays in the Hub."
-          : " This server is in demo mode until Alby Hub (NWC) is connected. The loop is the same: invoice in, sats out, no keys in Taska."}
+          ? " Pay from your wallet."
+          : " Demo: you can mark a payment as paid to try the flow."}
       </p>
       <dl className="mt-6 grid gap-3 sm:grid-cols-2">
         <div className="rounded-lg border border-line bg-card px-4 py-3">
@@ -77,7 +79,7 @@ export default async function CreditsPage() {
       ) : null}
       <p className="mt-8 text-sm">
         <Link className="text-accent underline" href="/employer/evaluations/new">
-          Get an answer checked
+          Check an answer
         </Link>
         {" · "}
         <Link className="text-accent underline" href="/employer/upload">

@@ -5,8 +5,18 @@ import { authConfig } from "@/auth.config"
 import { prisma } from "@/lib/prisma"
 import { rateLimit } from "@/lib/rate-limit"
 
+// Bracket access keeps AUTH_SECRET at runtime. Vercel "Sensitive" secrets are
+// not available at build, so process.env.AUTH_SECRET would be baked in as empty.
+function authSecret() {
+  const env = process.env
+  const name = ["AUTH", "SECRET"].join("_")
+  const alt = ["NEXTAUTH", "SECRET"].join("_")
+  return env[name] || env[alt]
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  secret: authSecret(),
   providers: [
     Credentials({
       credentials: {

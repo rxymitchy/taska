@@ -24,7 +24,7 @@ export function SignupForm({
         <>
           <input type="hidden" name="invite" value={inviteToken} />
           <p className="rounded-md border border-line bg-card px-3 py-2 text-sm">
-            You were invited to double-check local speakers — and get paid in sats.
+            You were invited to double-check the work — and get paid.
           </p>
         </>
       ) : (
@@ -49,7 +49,7 @@ export function SignupForm({
                 checked={role === "EMPLOYER"}
                 onChange={() => setRole("EMPLOYER")}
               />
-              Pay Lightning to get answers checked
+              Get my AI answers checked
             </label>
           </div>
         </fieldset>
@@ -79,10 +79,10 @@ export function SignupForm({
       ) : null}
       {invited ? (
         <label className="space-y-1.5">
-          <span className={labelClass}>Lightning address</span>
+          <span className={labelClass}>Where you get paid</span>
           <input className={inputClass} name="lightningAddress" placeholder="name@provider.com" />
           <span className="block text-xs text-muted">
-            Where Taska should send your sats. This is an address, not a seed — Taska never holds your keys.
+            Where we send your pay.
           </span>
         </label>
       ) : null}
@@ -96,7 +96,7 @@ export function SignupForm({
       </label>
       {state.error ? <p className="text-sm text-bad">{state.error}</p> : null}
       <button className={btnPrimary} disabled={pending}>
-        {pending ? "Creating account…" : "Create account"}
+        {pending ? "Signing you up…" : "Sign me up"}
       </button>
     </form>
   )

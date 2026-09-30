@@ -32,14 +32,14 @@ export function ReviewerLightningForm({ current }: { current: string }) {
   return (
     <form action={action} className="space-y-4">
       <label className="space-y-1.5">
-        <span className={labelClass}>Your Lightning address</span>
+        <span className={labelClass}>Where you get paid</span>
         <input
           className={inputClass}
           name="lightningAddress"
           defaultValue={current}
           placeholder="name@provider.com"
         />
-        <span className="block text-xs text-muted">Taska stores this address. Your keys stay in your wallet.</span>
+        <span className="block text-xs text-muted">We only store this address.</span>
       </label>
       {state.error ? <p className="text-sm text-bad">{state.error}</p> : null}
       <button className={btnPrimary} disabled={pending}>

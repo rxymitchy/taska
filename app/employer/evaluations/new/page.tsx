@@ -7,7 +7,7 @@ import { companyCostPerEvaluation } from "@/lib/pricing"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
 
-export const metadata: Metadata = { title: "Get an answer checked" }
+export const metadata: Metadata = { title: "Check an answer" }
 
 export default async function NewEvaluationPage() {
   const user = await requireRole(["EMPLOYER"])
@@ -16,13 +16,13 @@ export default async function NewEvaluationPage() {
 
   return (
     <Container className="max-w-2xl py-10">
-      <h1 className="text-3xl tracking-tight">Get an answer checked</h1>
+      <h1 className="text-3xl tracking-tight">Check an answer</h1>
       <p className="mt-2 text-muted">
-        Send a question in the language people actually use. Paste the AI answer, or leave it blank to generate one. This
-        holds {formatSats(cost)} so a local speaker can be paid
+        Send a question in the language people actually use — slang, a greeting, how something works here. Paste the AI
+        answer, or leave it blank to generate one. This holds {formatSats(cost)} so the person who checks it can be paid
         {company ? ` (${formatSats(company.prepaidSats)} available)` : ""}.{" "}
         <Link className="text-accent underline" href="/employer/credits">
-          Pay Lightning
+          Add credit
         </Link>
         {" · "}
         <Link className="text-accent underline" href="/employer/upload">

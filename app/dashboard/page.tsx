@@ -28,8 +28,7 @@ export default async function DashboardPage() {
     <Container className="py-10">
       <h1 className="text-3xl tracking-tight">Answers in your language</h1>
       <p className="mt-2 text-muted">
-        Would a neighbor follow this? Answer three questions. If a reviewer agrees, you get paid in sats — to the
-        Lightning address on your profile. Taska never holds your keys.
+        Does this slang, greeting, or local detail actually work? If a reviewer agrees, you get paid.
       </p>
       {payouts.length > 0 ? (
         <div className="mt-6 space-y-2">
@@ -40,7 +39,7 @@ export default async function DashboardPage() {
       ) : null}
       <ul className="mt-8 divide-y divide-line rounded-lg border border-line bg-card">
         {evaluations.length === 0 ? (
-          <li className="px-4 py-4 text-sm text-muted">Nothing assigned yet. When a company pays Lightning for a check, it lands here.</li>
+          <li className="px-4 py-4 text-sm text-muted">Nothing assigned yet. When a company sends an answer in your language, it lands here.</li>
         ) : (
           evaluations.map((evaluation) => (
             <li key={evaluation.id}>

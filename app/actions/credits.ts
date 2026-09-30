@@ -46,10 +46,10 @@ export async function createCreditInvoice(_prev: CreditActionState, formData: Fo
         error:
           error instanceof Error
             ? error.message
-            : "Alby Hub did not create an invoice. Is it online, and is NWC_URL set on the server?",
+            : "Could not create an invoice. Try again.",
       }
     }
-    return { error: "Could not create a Lightning invoice. Try again." }
+    return { error: "Could not create an invoice. Try again." }
   }
 }
 

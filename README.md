@@ -1,38 +1,20 @@
 # Taska
 
-**Does the AI speak your language?**
+Check whether AI answers sound right in your language. If they do not, write them the way people talk — and get paid.
 
 Live: [taska-beta.vercel.app](https://taska-beta.vercel.app) · Hack4Freedom 2026 · [GitHub](https://github.com/rxymitchy/taska)
 
-## For judges
+AI already answers people in Nairobi, Lagos, and Accra. A lot of those answers are fluent and still wrong — a greeting that is too stiff, slang that misses, or the wrong way to pay a bill.
 
-AI assistants already answer people in Nairobi, Lagos, and Accra. A lot of those answers are fluent and still wrong — a polite Swahili sentence that would send someone through the wrong M-Pesa steps.
+Taska is how someone who actually speaks the language catches that. They get paid when a reviewer agrees. There is no minimum to wait for, and Taska never holds the money, so a frozen account cannot sit on what they already earned.
 
-**Taska is not a chatbot and not a wallet.** It is how a local speaker gets paid in bitcoin to catch that.
+Work is assigned by language: Rita for Swahili, Chinedu for Yoruba, Ama for Twi. If nobody speaks that language, the row waits.
 
-1. A company pays a **Lightning invoice**.
-2. The work goes to someone who actually speaks the language (Rita in Kisumu for Swahili, Chinedu for Yoruba, Ama for Twi).
-3. They answer three questions: would a neighbor follow this, would a local person say it this way, does it know the place.
-4. If anything is No, they write a better answer.
-5. A reviewer — an expert gate — agrees or sends it back.
-6. **Sats move** to Lightning addresses. Taska never holds wallet keys. The seed stays in Alby Hub (Nostr Wallet Connect).
+One approved check costs the company **918 sats**: 500 to the speaker, 400 to the reviewer, 18 to Taska (2%). Rejected work is not charged.
 
-One approved check:
+Demo logins (password `demo1234`): **Rita**, **Company**, **Reviewer**. Extra buttons: Chinedu · Yoruba, Ama · Twi.
 
-```
-Company pays     918 sats
-  Rita (speaker)   500   — she did the language work
-  Reviewer         400   — she is the expert gate, paid per check
-  Taska             18   — 2%
-```
-
-Rejected work is not charged. There is no cash-out to shillings or naira in the app.
-
-**What we do not do:** store seeds, run a custodial exchange, or treat English fluency as the product.
-
-Demo logins (password `demo1234`): **Rita**, **Company**, **Reviewer**. Extra buttons show assignment: Chinedu · Yoruba, Ama · Twi.
-
-`/api/health` returns `{ ok, db, lightning }`. `lightning` is `nwc` when Alby Hub is connected, otherwise `mock`.
+`/api/health` returns `{ ok, db, lightning }`. `lightning` is `nwc` when a live wallet is connected, otherwise `mock`.
 
 ## How the app works
 
@@ -120,7 +102,7 @@ Do not add a second status list. Change `EvaluationStatus` only in `app/actions/
 - Speaker: assigned work in their language, three questions, better answer after a No, Lightning address on the profile.
 - Reviewer: queue, approve or reject (sats move only on agree), invite others, retry failed payouts.
 - Lightning: invoice in, payout to Lightning addresses (LNURL-pay when live). Keys never in the database. OpenNode is not used.
-- Demo accounts. Homepage tells the Rita story.
+- Demo accounts. Homepage: slang, get paid as you go, no minimum.
 
 ## What each teammate builds
 
@@ -150,12 +132,12 @@ Status: **Done** works today, **Partly** exists but needs more, **To do** is not
 
 | Task | Status | Where to start |
 | --- | --- | --- |
-| Build the website | Done | `app/page.tsx` — Rita, Lightning in the loop, keys not in Taska |
+| Build the website | Done | `app/page.tsx` — Sign me up, get paid as you go, no PayPal-style minimum |
 | Company dashboard | Done | `app/employer/` — credits, upload, assigned speaker name on the list |
 | Speaker dashboard | Done | `app/dashboard/` |
-| Evaluation page | Done | `app/dashboard/evaluations/[id]`, three neighbor questions |
+| Evaluation page | Done | `app/dashboard/evaluations/[id]`, slang / greeting / local questions |
 | Admin dashboard | Partly | Queue, invites, retry failed payouts. Still missing waiting / approved / rejected totals on `app/admin/` |
-| Company credit balance | Done | `app/employer/credits` (Pay Lightning) |
+| Company credit balance | Done | `app/employer/credits` (Add credit) |
 | Progress and results | Done | Status + validated result |
 | Earnings | Done | Lightning Sent or Failed, sat amounts |
 | Connect UI to backend | Done | Forms call Server Actions |
@@ -180,7 +162,7 @@ Status: **Done** works today, **Partly** exists but needs more, **To do** is not
 
 | Task | Status | Where to start |
 | --- | --- | --- |
-| Document the problem | Done | Judge section at the top of this README |
+| Document the problem | Done | Opening of this README + homepage |
 | Document the solution | Done | One loop: invoice → speaker → reviewer → sats |
 | Document users | Done | AI teams shipping to African markets, local speakers, expert reviewers |
 | Maintain the README | Done | This file. Update Status when you ship |
@@ -190,7 +172,7 @@ Status: **Done** works today, **Partly** exists but needs more, **To do** is not
 | Document how the platform works | Done | This README + `docs/team.md` |
 | Screenshots | To do | `docs/screenshots/` |
 | Final technical docs | To do | |
-| Help the pitch | Done | Use the judge section and the Swahili M-Pesa demo below |
+| Help the pitch | Done | Homepage story + the demo below |
 
 ### 5. Group Lead / Project Lead
 

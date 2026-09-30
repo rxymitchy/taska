@@ -5,41 +5,41 @@ import { btnPrimary, btnSecondary } from "@/lib/styles"
 
 const steps = [
   [
-    "A company pays Lightning",
-    "A real invoice. Bitcoin stays in the connected wallet (Alby Hub). Taska only records a credit so it can pay the speaker.",
+    "A company sends an AI answer",
+    "In your language — a greeting, slang, or how something actually works where you live.",
   ],
   [
-    "A local speaker checks the answer",
-    "Three questions: is it true, would a neighbor say it this way, does it know the place — like how M-Pesa actually works.",
+    "You say if it sounds right",
+    "If it is off, you write it the way people really talk. That is how the AI learns.",
   ],
   [
-    "A reviewer double-checks",
-    "If they agree, the sats move. If not, the work comes back and nobody is charged.",
+    "Someone double-checks",
+    "If they agree, you get paid. If not, it comes back and nobody is charged.",
   ],
   [
-    "The speaker is paid",
-    "Straight to their Lightning address. Taska never stores wallet keys.",
+    "The money is yours",
+    "It goes out when the check is agreed. No waiting for a big balance. We never hold it.",
   ],
 ]
 
 const checks = [
-  ["Would a neighbor follow this?", "Good grammar does not fix a wrong M-Pesa step."],
-  ["Would a local person say it this way?", "Not textbook Swahili. How people actually talk."],
-  ["Does it know the place?", "Kisumu is not a generic “Africa.” The answer has to work here."],
+  ["Does the slang land?", "New words, greetings, and jokes change. The AI has to keep up."],
+  ["Would someone from here say it this way?", "Not textbook. How people actually talk."],
+  ["Does it know how things work here?", "Paying a bill, sending money, asking for help — the local way."],
 ]
 
-const rails = [
+const pay = [
   [
-    "Pay an invoice",
-    "Companies fund work with Lightning. When Alby Hub is connected, that invoice is live bitcoin — not a screenshot.",
+    "Even a little still pays",
+    "You do not wait until it adds up to some big number. When the check is agreed, you get paid.",
   ],
   [
-    "Pay the speaker",
-    "Rita gets 500 sats for an approved check. A reviewer gets 400 for that same check — they are the gate, and they do this across many items. Taska keeps 2%. There is no cash-out to shillings in the app.",
+    "No minimum to take it out",
+    "With apps like PayPal, small money sits there until you hit a threshold. Here the work pays as it goes.",
   ],
   [
-    "Never hold the keys",
-    "The seed stays in the Hub. Taska stores a credit balance and a Lightning address, not a wallet.",
+    "Nobody can freeze your pay",
+    "It goes to you, not into an account we can lock. A ban here cannot sit on what you already earned.",
   ],
 ]
 
@@ -47,10 +47,10 @@ const samples = [
   {
     language: "Swahili",
     place: "Kenya",
-    question: "Ninaweza kutumia M-Pesa kulipa bili hii?",
-    questionEn: "Can I pay this bill with M-Pesa?",
-    answer: "Ndiyo, unaweza kutumia M-Pesa kulipa bili yako…",
-    answerEn: "Yes, you can pay your bill with M-Pesa…",
+    question: "Niaje, uko poa?",
+    questionEn: "Hey, you good?",
+    answer: "Habari yako? Nina furaha kukuona. Uko vizuri?",
+    answerEn: "How are you? I am pleased to see you. Are you well?",
   },
   {
     language: "Yoruba",
@@ -76,27 +76,27 @@ export default function HomePage() {
       <section className="border-b border-line">
         <Container className="grid items-center gap-10 py-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:py-20">
           <div>
-            <p className="text-sm font-medium text-accent">{brand.kicker}</p>
-            <h1 className="mt-3 max-w-xl text-4xl leading-[1.05] tracking-tight sm:text-6xl">{brand.tagline}</h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">{brand.support}</p>
+            <h1 className="max-w-xl text-4xl leading-[1.05] tracking-tight sm:text-6xl">{brand.tagline}</h1>
+            <p className="mt-5 max-w-xl text-xl leading-snug">{brand.kicker}</p>
+            <p className="mt-4 max-w-xl text-lg leading-relaxed text-muted">{brand.support}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link className={btnPrimary} href="/signup">
-                I speak the language
+                {brand.cta}
               </Link>
               <Link className={btnSecondary} href="/login?callbackUrl=/employer/evaluations/new">
-                Get an answer checked
+                Check my AI
               </Link>
             </div>
           </div>
           <figure>
             <img
               src="/images/hero-work.png"
-              alt="Rita Mwangi checking a Swahili AI answer on a laptop"
+              alt="Someone checking whether an AI answer sounds right in their language"
               className="aspect-[16/10] w-full rounded-2xl object-cover"
             />
             <figcaption className="mt-3 text-sm">
               <span className="font-medium">Rita Mwangi</span>
-              <span className="text-muted"> · Kisumu · checks Swahili · paid in sats</span>
+              <span className="text-muted"> · checks Swahili · gets paid</span>
             </figcaption>
           </figure>
         </Container>
@@ -105,7 +105,7 @@ export default function HomePage() {
       <section className="border-b border-line">
         <Container className="grid items-center gap-10 py-16 lg:grid-cols-2 lg:gap-16">
           <div>
-            <h2 className="text-2xl tracking-tight">How Rita gets paid</h2>
+            <h2 className="text-2xl tracking-tight">How it works</h2>
             <ol className="mt-6 space-y-5">
               {steps.map(([title, copy], index) => (
                 <li key={title} className="flex gap-4">
@@ -121,7 +121,7 @@ export default function HomePage() {
           <figure>
             <img
               src="/images/review-desk.png"
-              alt="A laptop showing a Swahili answer ready for review"
+              alt="A laptop showing an answer ready to check"
               className="aspect-[4/3] w-full rounded-2xl object-cover"
             />
           </figure>
@@ -130,9 +130,13 @@ export default function HomePage() {
 
       <section className="border-b border-line">
         <Container className="py-16">
-          <h2 className="text-2xl tracking-tight">What Rita actually checks</h2>
+          <h2 className="text-2xl tracking-tight">Get paid as you go</h2>
+          <p className="mt-2 max-w-2xl text-muted">
+            Small work still pays. You do not wait for a minimum. And the money is yours — not stuck in an account
+            someone else can freeze.
+          </p>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {checks.map(([title, copy]) => (
+            {pay.map(([title, copy]) => (
               <article key={title} className="rounded-lg border border-line bg-card p-4">
                 <h3 className="font-medium">{title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted">{copy}</p>
@@ -144,10 +148,23 @@ export default function HomePage() {
 
       <section className="border-b border-line">
         <Container className="py-16">
-          <h2 className="text-2xl tracking-tight">A sentence someone might follow</h2>
+          <h2 className="text-2xl tracking-tight">What you actually check</h2>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {checks.map(([title, copy]) => (
+              <article key={title} className="rounded-lg border border-line bg-card p-4">
+                <h3 className="font-medium">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{copy}</p>
+              </article>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      <section>
+        <Container className="py-16">
+          <h2 className="text-2xl tracking-tight">This is the kind of thing you check</h2>
           <p className="mt-2 max-w-2xl text-muted">
-            This is the work. Not a dashboard. A real question in Swahili, Yoruba, or Twi — the kind a neighbor might act
-            on.
+            A greeting. New slang. How you pay a bill. If the AI is off, you say so — and write it how people talk.
           </p>
           <div className="mt-8 grid gap-4 lg:grid-cols-3">
             {samples.map((sample) => (
@@ -165,23 +182,6 @@ export default function HomePage() {
                   <p className="mt-1">{sample.answer}</p>
                   <p className="text-sm text-muted">{sample.answerEn}</p>
                 </div>
-              </article>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      <section>
-        <Container className="py-16">
-          <h2 className="text-2xl tracking-tight">Lightning is in the loop, not a slide</h2>
-          <p className="mt-4 max-w-2xl text-muted">
-            Taska is not a wallet. It is how Rita gets paid for catching a bad answer. Keys stay where they belong.
-          </p>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {rails.map(([title, copy]) => (
-              <article key={title} className="rounded-lg border border-line bg-card p-4">
-                <h3 className="font-medium">{title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted">{copy}</p>
               </article>
             ))}
           </div>

@@ -31,13 +31,13 @@ export async function SiteHeader() {
                 Evaluations
               </Link>
               <Link className={btnQuiet} href="/employer/credits">
-                Pay Lightning
+                Add credit
               </Link>
               <Link className={btnQuiet} href="/employer/upload">
                 Upload
               </Link>
               <Link className={btnPrimary} href="/employer/evaluations/new">
-                Get an answer checked
+                Check an answer
               </Link>
             </>
           ) : null}
@@ -68,7 +68,7 @@ export async function SiteHeader() {
                 Log in
               </Link>
               <Link className={btnPrimary} href="/signup">
-                I speak the language
+                {brand.cta}
               </Link>
             </>
           )}

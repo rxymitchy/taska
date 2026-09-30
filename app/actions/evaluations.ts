@@ -65,10 +65,10 @@ export async function submitHumanEvaluation(_prev: { error: string }, formData: 
   const worker = await prisma.workerProfile.findUnique({ where: { userId: user.id } })
   if (!worker) return { error: "Evaluator profile not found." }
   if (!worker.lightningAddress?.trim()) {
-    return { error: "Add a Lightning address on your profile before you submit. Taska never holds your keys." }
+    return { error: "Add where you get paid on your profile before you submit." }
   }
   if (usesLiveLightning() && !payableLightningDestination(worker.lightningAddress)) {
-    return { error: "Add a real Lightning address (not a demo placeholder) so sats can reach you." }
+    return { error: "Add a real pay address (not a demo placeholder) so we can pay you." }
   }
 
   const parsed = humanEvaluationSchema.safeParse({
