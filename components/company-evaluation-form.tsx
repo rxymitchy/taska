@@ -19,7 +19,7 @@ export function CompanyEvaluationForm() {
             className={inputClass}
             name="aiResponse"
             rows={5}
-            placeholder="Leave blank to generate. Or paste the AI answer here."
+            placeholder="Leave blank to generate. Or paste the answer a neighbor might follow."
           />
       </label>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -42,7 +42,7 @@ export function CompanyEvaluationForm() {
       </div>
       {state.error ? <p className="text-sm text-bad">{state.error}</p> : null}
       <button className={btnPrimary} disabled={pending}>
-        {pending ? "Submitting…" : "Submit evaluation"}
+        {pending ? "Holding sats…" : "Send to a local speaker"}
       </button>
     </form>
   )

@@ -7,7 +7,7 @@ import { companyCostPerEvaluation, evaluatorPayoutSats, reviewerPayoutSats, ligh
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
 
-export const metadata: Metadata = { title: "Credits" }
+export const metadata: Metadata = { title: "Pay Lightning" }
 
 export default async function CreditsPage() {
   const user = await requireRole(["EMPLOYER"])
@@ -26,16 +26,12 @@ export default async function CreditsPage() {
 
   return (
     <Container className="max-w-2xl py-10">
-      <h1 className="text-3xl tracking-tight">Work credits</h1>
+      <h1 className="text-3xl tracking-tight">Pay Lightning so a speaker can get paid</h1>
       <p className="mt-2 text-muted">
-        Pay a Lightning invoice to fund evaluations. Each approved item costs {formatSats(cost)} (
-        {formatSats(evaluatorPayoutSats())} evaluator, {formatSats(reviewerPayoutSats())} reviewer, plus 2% platform
-        fee). Rejected work returns the hold. Credits are a company budget, not a worker wallet.
+        You pay an invoice. Taska records a credit — not a wallet. Each approved check costs {formatSats(cost)} ({formatSats(evaluatorPayoutSats())} to the speaker, {formatSats(reviewerPayoutSats())} to the reviewer, 2% to Taska). If the check is rejected, the hold comes back. The speaker never has a Taska balance; sats go to their Lightning address.
         {rail === "nwc"
-          ? " Invoices are created on Taska’s Alby Hub over Nostr Wallet Connect. Bitcoin stays in that wallet, not in Taska’s database."
-          : mock
-            ? " This server is in demo mode until NWC_URL is set."
-            : ""}
+          ? " This invoice is created on Taska’s Alby Hub over Nostr Wallet Connect. The seed stays in the Hub."
+          : " This server is in demo mode until Alby Hub (NWC) is connected. The loop is the same: invoice in, sats out, no keys in Taska."}
       </p>
       <dl className="mt-6 grid gap-3 sm:grid-cols-2">
         <div className="rounded-lg border border-line bg-card px-4 py-3">
@@ -81,11 +77,11 @@ export default async function CreditsPage() {
       ) : null}
       <p className="mt-8 text-sm">
         <Link className="text-accent underline" href="/employer/evaluations/new">
-          New evaluation
+          Get an answer checked
         </Link>
         {" · "}
         <Link className="text-accent underline" href="/employer/upload">
-          Upload a file
+          Upload many
         </Link>
       </p>
     </Container>

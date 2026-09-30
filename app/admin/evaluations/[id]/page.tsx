@@ -9,9 +9,16 @@ import { requireRole } from "@/lib/session"
 
 export const metadata: Metadata = { title: "Review evaluation" }
 
-export default async function ReviewEvaluationPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ReviewEvaluationPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ pay?: string }>
+}) {
   await requireRole(["ADMIN"])
   const { id } = await params
+  const { pay } = await searchParams
   const evaluation = await prisma.evaluation.findUnique({
     where: { id },
     include: { submissions: { orderBy: { submittedAt: "desc" }, take: 1 }, assignedWorker: true },
@@ -27,7 +34,13 @@ export default async function ReviewEvaluationPage({ params }: { params: Promise
         {evaluation.language} · {evaluation.context}
         {evaluation.assignedWorker ? ` · ${evaluation.assignedWorker.name}` : ""}
       </p>
-      <h1 className="mt-2 text-3xl tracking-tight">Review evaluation</h1>
+      <h1 className="mt-2 text-3xl tracking-tight">Does this check hold?</h1>
+      {pay === "need-address" ? (
+        <p className="mt-4 rounded-md border border-line bg-card px-3 py-2 text-sm">
+          Live Lightning needs a real address on the speaker’s profile and on yours. Demo placeholders are not paid.
+          Nobody is charged until that is fixed.
+        </p>
+      ) : null}
       <section className="mt-6 space-y-4">
         <div>
           <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Question</h2>
@@ -54,10 +67,10 @@ export default async function ReviewEvaluationPage({ params }: { params: Promise
       <form action={decideEvaluation} className="mt-6 flex flex-wrap gap-3">
         <input type="hidden" name="evaluationId" value={evaluation.id} />
         <button className={btnPrimary} name="decision" value="approve">
-          Approve
+          Agree — pay the speaker
         </button>
         <button className={btnSecondary} name="decision" value="reject">
-          Reject
+          Send it back
         </button>
       </form>
     </Container>

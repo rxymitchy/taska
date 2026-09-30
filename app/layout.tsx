@@ -21,6 +21,7 @@ export const metadata: Metadata = {
     template: `%s · ${brand.name}`,
   },
   description: brand.support,
+  keywords: ["Lightning", "Swahili", "African languages", "Bitcoin", "Nostr Wallet Connect"],
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

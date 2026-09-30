@@ -5,9 +5,9 @@ import { submitHumanEvaluation } from "@/app/actions/evaluations"
 import { btnPrimary, inputClass, labelClass } from "@/lib/styles"
 
 const questions = [
-  ["factuallyCorrect", "Is the response factually correct?"],
-  ["languageNatural", "Does the language sound natural?"],
-  ["understandsContext", "Does it understand the local context?"],
+  ["factuallyCorrect", "Is this true enough for a neighbor to follow?"],
+  ["languageNatural", "Would a local person actually say it this way?"],
+  ["understandsContext", "Does it know how things work here?"],
 ] as const
 
 type QuestionName = (typeof questions)[number][0]
@@ -66,7 +66,7 @@ export function HumanEvaluationForm({
       {anyNo ? (
         <label className="block space-y-1.5">
           <span className={labelClass}>Better answer</span>
-          <span className="block text-sm text-muted">Write how a local person would answer the question.</span>
+          <span className="block text-sm text-muted">Write what you would tell a neighbor.</span>
           <textarea
             className={inputClass}
             name="betterAnswer"
@@ -84,7 +84,7 @@ export function HumanEvaluationForm({
       </label>
       {state.error ? <p className="text-sm text-bad">{state.error}</p> : null}
       <button className={btnPrimary} disabled={pending}>
-        {pending ? "Submitting…" : "Submit evaluation"}
+        {pending ? "Sending for review…" : "Send for review"}
       </button>
     </form>
   )

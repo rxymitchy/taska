@@ -3,7 +3,7 @@ export function evaluatorPayoutSats() {
 }
 
 export function reviewerPayoutSats() {
-  return Math.max(1, Number(process.env.REVIEWER_PAYOUT_SATS || 200))
+  return Math.max(1, Number(process.env.REVIEWER_PAYOUT_SATS || 400))
 }
 
 export function platformFeeBps() {
@@ -25,10 +25,7 @@ export function nwcConnectionUrl() {
   return (process.env.NWC_URL || process.env.NWC_CONNECTION_STRING || "").trim()
 }
 
-export function lightningProviderName() {
+export function lightningProviderName(): "nwc" | "mock" {
   if (nwcConnectionUrl()) return "nwc"
-  const named = process.env.LIGHTNING_PROVIDER
-  if (named) return named
-  if (process.env.OPENNODE_API_KEY) return "opennode"
   return "mock"
 }

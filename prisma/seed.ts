@@ -11,6 +11,7 @@ import { PrismaClient, type Task } from "@prisma/client"
 import { hash } from "bcryptjs"
 import { randomBytes } from "crypto"
 import { evaluationBank } from "../lib/evaluation-bank"
+import { companyCostPerEvaluation } from "../lib/pricing"
 import { refreshWorkerStats } from "../services/stats"
 
 try {
@@ -207,6 +208,7 @@ async function main() {
   await prisma.user.deleteMany()
 
   const passwordHash = await hash(process.env.DEMO_PASSWORD || "demo1234", 10)
+  const hold = companyCostPerEvaluation()
   const employer = await prisma.user.create({
     data: {
       email: "employer@taska.demo",
@@ -218,7 +220,7 @@ async function main() {
           companyName: "Helios AI",
           companyDescription: "A research team checking assistant quality before models ship.",
           prepaidSats: 49286,
-          heldSats: 714,
+          heldSats: hold,
           createdAt: daysAgo(80),
         },
       },
@@ -502,7 +504,7 @@ async function main() {
       language: "Swahili",
       context: "Kenya / M-Pesa",
       status: "ASSIGNED",
-      heldSats: 714,
+      heldSats: hold,
       assignedWorkerId: amina.id,
       assignedAt: daysAgo(0),
     },

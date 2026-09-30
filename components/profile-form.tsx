@@ -70,7 +70,9 @@ export function ProfileForm({
           defaultValue={profile.lightningAddress ?? ""}
           placeholder="amina@getalby.com"
         />
-        <span className="text-sm text-muted">Where approved payments are sent. Taska does not hold a balance.</span>
+        <span className="text-sm text-muted">
+          Where your sats are sent. This is your wallet. Taska never holds a balance or a seed.
+        </span>
       </label>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="space-y-1.5">

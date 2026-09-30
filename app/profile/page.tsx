@@ -15,7 +15,8 @@ export default async function ProfilePage() {
     <Container className="max-w-2xl py-10">
       <h1 className="text-3xl tracking-tight">Your profile</h1>
       <p className="mt-2 text-sm text-muted">
-        A CV is optional. Your record on Taska is the work you complete and the approvals you earn.
+        Put a Lightning address here so approved work can pay you. Taska stores the address, never the keys. A CV is
+        optional — the work is the record.
       </p>
       <div className="mt-8">
         <ProfileForm profile={profile} />

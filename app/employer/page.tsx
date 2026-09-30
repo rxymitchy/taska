@@ -13,7 +13,7 @@ export default async function EmployerPage() {
   const user = await requireRole(["EMPLOYER", "ADMIN"])
   const company = await prisma.employerProfile.findUnique({
     where: { userId: user.id },
-    include: { evaluations: { orderBy: { createdAt: "desc" } } },
+    include: { evaluations: { orderBy: { createdAt: "desc" }, include: { assignedWorker: { select: { name: true } } } } },
   })
   if (!company && user.role === "ADMIN") {
     return (
@@ -34,25 +34,27 @@ export default async function EmployerPage() {
         <div>
           <h1 className="text-3xl tracking-tight">{company.companyName}</h1>
           <p className="mt-1 text-muted">
-            {formatSats(company.prepaidSats)} available · {formatSats(company.heldSats)} held · {formatSats(cost)} per
-            evaluation
+            {formatSats(company.prepaidSats)} ready to pay a speaker · {formatSats(company.heldSats)} held ·{" "}
+            {formatSats(cost)} per check
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Link className={btnSecondary} href="/employer/credits">
-            Credits
+            Pay Lightning
           </Link>
           <Link className={btnSecondary} href="/employer/upload">
             Upload
           </Link>
           <Link className={btnPrimary} href="/employer/evaluations/new">
-            New evaluation
+            Get an answer checked
           </Link>
         </div>
       </div>
       <ul className="mt-8 divide-y divide-line rounded-lg border border-line bg-card">
         {company.evaluations.length === 0 ? (
-          <li className="px-4 py-4 text-sm text-muted">No evaluations yet.</li>
+          <li className="px-4 py-4 text-sm text-muted">
+            No checks yet. Pay Lightning, then send one question a neighbor might actually follow.
+          </li>
         ) : (
           company.evaluations.map((evaluation) => (
             <li key={evaluation.id}>
@@ -61,6 +63,7 @@ export default async function EmployerPage() {
                   <span className="block font-medium">{evaluation.prompt}</span>
                   <span className="text-sm text-muted">
                     {evaluation.language} · {evaluation.context}
+                    {evaluation.assignedWorker ? ` · ${evaluation.assignedWorker.name}` : " · waiting for a speaker"}
                   </span>
                 </span>
                 <StatusPill status={evaluation.status} />

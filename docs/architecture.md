@@ -40,16 +40,8 @@ interface LightningProvider {
 
 `LightningService` is what the payment code calls. `getLightningService()` chooses the implementation:
 
-- `mock` — `MockLightningProvider`, the default
-- anything else — add a class that implements the interface and return it from `services/lightning/index.ts`
-
-A real provider should:
-
-- run only on the server
-- read API keys or macaroons from environment variables
-- refuse to start if those variables are missing
-- use the submission id as an idempotency key so a retry does not pay twice
-- return the payment hash that Taska stores
+- `mock` — `MockLightningProvider`, the default when `NWC_URL` is unset
+- `nwc` — `NwcLightningProvider` (Alby Hub / Nostr Wallet Connect) when `NWC_URL` is set
 
 Do not send keys to the browser. Do not store seeds or private keys in Postgres. Taska records the destination the worker provided and the result of the payment. It does not hold a balance for the user.
 
@@ -63,7 +55,4 @@ CV uploads accept PDF only, check the `%PDF` header, and are stored outside `pub
 
 ## Replacing the mock provider
 
-1. Add `services/lightning/your-provider.ts` implementing `LightningProvider`.
-2. In `getLightningService()`, return it when `LIGHTNING_PROVIDER=your-provider`.
-3. Add the provider's credentials to `.env.example` with empty values and document them in the README.
-4. Keep `payWorkerForSubmission` unchanged. It should not know which node it is talking to.
+Live Lightning is Alby Hub via `NWC_URL`. Do not add a second custodial rail to the core flow.

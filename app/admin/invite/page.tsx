@@ -14,15 +14,17 @@ export default async function InvitePage() {
     <Container className="max-w-2xl py-10">
       <h1 className="text-3xl tracking-tight">Invite reviewers</h1>
       <p className="mt-2 text-muted">
-        Reviewer accounts are invite-only. Create a link and send it yourself. The person sets a password and joins as a
-        reviewer.
+        Invite someone who can catch a bad answer before a neighbor follows it. They set a password, add a Lightning
+        address, and get paid in sats. Taska never holds their keys.
       </p>
       <div className="mt-8">
         <InviteForm />
       </div>
       <section className="mt-12">
-        <h2 className="text-lg">Your payout address</h2>
-        <p className="mt-1 text-sm text-muted">Approved review work is paid here over Lightning.</p>
+        <h2 className="text-lg">Your Lightning address</h2>
+        <p className="mt-1 text-sm text-muted">
+          Approved reviews pay you here. This is an address, not a seed.
+        </p>
         <div className="mt-4">
           <ReviewerLightningForm current={me?.lightningAddress ?? ""} />
         </div>

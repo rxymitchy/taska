@@ -20,9 +20,9 @@ export default async function LoginPage({
     <Container className="max-w-md py-16">
       <h1 className="text-3xl tracking-tight">Log in</h1>
       <p className="mt-2 text-sm text-muted">
-        New here?{" "}
+        Check answers in your language, or pay Lightning so someone who speaks it can.{" "}
         <Link className="text-accent underline" href="/signup">
-          Create an account
+          I speak the language
         </Link>
       </p>
       <div className="mt-8">

@@ -16,9 +16,9 @@ Follow the local development steps in the README. Do not commit `.env`, `data/`,
 - Do not add a custodial wallet, private keys, or a second payment rail in the core flow.
 - New countries and languages belong in `lib/catalog.ts`, not in payment code.
 
-## Lightning providers
+## Lightning
 
-Implement `LightningProvider` in `services/lightning/`. Select it from `getLightningService()` using `LIGHTNING_PROVIDER`. Read credentials from server environment variables only.
+Live payments use Alby Hub through `NWC_URL` (Nostr Wallet Connect). Mock is for local demo only. Read credentials from server environment variables only.
 
 Invoices created by the mock provider are not payable on a real network.
 

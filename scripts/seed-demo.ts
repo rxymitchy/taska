@@ -1,13 +1,15 @@
 /**
  * Demo accounts only. Used on production after migrations.
- * worker@taska.demo, employer@taska.demo, admin@taska.demo — password DEMO_PASSWORD or demo1234.
+ * rita@taska.demo (evaluator), worker@taska.demo, employer@taska.demo, admin@taska.demo — password DEMO_PASSWORD or demo1234.
  */
 import { PrismaClient } from "@prisma/client"
 import { hash } from "bcryptjs"
+import { companyCostPerEvaluation } from "../lib/pricing"
 
 const prisma = new PrismaClient()
 
 async function main() {
+  const hold = companyCostPerEvaluation()
   const password = process.env.DEMO_PASSWORD || "demo1234"
   const passwordHash = await hash(password, 10)
 
@@ -29,6 +31,22 @@ async function main() {
 
   const worker = await prisma.user.create({
     data: {
+      email: "rita@taska.demo",
+      passwordHash,
+      role: "WORKER",
+      workerProfile: {
+        create: {
+          name: "Rita Mwangi",
+          country: "Kenya",
+          languages: ["Swahili", "English"],
+          lightningAddress: "rita@demo.taska",
+        },
+      },
+    },
+    include: { workerProfile: true },
+  })
+  await prisma.user.create({
+    data: {
       email: "worker@taska.demo",
       passwordHash,
       role: "WORKER",
@@ -41,7 +59,6 @@ async function main() {
         },
       },
     },
-    include: { workerProfile: true },
   })
   const company = await prisma.user.create({
     data: {
@@ -49,7 +66,7 @@ async function main() {
       passwordHash,
       role: "EMPLOYER",
       employerProfile: {
-        create: { companyName: "Helios AI", prepaidSats: 49286, heldSats: 714 },
+        create: { companyName: "Helios AI", prepaidSats: 49286, heldSats: hold },
       },
     },
     include: { employerProfile: true },
@@ -72,7 +89,7 @@ async function main() {
       language: "Swahili",
       context: "Kenya / M-Pesa",
       status: "ASSIGNED",
-      heldSats: 714,
+      heldSats: hold,
       assignedWorkerId: worker.workerProfile!.id,
       assignedAt: new Date(),
     },

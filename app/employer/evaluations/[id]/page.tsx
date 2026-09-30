@@ -13,7 +13,7 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
   const user = await requireRole(["EMPLOYER", "ADMIN"])
   const evaluation = await prisma.evaluation.findUnique({
     where: { id },
-    include: { company: true, submissions: true },
+    include: { company: true, submissions: true, assignedWorker: { select: { name: true } } },
   })
   if (!evaluation) notFound()
   if (user.role !== "ADMIN" && evaluation.company.userId !== user.id) notFound()
@@ -25,6 +25,7 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted">
           {report.language} · {report.context}
+          {evaluation.assignedWorker ? ` · ${evaluation.assignedWorker.name}` : " · waiting for a speaker"}
         </p>
         <StatusPill status={evaluation.status} />
       </div>
@@ -66,7 +67,11 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
           {report.comment ? <p className="mt-4 text-sm text-muted">{report.comment}</p> : null}
         </section>
       ) : (
-        <p className="mt-8 text-sm text-muted">The validated result appears here after a reviewer approves the evaluation.</p>
+        <p className="mt-8 text-sm text-muted">
+          {evaluation.status === "PENDING" && !evaluation.assignedWorkerId
+            ? "Waiting for a speaker of this language. Credits stay held until then."
+            : "A local speaker is checking this. The validated result appears here after a reviewer agrees — then sats move."}
+        </p>
       )}
     </Container>
   )

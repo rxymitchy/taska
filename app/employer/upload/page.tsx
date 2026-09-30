@@ -17,12 +17,12 @@ export default async function UploadPage() {
 
   return (
     <Container className="max-w-2xl py-10">
-      <h1 className="text-3xl tracking-tight">Upload evaluations</h1>
+      <h1 className="text-3xl tracking-tight">Upload many answers</h1>
       <p className="mt-2 text-muted">
-        CSV or JSON, up to {MAX_UPLOAD_ROWS} rows. Each row becomes its own evaluation and holds {formatSats(cost)}{" "}
-        from your credits. You have {formatSats(company.prepaidSats)} available.{" "}
+        CSV or JSON, up to {MAX_UPLOAD_ROWS} rows. Each row is one sentence a speaker will check, and holds{" "}
+        {formatSats(cost)} so they can be paid. You have {formatSats(company.prepaidSats)} available.{" "}
         <Link className="text-accent underline" href="/employer/credits">
-          Add credits
+          Pay Lightning
         </Link>
       </p>
       <div className="mt-6 rounded-lg border border-line bg-card p-4 text-sm">

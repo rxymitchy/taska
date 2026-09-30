@@ -5,9 +5,9 @@ Taska checks whether an AI response works for an African language and a local co
 The shared core is finished. Money, CSV upload, and reviewer invites use the same evaluation path. Full picture for teammates: the arrow diagrams in the README (**How the app works**).
 
 ```
-Company credits → hold 714 sats → Pending → Assigned
+Company credits → hold 918 sats → Pending → Assigned
   → Evaluator submits → Worker completed → Under review
-  → Approve → Completed → spend credits → pay 500 + 200 Lightning
+  → Approve → Completed → spend credits → pay 500 + 400 Lightning
   → Reject  → Assigned  → return hold
 ```
 
@@ -23,11 +23,11 @@ Do not add a second status list. Change `EvaluationStatus` only in `app/actions/
 
 Password for every account: `demo1234`.
 
-1. Log in as the company, `employer@taska.demo`. Credits are already loaded. Open **New evaluation** and submit a Swahili, Kenya / M-Pesa response (or **Upload** a CSV).
-2. Log in as the evaluator, `worker@taska.demo`. Open **My evaluations** and answer the three questions. Answering No to any of them makes the **Better answer** box appear, and it must be filled in. Submit.
-3. Log in as the reviewer, `admin@taska.demo`. Open **Review queue**, then approve. **Invite** is how new reviewers join.
-4. Log in as the company again. The evaluation shows **Validated** with the answers.
-5. The evaluator and reviewer screens show **Lightning — Sent** and the sat amount.
+1. Log in as the company, `employer@taska.demo`. Credits are already loaded. Open **Get an answer checked** and submit a Swahili, Kenya / M-Pesa response (or **Upload** a CSV). The list should name **Rita Mwangi**.
+2. Log in as Rita, `rita@taska.demo` (or the **Rita** button). Answer the three questions. A No makes **Better answer** required.
+3. Log in as the reviewer, `admin@taska.demo`. Open **Review queue**, then agree — pay the speaker. **Invite** is how new reviewers join.
+4. Log in as the company again. The evaluation shows the validated result.
+5. Rita and the reviewer screens show Lightning Sent and the sat amounts (500 and 400).
 
 `npm run db:seed` also creates one Swahili evaluation already assigned to the evaluator.
 
@@ -36,13 +36,13 @@ Password for every account: `demo1234`.
 | File | What it owns |
 | --- | --- |
 | `prisma/schema.prisma` | Evaluations, credits, batches, reviewer invites, `EvaluationStatus` |
-| `lib/pricing.ts` | 500 / 200 / 714 sats |
+| `lib/pricing.ts` | 500 / 400 / 918 sats |
 | `lib/credits.ts` | Hold, spend, refund, Lightning deposits |
 | `app/actions/evaluations.ts` | `createEvaluation`, `submitHumanEvaluation`, `decideEvaluation`, every status change |
 | `app/actions/upload.ts` | CSV/JSON → many evaluations |
 | `app/actions/credits.ts` | Company Lightning invoices |
 | `app/actions/invites.ts` | Reviewer invite links |
-| `services/assignment/index.ts` | Gives each new evaluation to the demo evaluator |
+| `services/assignment/index.ts` | Picks a speaker of that language (Rita / Chinedu / Ama) |
 | `app/employer/` | Company list, credits, upload, result page |
 | `app/dashboard/` | Evaluator list and form |
 | `app/admin/` | Review queue, invite, approve or reject |
@@ -55,13 +55,13 @@ Password for every account: `demo1234`.
 
 **Input:** `{ evaluationId, workerUserId, reviewerUserId }`, sent after a reviewer approves.
 
-**Processing:** pay the evaluator and reviewer Lightning addresses (LNURL-pay when live). Store the payment hash. Mock unless `NWC_URL` (Alby / NWC) or `OPENNODE_API_KEY` is set. Company credits are spent in `lib/credits.ts` before this runs.
+**Processing:** pay the evaluator and reviewer Lightning addresses (LNURL-pay when live). Store the payment hash. Mock unless `NWC_URL` (Alby Hub / NWC) is set. Company credits are spent in `lib/credits.ts` before this runs. `retryFailedPayouts` can send again without paying a Sent row twice.
 
 **Output:** each `EvaluationPayout` row moves from `PENDING` to `SENT` or `FAILED`.
 
 **Connects:** `decideEvaluation` calls this after the evaluation becomes `COMPLETED`.
 
-A failed payment must not undo the validated evaluation. Keys stay in server environment variables. Open work: retry `FAILED` payouts without paying twice.
+A failed payment must not undo the validated evaluation. Keys stay in server environment variables. Live NWC will not pay `@taska.demo` placeholders.
 
 ## AI model (AI/ML Developer)
 

@@ -45,12 +45,24 @@ export async function loginDemo(_prev: AuthState, formData: FormData): Promise<A
     return { error: "Demo login is turned off." }
   }
   const role = String(formData.get("role") ?? "worker")
-  const email =
-    role === "employer"
-      ? "employer@taska.demo"
-      : role === "admin"
-        ? "admin@taska.demo"
-        : "worker@taska.demo"
+  const speakers: Record<string, string> = {
+    rita: "rita@taska.demo",
+    chinedu: "chinedu@taska.demo",
+    ama: "ama@taska.demo",
+  }
+  let email = "worker@taska.demo"
+  if (role === "employer") email = "employer@taska.demo"
+  else if (role === "admin") email = "admin@taska.demo"
+  else if (speakers[role]) {
+    email = speakers[role]
+    const found = await prisma.user.findUnique({ where: { email } })
+    if (found?.role !== "WORKER") {
+      return { error: "That speaker is not in this database. Seed demo accounts first." }
+    }
+  } else {
+    const rita = await prisma.user.findUnique({ where: { email: "rita@taska.demo" } })
+    email = rita?.role === "WORKER" ? "rita@taska.demo" : "worker@taska.demo"
+  }
   const password = process.env.DEMO_PASSWORD || "demo1234"
   const redirectTo = role === "employer" ? "/employer" : role === "admin" ? "/admin" : "/dashboard"
   const result = await signInWithPassword(email, password, redirectTo)

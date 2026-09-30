@@ -18,7 +18,7 @@ export async function SiteHeader() {
           {role === "WORKER" ? (
             <>
               <Link className={btnQuiet} href="/dashboard">
-                My evaluations
+                My answers
               </Link>
               <Link className={btnQuiet} href="/profile">
                 Profile
@@ -31,13 +31,13 @@ export async function SiteHeader() {
                 Evaluations
               </Link>
               <Link className={btnQuiet} href="/employer/credits">
-                Credits
+                Pay Lightning
               </Link>
               <Link className={btnQuiet} href="/employer/upload">
                 Upload
               </Link>
               <Link className={btnPrimary} href="/employer/evaluations/new">
-                New evaluation
+                Get an answer checked
               </Link>
             </>
           ) : null}
@@ -68,7 +68,7 @@ export async function SiteHeader() {
                 Log in
               </Link>
               <Link className={btnPrimary} href="/signup">
-                Sign up
+                I speak the language
               </Link>
             </>
           )}

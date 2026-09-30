@@ -1,5 +1,5 @@
 import type { LightningProvider } from "./types"
-import { lightningProviderName } from "@/lib/pricing"
+import { usesLiveLightning } from "@/lib/payout-destination"
 
 const LNURL_TIMEOUT_MS = 12_000
 
@@ -9,10 +9,6 @@ export function isBolt11(value: string) {
 
 export function isLightningAddress(value: string) {
   return /^[a-zA-Z0-9._~+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value.trim())
-}
-
-function usesLiveLightning() {
-  return lightningProviderName() !== "mock"
 }
 
 async function fetchJson(url: string) {

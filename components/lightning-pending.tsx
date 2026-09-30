@@ -18,8 +18,8 @@ export function LightningPending({
 }) {
   return (
     <p className="rounded-md border border-line bg-card px-3 py-2 text-sm">
-      {who} payment: Lightning — {labels[status]}
-      {amountSats ? ` · ${formatSats(amountSats)}` : ""}
+      {who}
+      {amountSats ? ` · ${formatSats(amountSats)}` : ""} over Lightning — {labels[status]}
     </p>
   )
 }

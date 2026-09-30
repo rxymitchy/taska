@@ -31,7 +31,7 @@ export function CreditsForm({ mock }: { mock: boolean }) {
       </form>
       {state.invoice ? (
         <div className="rounded-lg border border-line bg-card p-4 text-sm">
-          <p className="font-medium">Pay this invoice to add credits.</p>
+          <p className="font-medium">Pay this Lightning invoice.</p>
           {state.checkoutUrl ? (
             <p className="mt-2">
               <a className="text-accent underline" href={state.checkoutUrl} target="_blank" rel="noreferrer">
@@ -41,9 +41,11 @@ export function CreditsForm({ mock }: { mock: boolean }) {
           ) : null}
           <p className="mt-2 break-all text-muted">{state.invoice}</p>
           {mock ? (
-            <p className="mt-2 text-muted">Demo mode: after you create the invoice, mark it paid below.</p>
+            <p className="mt-2 text-muted">
+              Demo invoice. Live bitcoin uses the same screen once Alby Hub is connected. Taska still never holds keys.
+            </p>
           ) : (
-            <p className="mt-2 text-muted">Pay with any Lightning wallet, then click Check payment.</p>
+            <p className="mt-2 text-muted">Pay from any Lightning wallet, then check payment. The seed is not in Taska.</p>
           )}
         </div>
       ) : null}

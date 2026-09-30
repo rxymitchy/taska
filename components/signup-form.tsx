@@ -24,13 +24,13 @@ export function SignupForm({
         <>
           <input type="hidden" name="invite" value={inviteToken} />
           <p className="rounded-md border border-line bg-card px-3 py-2 text-sm">
-            You were invited to review evaluations.
+            You were invited to double-check local speakers — and get paid in sats.
           </p>
         </>
       ) : (
         <fieldset className="space-y-2">
           <legend className={labelClass}>I want to</legend>
-          <div className="flex gap-4 text-sm">
+          <div className="flex flex-col gap-2 text-sm">
             <label className="flex items-center gap-2">
               <input
                 type="radio"
@@ -39,7 +39,7 @@ export function SignupForm({
                 checked={role === "WORKER"}
                 onChange={() => setRole("WORKER")}
               />
-              Evaluate AI responses
+              Check answers in my language
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -49,7 +49,7 @@ export function SignupForm({
                 checked={role === "EMPLOYER"}
                 onChange={() => setRole("EMPLOYER")}
               />
-              Submit AI responses for evaluation
+              Pay Lightning to get answers checked
             </label>
           </div>
         </fieldset>
@@ -81,7 +81,9 @@ export function SignupForm({
         <label className="space-y-1.5">
           <span className={labelClass}>Lightning address</span>
           <input className={inputClass} name="lightningAddress" placeholder="name@provider.com" />
-          <span className="block text-xs text-muted">Where Taska should send reviewer payouts.</span>
+          <span className="block text-xs text-muted">
+            Where Taska should send your sats. This is an address, not a seed — Taska never holds your keys.
+          </span>
         </label>
       ) : null}
       <label className="space-y-1.5">

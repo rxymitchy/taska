@@ -1,7 +1,6 @@
 import { MockLightningProvider } from "./mock-provider"
 import { invoiceForDestination } from "./lnurl"
 import { NwcLightningProvider } from "./nwc-provider"
-import { OpenNodeLightningProvider } from "./opennode-provider"
 import type {
   CreateInvoiceInput,
   LightningProvider,
@@ -10,10 +9,7 @@ import type {
 import { lightningProviderName } from "@/lib/pricing"
 
 /**
- * Payment rail for Taska.
- *
- * Default is mock (`lnmock1`, no bitcoin) unless a wallet is connected:
- * NWC_URL (Alby Hub / Nostr Wallet Connect) or OPENNODE_API_KEY.
+ * Payment rail for Taska: Alby Hub (NWC) when NWC_URL is set, otherwise mock.
  * Secrets stay in server environment variables. Never import from client code.
  */
 export class LightningService {
@@ -43,17 +39,8 @@ export class LightningService {
 }
 
 export function getLightningService() {
-  const name = lightningProviderName()
-  if (name === "mock") {
-    return new LightningService(new MockLightningProvider())
-  }
-  if (name === "nwc") {
+  if (lightningProviderName() === "nwc") {
     return new LightningService(new NwcLightningProvider())
   }
-  if (name === "opennode") {
-    return new LightningService(new OpenNodeLightningProvider())
-  }
-  throw new Error(
-    `Unknown LIGHTNING_PROVIDER "${name}". Use mock, nwc, or opennode.`,
-  )
+  return new LightningService(new MockLightningProvider())
 }

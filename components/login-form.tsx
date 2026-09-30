@@ -35,14 +35,17 @@ export function LoginForm({
       </form>
       {demoEnabled ? (
         <div className="border-t border-line pt-6">
-          <p className="text-sm font-medium">Demo accounts</p>
-          <p className="mt-1 text-sm text-muted">Password for each is demo1234.</p>
+          <p className="text-sm font-medium">Try the loop</p>
+          <p className="mt-1 text-sm text-muted">
+            One path: company pays Lightning, Rita checks Swahili, reviewer sends the sats. Password for each is
+            demo1234.
+          </p>
           {demoState.error ? <p className="mt-2 text-sm text-bad">{demoState.error}</p> : null}
           <div className="mt-3 flex flex-wrap gap-2">
             <form action={demoAction}>
               <input type="hidden" name="role" value="worker" />
               <button className={btnSecondary} disabled={demoPending}>
-                Evaluator
+                Rita
               </button>
             </form>
             <form action={demoAction}>
@@ -55,6 +58,30 @@ export function LoginForm({
               <input type="hidden" name="role" value="admin" />
               <button className={btnSecondary} disabled={demoPending}>
                 Reviewer
+              </button>
+            </form>
+          </div>
+          <p className="mt-5 text-sm font-medium">Show assignment</p>
+          <p className="mt-1 text-sm text-muted">
+            Same password. Company sends Swahili, Yoruba, or Twi — then open the matching speaker.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <form action={demoAction}>
+              <input type="hidden" name="role" value="rita" />
+              <button className={btnSecondary} disabled={demoPending}>
+                Rita · Swahili
+              </button>
+            </form>
+            <form action={demoAction}>
+              <input type="hidden" name="role" value="chinedu" />
+              <button className={btnSecondary} disabled={demoPending}>
+                Chinedu · Yoruba
+              </button>
+            </form>
+            <form action={demoAction}>
+              <input type="hidden" name="role" value="ama" />
+              <button className={btnSecondary} disabled={demoPending}>
+                Ama · Twi
               </button>
             </form>
           </div>

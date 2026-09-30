@@ -16,12 +16,17 @@ export default async function SignupPage({
 
   return (
     <Container className="max-w-md py-16">
-      <h1 className="text-3xl tracking-tight">{openInvite ? "Join as a reviewer" : "Create an account"}</h1>
+      <h1 className="text-3xl tracking-tight">{openInvite ? "Join as a reviewer" : "Check answers. Get paid in sats."}</h1>
       {invite && !openInvite ? (
         <p className="mt-2 text-sm text-bad">This invite is invalid or has expired.</p>
+      ) : openInvite ? (
+        <p className="mt-2 text-sm text-muted">
+          You double-check Rita’s work. If you agree, she gets paid — and so do you, to a Lightning address Taska never
+          holds the keys for.
+        </p>
       ) : (
         <p className="mt-2 text-sm text-muted">
-          Already registered?{" "}
+          Taska never stores your wallet keys. Already here?{" "}
           <Link className="text-accent underline" href="/login">
             Log in
           </Link>

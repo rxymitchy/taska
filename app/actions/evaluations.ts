@@ -9,7 +9,8 @@ import { requireRole } from "@/lib/session"
 import { aiEvaluationSchema, humanEvaluationSchema } from "@/lib/validators"
 import { assignEvaluation } from "@/services/assignment"
 import { generateAiResponse } from "@/services/ai"
-import { recordPendingLightningPayouts } from "@/services/settlement"
+import { payoutDestinationsReady, recordPendingLightningPayouts } from "@/services/settlement"
+import { payableLightningDestination, usesLiveLightning } from "@/lib/payout-destination"
 
 export async function createEvaluation(_prev: { error: string }, formData: FormData) {
   const user = await requireRole(["EMPLOYER"])
@@ -63,6 +64,12 @@ export async function submitHumanEvaluation(_prev: { error: string }, formData: 
   const user = await requireRole(["WORKER"])
   const worker = await prisma.workerProfile.findUnique({ where: { userId: user.id } })
   if (!worker) return { error: "Evaluator profile not found." }
+  if (!worker.lightningAddress?.trim()) {
+    return { error: "Add a Lightning address on your profile before you submit. Taska never holds your keys." }
+  }
+  if (usesLiveLightning() && !payableLightningDestination(worker.lightningAddress)) {
+    return { error: "Add a real Lightning address (not a demo placeholder) so sats can reach you." }
+  }
 
   const parsed = humanEvaluationSchema.safeParse({
     evaluationId: formData.get("evaluationId"),
@@ -131,6 +138,15 @@ export async function decideEvaluation(formData: FormData) {
   }
 
   const submission = evaluation.submissions[0]
+  if (decision === "approve") {
+    const ready = await payoutDestinationsReady({
+      workerUserId: evaluation.assignedWorker.userId,
+      reviewerUserId: reviewer.id,
+    })
+    if (!ready.ok) {
+      redirect(`/admin/evaluations/${evaluation.id}?pay=need-address`)
+    }
+  }
   if (decision === "reject") {
     await prisma.evaluationSubmission.update({
       where: { id: submission.id },

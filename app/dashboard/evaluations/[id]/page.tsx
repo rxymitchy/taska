@@ -33,7 +33,7 @@ export default async function WorkerEvaluationPage({ params }: { params: Promise
         </p>
         <StatusPill status={evaluation.status} />
       </div>
-      <h1 className="mt-3 text-3xl tracking-tight">AI response</h1>
+      <h1 className="mt-3 text-3xl tracking-tight">Would a neighbor follow this?</h1>
       <section className="mt-6 space-y-4">
         <div>
           <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Question</h2>
@@ -47,11 +47,17 @@ export default async function WorkerEvaluationPage({ params }: { params: Promise
       </section>
       {evaluation.status === "ASSIGNED" ? (
         <div className="mt-8">
+          {!worker.lightningAddress ? (
+            <p className="mb-4 text-sm text-warn">
+              Add a Lightning address on your profile before you send this. That is where sats go. Taska never holds
+              your keys.
+            </p>
+          ) : null}
           <HumanEvaluationForm evaluationId={evaluation.id} defaults={latest} />
         </div>
       ) : null}
       {evaluation.status === "UNDER_REVIEW" || evaluation.status === "WORKER_COMPLETED" ? (
-        <p className="mt-8 text-sm text-muted">Your evaluation is in review.</p>
+        <p className="mt-8 text-sm text-muted">A reviewer is checking your work. If they agree, sats go to your Lightning address.</p>
       ) : null}
       {evaluation.status === "COMPLETED" && latest ? (
         <section className="mt-8 space-y-3">

@@ -1,23 +1,53 @@
 # Taska
 
-Does the AI speak your language?
+**Does the AI speak your language?**
 
-Taska checks whether AI answers work for African languages and local context. A company submits a question and the answer its AI gave. A local speaker checks it. A reviewer confirms the check. The company gets a validated result, and the people who did the work are paid with Bitcoin Lightning.
+Live: [taska-beta.vercel.app](https://taska-beta.vercel.app) · Hack4Freedom 2026 · [GitHub](https://github.com/rxymitchy/taska)
 
-Built for Hack4Freedom 2026.
+## For judges
+
+AI assistants already answer people in Nairobi, Lagos, and Accra. A lot of those answers are fluent and still wrong — a polite Swahili sentence that would send someone through the wrong M-Pesa steps.
+
+**Taska is not a chatbot and not a wallet.** It is how a local speaker gets paid in bitcoin to catch that.
+
+1. A company pays a **Lightning invoice**.
+2. The work goes to someone who actually speaks the language (Rita in Kisumu for Swahili, Chinedu for Yoruba, Ama for Twi).
+3. They answer three questions: would a neighbor follow this, would a local person say it this way, does it know the place.
+4. If anything is No, they write a better answer.
+5. A reviewer — an expert gate — agrees or sends it back.
+6. **Sats move** to Lightning addresses. Taska never holds wallet keys. The seed stays in Alby Hub (Nostr Wallet Connect).
+
+One approved check:
+
+```
+Company pays     918 sats
+  Rita (speaker)   500   — she did the language work
+  Reviewer         400   — she is the expert gate, paid per check
+  Taska             18   — 2%
+```
+
+Rejected work is not charged. There is no cash-out to shillings or naira in the app.
+
+**What we do not do:** store seeds, run a custodial exchange, or treat English fluency as the product.
+
+Demo logins (password `demo1234`): **Rita**, **Company**, **Reviewer**. Extra buttons show assignment: Chinedu · Yoruba, Ama · Twi.
+
+`/api/health` returns `{ ok, db, lightning }`. `lightning` is `nwc` when Alby Hub is connected, otherwise `mock`.
 
 ## How the app works
 
-Read this first if you are joining the codebase. Money, status, and roles all follow the same path.
+Money, status, and roles follow one path. Do not add a second one.
 
 ### Who does what
 
 ```
-Company (EMPLOYER)     Evaluator (WORKER)     Reviewer (ADMIN)
-pays for the work      checks the AI answer   double-checks the check
+Company (EMPLOYER)     Speaker (WORKER)        Reviewer (ADMIN)
+pays Lightning         checks the AI answer    double-checks the check
 ```
 
-Public signup is **evaluator** or **company** only. A reviewer is invited by an existing reviewer (`/admin/invite` → `/signup?invite=…`).
+Public signup is **speaker** or **company**. A reviewer is invited (`/admin/invite`).
+
+Work is assigned by **language** (and country in the context). Swahili/Kenya prefers Rita. Yoruba/Nigeria prefers Chinedu. Twi/Ghana prefers Ama. If nobody speaks that language, the row waits.
 
 ### The whole path
 
@@ -28,9 +58,9 @@ Company pays a Lightning invoice
         ↓
    New evaluation  or  CSV/JSON upload (up to 200 rows)
         ↓
-   Hold 714 sats per row   (500 + 200 + 2% fee)
+   Hold 918 sats per row   (500 + 400 + 2% fee)
         ↓
-   Pending → Assigned → evaluator
+   Pending → Assigned → speaker of that language
         ↓
    Three questions: true? natural? knows the place?
         ↓
@@ -41,31 +71,16 @@ Company pays a Lightning invoice
         ├── Reject → Assigned again, hold returned to credits
         └── Approve → Completed
                          ↓
-              Spend the 714 hold
+              Spend the 918 hold
                          ↓
-              Pay evaluator 500 sats  →  Lightning address
-              Pay reviewer  200 sats  →  Lightning address
-              Keep           14 sats  →  Taska (2%)
+              Pay speaker   500 sats  →  Lightning address
+              Pay reviewer  400 sats  →  Lightning address
+              Keep           18 sats  →  Taska (2%)
                          ↓
               Company sees the validated result
 ```
 
 Status names in the database: `Pending → Assigned → Worker completed → Under review → Approved → Completed`.
-
-Rejected work is **not** charged. Taska does not cash out to shillings or naira in the app.
-
-### Money (one approved item)
-
-```
-Company charged     714 sats
-  → evaluator       500
-  → reviewer        200
-  → Taska fee        14   (2% of 700, rounded up)
-```
-
-Amounts live in `lib/pricing.ts` (`EVALUATOR_PAYOUT_SATS`, `REVIEWER_PAYOUT_SATS`, `PLATFORM_FEE_BPS`).
-
-Credits: **available** can be spent on new work. **Held** is reserved for open evaluations. A Lightning deposit adds to available. Approve moves held → spent. Reject moves held → available.
 
 ### Where each step lives
 
@@ -76,16 +91,14 @@ Buy credits (invoice)       →  app/actions/credits.ts  →  services/lightning
 Create one evaluation       →  app/actions/evaluations.ts  (createEvaluation)
 Upload CSV/JSON             →  app/actions/upload.ts
 Hold / spend / refund       →  lib/credits.ts
-Assign evaluator            →  services/assignment/index.ts
+Assign speaker              →  services/assignment/index.ts
 Generate blank AI answer    →  services/ai/index.ts
-Evaluator submits           →  submitHumanEvaluation
+Speaker submits             →  submitHumanEvaluation
 Reviewer decides            →  decideEvaluation
 Pay Lightning               →  services/settlement/index.ts
 ```
 
 Do not add a second status list. Change `EvaluationStatus` only in `app/actions/evaluations.ts`.
-
-Example: a company asks its AI, in Swahili, "Ninaweza kutumia M-Pesa kulipa bili hii?" (Can I pay this bill with M-Pesa?). A Kenyan evaluator checks the facts, the Swahili, and whether the steps match how M-Pesa actually works.
 
 ## Tech stack
 
@@ -94,25 +107,24 @@ Example: a company asks its AI, in Swahili, "Ninaweza kutumia M-Pesa kulipa bili
 | Framework | Next.js 16 (App Router, Server Actions, Turbopack) |
 | UI | React 19, Tailwind CSS 4 |
 | Language | TypeScript |
-| Database | PostgreSQL through Prisma 6. PGlite locally, any hosted Postgres (for example Neon) in production |
+| Database | PostgreSQL through Prisma 6. PGlite locally, Neon in production |
 | Auth | Auth.js (NextAuth v5), email and password, JWT sessions, bcrypt hashing |
 | Validation | Zod 4 |
-| Payments | Bitcoin Lightning. Mock by default. Live: Nostr Wallet Connect (`NWC_URL`, Alby Hub) or OpenNode |
+| Payments | Bitcoin Lightning. Live: Nostr Wallet Connect (`NWC_URL`, Alby Hub). Mock if unset |
 | Hosting | Vercel + Neon. Live: https://taska-beta.vercel.app |
 
 ## What is built
 
-- Sign up, log in, and three roles: evaluator (`WORKER`), company (`EMPLOYER`), reviewer (`ADMIN`). Reviewer accounts are invite-only from an existing reviewer.
-- Company: prepaid Lightning credits, create one evaluation or upload CSV/JSON (up to 200 rows), list evaluations, see the validated result.
-- Evaluator: list of assigned evaluations, the three-question form, the required better answer after a No, and a profile Lightning address.
-- Reviewer: review queue, approve or reject, invite other reviewers.
-- Full status flow, stored in Postgres, with each role only seeing its own data.
-- Lightning: company pays an invoice to add credits. After approval, evaluator and reviewer are paid to a Lightning address (LNURL-pay). Taska keeps about 2%. Live rail is **Nostr Wallet Connect** (Alby Hub) when `NWC_URL` is set; otherwise mock unless OpenNode is configured.
-- Demo accounts and seed data (the demo company starts with credits).
+- Three roles: speaker, company, reviewer (invite-only).
+- Company: Lightning credits, one evaluation or CSV/JSON (up to 200 rows), sees who was assigned, sees the validated result.
+- Speaker: assigned work in their language, three questions, better answer after a No, Lightning address on the profile.
+- Reviewer: queue, approve or reject (sats move only on agree), invite others, retry failed payouts.
+- Lightning: invoice in, payout to Lightning addresses (LNURL-pay when live). Keys never in the database. OpenNode is not used.
+- Demo accounts. Homepage tells the Rita story.
 
 ## What each teammate builds
 
-Status: **Done** works today, **Partly** exists but needs more, **To do** is not started. Start from the file in the last column. How each code module connects is in [docs/team.md](docs/team.md).
+Status: **Done** works today, **Partly** exists but needs more, **To do** is not started. File pointers in the last column. How modules connect: [docs/team.md](docs/team.md).
 
 ### 1. Backend Developer
 
@@ -120,77 +132,78 @@ Status: **Done** works today, **Partly** exists but needs more, **To do** is not
 | --- | --- | --- |
 | Build the backend/API | Done | Server Actions in `app/actions/evaluations.ts` |
 | Create the database | Done | `prisma/schema.prisma`, `prisma/migrations/` |
-| Handle user registration and login | Done | `app/actions/auth.ts`, `auth.ts` |
-| Manage users and their roles | Done | Evaluator, company, and reviewer roles. Reviewers are invited from `/admin/invite` |
-| Create and assign tasks to contributors | Done | `services/assignment/index.ts` gives each new evaluation to the demo evaluator. CSV/JSON upload is `app/actions/upload.ts` |
-| Receive and store contributor submissions | Done | `submitHumanEvaluation`, `EvaluationSubmission` table |
-| Manage task status | Done | Every status change lives in `app/actions/evaluations.ts` |
-| Store AI evaluation results | Partly | Human results and the generated answer (`aiModel`) are stored. An AI pre-check of the three questions is still open for the AI/ML developer |
-| Handle dataset export (CSV/JSON) | To do | **Upload is done.** Export is not: add a download of validated rows (better answers included) from `buildCompanyReport` in `services/reports/index.ts` |
-| Prepare the system for future Lightning payments | Done | Prepaid credits, 2% fee. Live: NWC (`services/lightning/nwc-provider.ts`) or OpenNode. Mock if neither is set |
-| Retry failed Lightning payouts | To do | `EvaluationPayout` can be `FAILED` while the evaluation stays Completed. Add a safe retry that does not pay twice |
-| Assign by language, not only the demo evaluator | To do | `services/assignment/index.ts` still prefers `worker@taska.demo`. CSV uploads in Yoruba/Twi need a matching speaker |
-| Connect the frontend with the AI system and database | Done | Blank AI response calls `generateAiResponse` in `services/ai/index.ts`. Set `AI_API_KEY` for a live model; otherwise a local demo reply is stored |
+| Handle user registration and login | Done | `app/actions/auth.ts`, `auth.ts`. Demo speakers: Rita, Chinedu, Ama |
+| Manage users and their roles | Done | Speaker, company, reviewer. Reviewers from `/admin/invite` |
+| Create and assign work | Done | Language + country in `services/assignment/index.ts`. CSV/JSON in `app/actions/upload.ts` |
+| Receive and store submissions | Done | `submitHumanEvaluation`, `EvaluationSubmission` |
+| Manage task status | Done | Every status change in `app/actions/evaluations.ts` |
+| Store AI evaluation results | Partly | Human results and `aiModel` are stored. AI pre-check of the three questions is still open for AI/ML |
+| Dataset export (CSV/JSON) | To do | **Upload is done.** Add a download of validated rows from `buildCompanyReport` in `services/reports/index.ts` |
+| Lightning payments | Done | Credits, 500 / 400 / 2%. Live NWC in `services/lightning/nwc-provider.ts`. Mock without `NWC_URL` |
+| Retry failed Lightning payouts | Done | Review queue. Pays the address on the profile now. Does not pay a Sent row twice |
+| Assign by language | Done | Swahili → Rita, Yoruba → Chinedu, Twi → Ama. No speaker → wait |
+| Live payouts need a real address | Done | `@taska.demo` placeholders are not paid when NWC is on |
+| Connect AI + database | Done | Blank response → `generateAiResponse`. Set `AI_API_KEY` for a live model |
+| Connect Alby Hub in production | To do | Paste `NWC_URL` on Vercel. Until then `/api/health` shows `"lightning":"mock"` |
 
 ### 2. Frontend Developer
 
 | Task | Status | Where to start |
 | --- | --- | --- |
-| Build the website/interface | Done | `app/page.tsx`, `components/` |
-| Create the client dashboard | Done | `app/employer/`, including credits and CSV/JSON upload |
-| Create the contributor dashboard | Done | `app/dashboard/` |
-| Create the task/evaluation page | Done | `app/dashboard/evaluations/[id]`, `components/human-evaluation-form.tsx` |
-| Create the admin dashboard | Partly | Review queue and invites work. Still missing waiting / approved / rejected totals on `app/admin/` |
-| Show company credit balance clearly | Done | `app/employer/credits` and the company home line (available / held / cost) |
-| Display project progress and results | Done | Each evaluation shows its status and validated result |
-| Display contributor scores/earnings | Done | Evaluator and reviewer screens show Lightning Sent or Failed, plus sat amounts |
-| Connect the frontend to the backend APIs | Done | Forms call Server Actions directly |
-| Make the application responsive and user-friendly | Partly | Works on a phone, but the signed-in header now has more links (Credits, Upload, Invite) and wraps. Needs a compact nav in `components/site-header.tsx` |
-| Copy / show Lightning invoices clearly | To do | Credits page shows the invoice string. A copy button (and a QR later) would help companies pay |
-| Handle frontend validation and error messages | Done | Required fields, plus server errors shown on each form |
+| Build the website | Done | `app/page.tsx` — Rita, Lightning in the loop, keys not in Taska |
+| Company dashboard | Done | `app/employer/` — credits, upload, assigned speaker name on the list |
+| Speaker dashboard | Done | `app/dashboard/` |
+| Evaluation page | Done | `app/dashboard/evaluations/[id]`, three neighbor questions |
+| Admin dashboard | Partly | Queue, invites, retry failed payouts. Still missing waiting / approved / rejected totals on `app/admin/` |
+| Company credit balance | Done | `app/employer/credits` (Pay Lightning) |
+| Progress and results | Done | Status + validated result |
+| Earnings | Done | Lightning Sent or Failed, sat amounts |
+| Connect UI to backend | Done | Forms call Server Actions |
+| Responsive layout | Partly | Works on a phone. Signed-in header wraps. Compact nav in `components/site-header.tsx` |
+| Copy Lightning invoice | To do | Invoice string is on the credits page. A copy button (QR later) would help companies pay |
+| Form errors | Done | Required fields + server errors |
+| Demo logins for assignment | Done | Login: Rita, Chinedu · Yoruba, Ama · Twi |
 
 ### 3. AI/ML Developer
 
 | Task | Status | Where to start |
 | --- | --- | --- |
-| Research suitable AI models and specialised AI SDKs | To do | Keep API keys in server environment variables |
-| Test which models/SDKs support African languages | To do | Languages Taska offers are in `lib/catalog.ts`. Start with Swahili |
-| Build AI-assisted task generation | Partly | `generateAiResponse` in `services/ai/index.ts` fills a blank company response. Plug in `AI_API_KEY` for a real model. Keep the paste field |
-| Build AI response evaluation | To do | An AI pre-check that answers the same three questions before the evaluator |
-| Check fluency, accuracy and cultural relevance | To do | These are the three questions of the pre-check |
-| Compare AI scores with human evaluations | To do | Show "AI said Yes, local speaker said No" on the company and reviewer pages, with the frontend developer |
-| Document the AI models, SDKs and methods used | To do | Add `docs/ai.md` |
+| Research models / SDKs | To do | Keep API keys in server env |
+| Test African-language support | To do | Languages in `lib/catalog.ts`. Start with Swahili |
+| AI-assisted task generation | Partly | `generateAiResponse` fills a blank company response. Plug in `AI_API_KEY`. Keep the paste field |
+| AI response evaluation | To do | A pre-check that answers the same three questions before the speaker |
+| Fluency, accuracy, local context | To do | Those three questions |
+| Compare AI vs human | To do | “AI said Yes, local speaker said No” on company and reviewer pages |
+| Document models | To do | Add `docs/ai.md` |
 
 ### 4. Documentation Lead
 
 | Task | Status | Where to start |
 | --- | --- | --- |
-| Research and document the problem | Partly | Short version at the top of this README. Expand with sources if you want it for the pitch |
-| Document the project's solution | Done | Arrow flow in **How the app works** above |
-| Document target users and customers | To do | One short page: AI teams shipping to African markets, local evaluators, reviewers. Can live in this README |
-| Maintain the README | Done | This file. Update the Status column when you ship |
-| Document the system architecture | To do | `docs/architecture.md` still describes the older task marketplace and needs rewriting to match this flow |
-| Document the AI component | To do | With the AI/ML developer (`docs/ai.md`) |
-| Document the data-quality process | To do | Three questions, better answer after a No, reviewer confirms. Can be a subsection under How the app works |
-| Document how the platform works | Done | This README plus `docs/team.md` (files each step calls) |
-| Keep screenshots and important project evidence | To do | Add a `docs/screenshots/` folder |
-| Prepare the final technical documentation | To do | |
-| Help prepare the presentation/pitch | To do | Use the Swahili M-Pesa demo below |
+| Document the problem | Done | Judge section at the top of this README |
+| Document the solution | Done | One loop: invoice → speaker → reviewer → sats |
+| Document users | Done | AI teams shipping to African markets, local speakers, expert reviewers |
+| Maintain the README | Done | This file. Update Status when you ship |
+| System architecture | Partly | `docs/architecture.md` still mentions the old marketplace in places. Core Lightning notes are current |
+| Document the AI component | To do | With AI/ML (`docs/ai.md`) |
+| Document data-quality | Done | Three questions, better answer after a No, reviewer confirms |
+| Document how the platform works | Done | This README + `docs/team.md` |
+| Screenshots | To do | `docs/screenshots/` |
+| Final technical docs | To do | |
+| Help the pitch | Done | Use the judge section and the Swahili M-Pesa demo below |
 
 ### 5. Group Lead / Project Lead
 
-These are coordination tasks, so none of them are code. The things to track:
-
 | Task | Status | Notes |
 | --- | --- | --- |
-| Coordinate the team, divide tasks, set deadlines | To do | Use the tables above |
-| Track everyone's progress and run meetings | To do | Update the Status column as work lands |
-| Make sure the parts integrate properly | Partly | Credits, upload, and invites now sit on the same evaluation path. Do not invent a second status list. Old marketplace code is still in the repo and unused |
-| Resolve blockers and make major decisions | To do | Delete old marketplace code or leave it. For live Lightning: create an Alby Hub, paste `NWC_URL` on Vercel (not OpenNode) |
-| Keep the project focused on the main problem | Ongoing | AI answers that work for African languages and local context |
-| Coordinate final testing | To do | Run the demo below after every merge. `npx tsc --noEmit` must pass |
-| Coordinate the final demo and presentation | To do | |
-| Make sure the project is ready for submission | Partly | Live app: https://taska-beta.vercel.app. Database is Neon. Confirm `DEMO_LOGIN` before judging |
+| Coordinate the team | Ongoing | Tables above |
+| Track progress | Ongoing | Update Status as work lands |
+| Make sure parts integrate | Partly | One evaluation path. Old marketplace code is unused and still in the repo |
+| Resolve blockers | To do | Connect Alby Hub (`NWC_URL` on Vercel). Real Lightning addresses on Rita and the reviewer for a live sats demo. Decide whether to delete old `/tasks` code |
+| Keep focus | Ongoing | Local people paid in sats to catch a bad African-language AI answer |
+| Final testing | To do | Demo below after every merge. `npx tsc --noEmit` must pass |
+| Final demo / pitch | To do | One loop. Assignment is a 30-second extra, not a second product |
+| Ready for submission | Partly | Live app + GitHub. Confirm `DEMO_LOGIN`. Live bitcoin needs Hub connected |
 
 ## Local development
 
@@ -202,7 +215,7 @@ npm install
 npm run db
 ```
 
-Leave that process running. It starts a local Postgres-compatible database (PGlite) on port 5432. In a second terminal:
+Leave that process running (PGlite on port 5432). In a second terminal:
 
 ```bash
 npx prisma migrate deploy
@@ -212,29 +225,30 @@ npm run dev
 
 Open http://localhost:3000.
 
-On Windows, stop `npm run dev` before running `npx prisma generate` or `npx prisma migrate deploy`. The running server locks Prisma's engine file.
+On Windows, stop `npm run dev` before `npx prisma generate` or `npx prisma migrate deploy`.
 
-`npm run db` is for local development only. Production uses a hosted Postgres through `DATABASE_URL`. Docker Compose in this repo can start Postgres 16 instead:
+Production uses hosted Postgres (`DATABASE_URL`). Docker Compose can start Postgres 16:
 
 ```bash
 docker compose up -d
 ```
 
-The Docker database URL is `postgresql://taska:taska@localhost:5432/taska?schema=public`.
+URL: `postgresql://taska:taska@localhost:5432/taska?schema=public`.
 
 ## Production
 
 Live site: https://taska-beta.vercel.app
 
-Hosted on Vercel. Postgres is Neon (`taska-db`), connected as `DATABASE_URL`. After schema changes:
+Vercel + Neon (`DATABASE_URL`). After schema changes:
 
 ```bash
 vercel env run -e production -- npx prisma migrate deploy
-vercel env run -e production -- npx tsx scripts/seed-demo.ts
 vercel deploy --prod
 ```
 
-Rename or move the local `.env` before `vercel env run`, or it will talk to your laptop database instead.
+Do **not** run `scripts/seed-demo.ts` against production unless you intend to wipe accounts.
+
+Rename or move local `.env` before `vercel env run`, or it will talk to your laptop database.
 
 ## Demo
 
@@ -242,47 +256,51 @@ Password for every demo account: `demo1234`
 
 | Role | Email |
 | --- | --- |
-| Evaluator | worker@taska.demo |
+| Rita (Swahili, Kenya) | rita@taska.demo |
+| Chinedu (Yoruba / Hausa, Nigeria) | chinedu@taska.demo |
+| Ama (Twi, Ghana) | ama@taska.demo |
 | Company | employer@taska.demo |
 | Reviewer | admin@taska.demo |
+| Amina (also Swahili) | worker@taska.demo |
 
-The login page has one-click buttons for these when `DEMO_LOGIN=true`.
+The login page has buttons when `DEMO_LOGIN=true`.
 
-1. Log in as the **company**. The demo account already has credits. Open **New evaluation**, choose Swahili and Kenya / M-Pesa, type a question, leave the AI response blank (or paste one), and submit. Credits holds 714 sats. Upload a CSV from **Upload** if you want many at once.
-2. Log in as the **evaluator**. Open **My evaluations**, answer the three questions, and submit. Answering No asks for a better answer.
-3. Log in as the **reviewer**. Open **Review queue** and approve.
-4. Log in as the **company** again. The evaluation shows **Validated** with the results.
-5. The evaluator and reviewer screens show **Lightning — Sent** and the sat amount.
+**Main loop (show this):**
 
-`npm run db:seed` also creates one Swahili evaluation already assigned to the evaluator.
+1. **Company** — credits are loaded. **Get an answer checked**, Swahili, Kenya / M-Pesa. Hold 918 sats. The list should say **Rita Mwangi**.
+2. **Rita** — three questions. A No needs a better answer.
+3. **Reviewer** — agree, pay the speaker (or send it back).
+4. **Company** — validated result. Rita and the reviewer see Lightning Sent and the sats.
 
-Set `DEMO_LOGIN=false` before a public deployment.
+**Assignment extra (only if asked):** company sends Yoruba → Chinedu, Twi → Ama.
+
+Set `DEMO_LOGIN=false` before a fully public launch if you do not want the demo buttons.
 
 ## Project structure
 
 ```
 app/actions/evaluations.ts   every evaluation status change
 app/employer/                company pages
-app/dashboard/               evaluator pages
+app/dashboard/               speaker pages
 app/admin/                   reviewer pages
 components/                  UI
-lib/                         auth helpers, catalog, validation
-services/                    assignment, ai, reports, settlement, and Lightning
+lib/                         auth helpers, catalog, validation, pricing
+services/                    assignment, ai, reports, settlement, Lightning
 prisma/                      schema, migrations, seed
-docs/team.md                 how each code module connects to the core
+docs/team.md                 how each code module connects
 ```
 
-The first version of Taska was a general task marketplace. Its code is still in the repo (`app/tasks`, `app/workers`, `app/actions/tasks.ts`, `app/actions/reviews.ts`, `services/reviews.ts`, `services/payments.ts`), but nothing links to it. Evaluator **Profile** is used for the Lightning address.
+An older task marketplace is still in the repo (`app/tasks`, `app/workers`, …) and is not linked. Speaker **Profile** is where the Lightning address lives.
 
 ## Lightning
 
-Taska does not store wallet keys. Companies prepay by paying a Lightning invoice (`app/employer/credits`). That budget is held when work is assigned and spent when a reviewer approves. After approval, `services/settlement/index.ts` pays the evaluator (500 sats) and reviewer (200 sats) to a Lightning address. The company was charged 714 sats; 14 sats stay as the 2% fee.
+Taska does not store wallet keys. Companies prepay by paying an invoice. That budget is held, then spent on approve. Settlement pays 500 + 400 to Lightning addresses.
 
-**Live (freedom tech):** set `NWC_URL` to a `nostr+walletconnect://…` connection from [Alby Hub](https://albyhub.com/). Taska creates invoices and sends payouts through that wallet over Nostr. The bitcoin sits in the Hub, not in Taska. Permissions needed: make invoices and pay invoices. Keep a balance in the Hub so payouts can leave.
+**Live:** `NWC_URL` = `nostr+walletconnect://…` from [Alby Hub](https://albyhub.com/). Bitcoin sits in the Hub. Permissions: make invoices and pay invoices. Keep a Hub balance so payouts can leave.
 
-**Demo:** `LIGHTNING_PROVIDER=mock` (or no `NWC_URL`) uses `lnmock1` invoices. No bitcoin moves.
+**Demo:** no `NWC_URL` → `lnmock1`. No bitcoin moves.
 
-OpenNode still works if `OPENNODE_API_KEY` is set and NWC is not. That is custodial; NWC is the hackathon path.
+Failed payouts retry from the review queue without paying a Sent row twice. Live NWC will not pay `@taska.demo` placeholders.
 
 Never put the NWC secret in the frontend or git.
 
@@ -293,21 +311,19 @@ Never put the NWC secret in the frontend or git.
 | `DATABASE_URL` | Postgres connection string |
 | `AUTH_SECRET` | Session signing secret |
 | `AUTH_URL` | Public app URL |
-| `LIGHTNING_PROVIDER` | `mock`, `nwc`, or `opennode`. Ignored when `NWC_URL` is set (NWC wins) |
-| `NWC_URL` | `nostr+walletconnect://…` from Alby Hub. Enables live invoices and payouts |
-| `EVALUATOR_PAYOUT_SATS` | Payout to the evaluator (default 500) |
-| `REVIEWER_PAYOUT_SATS` | Payout to the reviewer (default 200) |
-| `PLATFORM_FEE_BPS` | Platform fee in basis points (default 200 = 2%) |
-| `OPENNODE_API_KEY` | Optional. Enables real Lightning invoices and payouts |
-| `OPENNODE_WEBHOOK_SECRET` | Optional. HMAC secret for `/api/lightning/webhook` |
-| `AI_API_KEY` | Optional. OpenAI-compatible key. Without it, a local demo reply is used |
+| `NWC_URL` | Alby Hub connection. Turns on live invoices and payouts |
+| `EVALUATOR_PAYOUT_SATS` | Speaker payout (default 500) |
+| `REVIEWER_PAYOUT_SATS` | Reviewer payout (default 400) |
+| `PLATFORM_FEE_BPS` | Fee in basis points (default 200 = 2%) |
+| `REVIEWER_LIGHTNING_ADDRESS` | Optional fallback if the reviewer has no saved address. Must be real when NWC is on |
+| `AI_API_KEY` | Optional. Without it, a local demo reply is used |
 | `AI_BASE_URL` | Optional. Defaults to `https://api.openai.com/v1` |
 | `AI_MODEL` | Optional. Defaults to `gpt-4o-mini` |
-| `BTC_USD_PRICE` | Used only to show an approximate dollar value |
-| `DEMO_LOGIN` | Enables demo account buttons |
-| `DEMO_PASSWORD` | Password seeded for demo accounts |
+| `BTC_USD_PRICE` | Display only |
+| `DEMO_LOGIN` | Demo account buttons |
+| `DEMO_PASSWORD` | Password for seeded demo accounts |
 
-Never commit `.env`. Never put Lightning keys, seeds, or wallet credentials in the frontend or the database.
+Never commit `.env`. Never put Lightning keys or seeds in the frontend or the database.
 
 ## Scripts
 
