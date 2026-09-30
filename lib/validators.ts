@@ -24,7 +24,7 @@ export const taskSchema = z.object({
 
 export const aiEvaluationSchema = z.object({
   prompt: z.string().trim().min(4).max(2000),
-  aiResponse: z.string().trim().min(4).max(4000),
+  aiResponse: z.string().trim().max(4000).optional(),
   language: z.enum(languages),
   context: z.enum(contexts),
 })

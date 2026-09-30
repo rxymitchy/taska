@@ -13,9 +13,13 @@ import { randomBytes } from "crypto"
 import { evaluationBank } from "../lib/evaluation-bank"
 import { refreshWorkerStats } from "../services/stats"
 
-for (const line of readFileSync(".env", "utf8").split(/\r?\n/)) {
-  const match = line.match(/^([^#=\s]+)\s*=\s*(.*)$/)
-  if (match && process.env[match[1]] == null) process.env[match[1]] = match[2]
+try {
+  for (const line of readFileSync(".env", "utf8").split(/\r?\n/)) {
+    const match = line.match(/^([^#=\s]+)\s*=\s*(.*)$/)
+    if (match && process.env[match[1]] == null) process.env[match[1]] = match[2]
+  }
+} catch {
+  // Production seed uses env vars from `vercel env run`. A local .env is optional.
 }
 
 const prisma = new PrismaClient()

@@ -15,13 +15,12 @@ export function CompanyEvaluationForm() {
       </label>
       <label className="space-y-1.5">
         <span className={labelClass}>AI response</span>
-        <textarea
-          className={inputClass}
-          name="aiResponse"
-          rows={5}
-          required
-          placeholder="Ndiyo, unaweza kutumia M-Pesa kulipa bili yako..."
-        />
+          <textarea
+            className={inputClass}
+            name="aiResponse"
+            rows={5}
+            placeholder="Leave blank to generate. Or paste the AI answer here."
+          />
       </label>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="space-y-1.5">

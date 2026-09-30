@@ -16,7 +16,8 @@ export default async function AdminPage() {
       include: { company: true },
     }),
     prisma.evaluationPayout.findMany({
-      where: { payeeUserId: user.id, payeeRole: "ADMIN", status: "PENDING" },
+      where: { payeeUserId: user.id, payeeRole: "ADMIN" },
+      orderBy: { createdAt: "desc" },
       take: 5,
     }),
   ])
@@ -26,8 +27,10 @@ export default async function AdminPage() {
       <h1 className="text-3xl tracking-tight">Review queue</h1>
       <p className="mt-2 text-muted">Open a completed evaluation, then approve or reject it.</p>
       {payouts.length > 0 ? (
-        <div className="mt-6">
-          <LightningPending who="Reviewer" />
+        <div className="mt-6 space-y-2">
+          {payouts.map((payout) => (
+            <LightningPending key={payout.id} who="Reviewer" status={payout.status} amountSats={payout.amountSats} />
+          ))}
         </div>
       ) : null}
       <ul className="mt-8 divide-y divide-line rounded-lg border border-line bg-card">

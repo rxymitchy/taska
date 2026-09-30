@@ -37,6 +37,7 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
         <div>
           <h2 className="text-sm font-medium uppercase tracking-wider text-muted">AI response</h2>
           <p className="mt-1 whitespace-pre-wrap">{report.aiResponse}</p>
+          <p className="mt-1 text-sm text-muted">Model: {report.aiModel}</p>
         </div>
       </section>
       {report.validated ? (

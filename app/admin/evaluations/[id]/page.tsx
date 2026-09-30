@@ -36,6 +36,7 @@ export default async function ReviewEvaluationPage({ params }: { params: Promise
         <div>
           <h2 className="text-sm font-medium uppercase tracking-wider text-muted">AI response</h2>
           <p className="mt-1 whitespace-pre-wrap">{evaluation.aiResponse}</p>
+          <p className="mt-1 text-sm text-muted">Model: {evaluation.aiModel}</p>
         </div>
         <dl className="space-y-2 rounded-lg border border-line bg-card p-4 text-sm">
           <div className="flex justify-between gap-4"><dt>Factually correct</dt><dd>{yesNo(answers.factuallyCorrect)}</dd></div>

@@ -1,6 +1,7 @@
 export type CompanyReport = {
   prompt: string
   aiResponse: string
+  aiModel: string
   language: string
   context: string
   factuallyCorrect: boolean | null
@@ -14,6 +15,7 @@ export type CompanyReport = {
 type ReportSource = {
   prompt: string
   aiResponse: string
+  aiModel?: string
   language: string
   context: string
   status: string
@@ -40,6 +42,7 @@ export function buildCompanyReport(evaluation: ReportSource): CompanyReport {
   return {
     prompt: evaluation.prompt,
     aiResponse: evaluation.aiResponse,
+    aiModel: evaluation.aiModel ?? "pasted",
     language: evaluation.language,
     context: evaluation.context,
     factuallyCorrect: latest?.factuallyCorrect ?? null,

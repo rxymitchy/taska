@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
 import { aiEvaluationSchema, humanEvaluationSchema } from "@/lib/validators"
 import { assignEvaluation } from "@/services/assignment"
+import { generateAiResponse } from "@/services/ai"
 import { recordPendingLightningPayouts } from "@/services/settlement"
 
 export async function createEvaluation(_prev: { error: string }, formData: FormData) {
@@ -21,11 +22,25 @@ export async function createEvaluation(_prev: { error: string }, formData: FormD
   })
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the evaluation." }
 
+  let aiResponse = parsed.data.aiResponse ?? ""
+  let aiModel = "pasted"
+  if (aiResponse.length < 4) {
+    const generated = await generateAiResponse({
+      prompt: parsed.data.prompt,
+      language: parsed.data.language,
+      context: parsed.data.context,
+    })
+    if (!generated?.text) return { error: "Could not generate a response. Paste one and try again." }
+    aiResponse = generated.text
+    aiModel = generated.model
+  }
+
   const created = await prisma.evaluation.create({
     data: {
       companyId: company.id,
       prompt: parsed.data.prompt,
-      aiResponse: parsed.data.aiResponse,
+      aiResponse,
+      aiModel,
       language: parsed.data.language,
       context: parsed.data.context,
       status: "PENDING",

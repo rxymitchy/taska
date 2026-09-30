@@ -42,6 +42,7 @@ export default async function WorkerEvaluationPage({ params }: { params: Promise
         <div>
           <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Response</h2>
           <p className="mt-1 whitespace-pre-wrap">{evaluation.aiResponse}</p>
+          <p className="mt-1 text-sm text-muted">Model: {evaluation.aiModel}</p>
         </div>
       </section>
       {evaluation.status === "ASSIGNED" ? (
@@ -60,7 +61,7 @@ export default async function WorkerEvaluationPage({ params }: { params: Promise
             <div className="flex justify-between gap-4"><dt>Understands local context</dt><dd>{yesNo(latest.understandsContext)}</dd></div>
           </dl>
           {latest.betterAnswer ? <p className="whitespace-pre-wrap text-sm text-muted">{latest.betterAnswer}</p> : null}
-          {payout ? <LightningPending who="Evaluator" /> : null}
+          {payout ? <LightningPending who="Evaluator" status={payout.status} amountSats={payout.amountSats} /> : null}
         </section>
       ) : null}
     </Container>

@@ -18,7 +18,7 @@ export default async function DashboardPage() {
       orderBy: { createdAt: "desc" },
     }),
     prisma.evaluationPayout.findMany({
-      where: { payeeUserId: user.id, status: "PENDING" },
+      where: { payeeUserId: user.id },
       orderBy: { createdAt: "desc" },
       take: 5,
     }),
@@ -29,8 +29,10 @@ export default async function DashboardPage() {
       <h1 className="text-3xl tracking-tight">Your evaluations</h1>
       <p className="mt-2 text-muted">Open an assigned AI response, answer the three questions, and send it for review.</p>
       {payouts.length > 0 ? (
-        <div className="mt-6">
-          <LightningPending who="Evaluator" />
+        <div className="mt-6 space-y-2">
+          {payouts.map((payout) => (
+            <LightningPending key={payout.id} who="Evaluator" status={payout.status} amountSats={payout.amountSats} />
+          ))}
         </div>
       ) : null}
       <ul className="mt-8 divide-y divide-line rounded-lg border border-line bg-card">

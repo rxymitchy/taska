@@ -7,7 +7,7 @@ The shared core is finished and must keep working while each module is built:
 ```
 Company creates evaluation → Pending → Assigned → Evaluator submits → Worker completed
 → Under review → Reviewer approves → Approved → Completed (validated)
-→ Lightning payouts recorded as Pending
+→ Lightning payouts recorded as Sent (mock)
 ```
 
 Reviewer rejection sets the evaluation back to Assigned. The evaluator edits the answers and submits again.
@@ -30,7 +30,7 @@ Password for every account: `demo1234`.
 2. Log in as the evaluator, `worker@taska.demo`. Open **My evaluations** and answer the three questions. Answering No to any of them makes the **Better answer** box appear, and it must be filled in. Submit.
 3. Log in as the reviewer, `admin@taska.demo`. Open **Review queue**, then approve.
 4. Log in as the company again. The evaluation shows **Validated** with the answers.
-5. The evaluator and reviewer screens show **Lightning — Pending**.
+5. The evaluator and reviewer screens show **Lightning — Sent** and the sat amount.
 
 `npm run db:seed` also creates one Swahili evaluation already assigned to the evaluator.
 
@@ -53,7 +53,7 @@ Password for every account: `demo1234`.
 
 **Input:** `{ evaluationId, workerUserId, reviewerUserId }`, sent after a reviewer approves.
 
-**Processing:** pay the evaluator and the reviewer over Lightning. Store the payment hash. Retry without paying twice.
+**Processing:** create a Lightning invoice for the evaluator and for the reviewer, pay it, store the payment hash. Retry without paying twice. The default provider is mock.
 
 **Output:** each `EvaluationPayout` row moves from `PENDING` to `SENT` or `FAILED`.
 
@@ -67,11 +67,11 @@ A failed payment must not undo the validated evaluation. Keys stay in server env
 
 **Input:** `{ prompt, language, context }`
 
-**Processing:** call a model that handles the chosen language, with timeouts and error handling.
+**Processing:** call `AI_API_KEY` / `AI_BASE_URL` when set. If they are missing or the call fails, return a local demo reply (`taska-local`).
 
-**Output:** the response text, or `null` when the company should paste one.
+**Output:** `{ text, model }`.
 
-**Connects:** beside `createEvaluation`, before the evaluation is stored. The company form must keep a manual response field so an API outage does not block evaluation.
+**Connects:** `createEvaluation` calls this when the company leaves the AI response blank. The paste field stays on the form.
 
 The AI pre-check goes in this file too: the model answers the same three questions before the evaluator does. It needs a new column or table (with the backend developer), and the company and reviewer pages show it next to the human answers (with the frontend developer).
 

@@ -21,7 +21,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!email || password.length < 8) return null
         const limit = rateLimit(`login:${email}`, 10, 15 * 60 * 1000)
         if (!limit.ok) return null
-        const user = await prisma.user.findUnique({ where: { email } })
+        const user = await Promise.race([
+          prisma.user.findUnique({ where: { email } }),
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 10_000)),
+        ])
         if (!user) return null
         const valid = await compare(password, user.passwordHash)
         if (!valid) return null
