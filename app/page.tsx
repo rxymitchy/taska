@@ -137,14 +137,6 @@ export default function HomePage() {
               </article>
             ))}
           </div>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link className={btnPrimary} href="/signup">
-              Sign up
-            </Link>
-            <Link className={btnSecondary} href="/login?callbackUrl=/employer/evaluations/new">
-              Get answers checked
-            </Link>
-          </div>
         </Container>
       </section>
 
@@ -152,8 +144,9 @@ export default function HomePage() {
         <Container className="py-16">
           <h2 className="text-2xl tracking-tight">Getting paid</h2>
           <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted">
-            Companies prepay in Lightning. Checkers and reviewers are paid for each approved answer, straight to a
-            Lightning address. Taska keeps a 2% fee. There is no cash-out to local currency in the app.
+            Companies prepay in Lightning (a real invoice to Taska’s wallet when Alby NWC is connected). Checkers and
+            reviewers are paid for each approved answer, straight to a Lightning address. Taska keeps a 2% fee. There is
+            no cash-out to local currency in the app.
           </p>
         </Container>
       </section>

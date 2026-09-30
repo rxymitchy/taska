@@ -55,7 +55,7 @@ Password for every account: `demo1234`.
 
 **Input:** `{ evaluationId, workerUserId, reviewerUserId }`, sent after a reviewer approves.
 
-**Processing:** pay the evaluator and reviewer Lightning addresses (LNURL-pay when live). Store the payment hash. Retry without paying twice. Mock unless `OPENNODE_API_KEY` is set. Company credits are spent in `lib/credits.ts` before this runs.
+**Processing:** pay the evaluator and reviewer Lightning addresses (LNURL-pay when live). Store the payment hash. Mock unless `NWC_URL` (Alby / NWC) or `OPENNODE_API_KEY` is set. Company credits are spent in `lib/credits.ts` before this runs.
 
 **Output:** each `EvaluationPayout` row moves from `PENDING` to `SENT` or `FAILED`.
 

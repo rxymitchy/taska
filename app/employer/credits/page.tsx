@@ -21,7 +21,8 @@ export default async function CreditsPage() {
   if (!company) return null
 
   const cost = companyCostPerEvaluation()
-  const mock = lightningProviderName() === "mock"
+  const rail = lightningProviderName()
+  const mock = rail === "mock"
 
   return (
     <Container className="max-w-2xl py-10">
@@ -30,6 +31,11 @@ export default async function CreditsPage() {
         Pay a Lightning invoice to fund evaluations. Each approved item costs {formatSats(cost)} (
         {formatSats(evaluatorPayoutSats())} evaluator, {formatSats(reviewerPayoutSats())} reviewer, plus 2% platform
         fee). Rejected work returns the hold. Credits are a company budget, not a worker wallet.
+        {rail === "nwc"
+          ? " Invoices are created on Taska’s Alby Hub over Nostr Wallet Connect. Bitcoin stays in that wallet, not in Taska’s database."
+          : mock
+            ? " This server is in demo mode until NWC_URL is set."
+            : ""}
       </p>
       <dl className="mt-6 grid gap-3 sm:grid-cols-2">
         <div className="rounded-lg border border-line bg-card px-4 py-3">

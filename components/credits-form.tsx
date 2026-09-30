@@ -5,7 +5,7 @@ import { createCreditInvoice, confirmCreditDeposit, type CreditActionState } fro
 import { btnPrimary, btnSecondary, inputClass, labelClass } from "@/lib/styles"
 import { formatSats } from "@/lib/money"
 
-const packs = [10_000, 50_000, 100_000, 500_000]
+import { CREDIT_PACKS } from "@/lib/credit-packs"
 const initial: CreditActionState = { error: "" }
 
 export function CreditsForm({ mock }: { mock: boolean }) {
@@ -16,8 +16,8 @@ export function CreditsForm({ mock }: { mock: boolean }) {
       <form action={action} className="space-y-4">
         <label className="space-y-1.5">
           <span className={labelClass}>Credit pack</span>
-          <select className={inputClass} name="amountSats" defaultValue="50000">
-            {packs.map((pack) => (
+          <select className={inputClass} name="amountSats" defaultValue="1000">
+            {CREDIT_PACKS.map((pack) => (
               <option key={pack} value={String(pack)}>
                 {formatSats(pack)}
               </option>
@@ -40,7 +40,11 @@ export function CreditsForm({ mock }: { mock: boolean }) {
             </p>
           ) : null}
           <p className="mt-2 break-all text-muted">{state.invoice}</p>
-          {mock ? <p className="mt-2 text-muted">Demo mode: after you create the invoice, mark it paid below.</p> : null}
+          {mock ? (
+            <p className="mt-2 text-muted">Demo mode: after you create the invoice, mark it paid below.</p>
+          ) : (
+            <p className="mt-2 text-muted">Pay with any Lightning wallet, then click Check payment.</p>
+          )}
         </div>
       ) : null}
     </div>

@@ -97,7 +97,7 @@ Example: a company asks its AI, in Swahili, "Ninaweza kutumia M-Pesa kulipa bili
 | Database | PostgreSQL through Prisma 6. PGlite locally, any hosted Postgres (for example Neon) in production |
 | Auth | Auth.js (NextAuth v5), email and password, JWT sessions, bcrypt hashing |
 | Validation | Zod 4 |
-| Payments | Bitcoin Lightning through `services/lightning`. Mock by default (`lnmock1`). OpenNode when `OPENNODE_API_KEY` is set |
+| Payments | Bitcoin Lightning. Mock by default. Live: Nostr Wallet Connect (`NWC_URL`, Alby Hub) or OpenNode |
 | Hosting | Vercel + Neon. Live: https://taska-beta.vercel.app |
 
 ## What is built
@@ -107,7 +107,7 @@ Example: a company asks its AI, in Swahili, "Ninaweza kutumia M-Pesa kulipa bili
 - Evaluator: list of assigned evaluations, the three-question form, the required better answer after a No, and a profile Lightning address.
 - Reviewer: review queue, approve or reject, invite other reviewers.
 - Full status flow, stored in Postgres, with each role only seeing its own data.
-- Lightning: company pays an invoice to add credits. After approval, evaluator and reviewer are paid to a Lightning address (LNURL-pay). Taska keeps about 2%. Mock invoices unless OpenNode is configured.
+- Lightning: company pays an invoice to add credits. After approval, evaluator and reviewer are paid to a Lightning address (LNURL-pay). Taska keeps about 2%. Live rail is **Nostr Wallet Connect** (Alby Hub) when `NWC_URL` is set; otherwise mock unless OpenNode is configured.
 - Demo accounts and seed data (the demo company starts with credits).
 
 ## What each teammate builds
@@ -127,7 +127,7 @@ Status: **Done** works today, **Partly** exists but needs more, **To do** is not
 | Manage task status | Done | Every status change lives in `app/actions/evaluations.ts` |
 | Store AI evaluation results | Partly | Human results and the generated answer (`aiModel`) are stored. An AI pre-check of the three questions is still open for the AI/ML developer |
 | Handle dataset export (CSV/JSON) | To do | **Upload is done.** Export is not: add a download of validated rows (better answers included) from `buildCompanyReport` in `services/reports/index.ts` |
-| Prepare the system for future Lightning payments | Done | Prepaid credits, 2% fee, mock or OpenNode. Payouts in `services/settlement/index.ts`. LNURL-pay for Lightning addresses |
+| Prepare the system for future Lightning payments | Done | Prepaid credits, 2% fee. Live: NWC (`services/lightning/nwc-provider.ts`) or OpenNode. Mock if neither is set |
 | Retry failed Lightning payouts | To do | `EvaluationPayout` can be `FAILED` while the evaluation stays Completed. Add a safe retry that does not pay twice |
 | Assign by language, not only the demo evaluator | To do | `services/assignment/index.ts` still prefers `worker@taska.demo`. CSV uploads in Yoruba/Twi need a matching speaker |
 | Connect the frontend with the AI system and database | Done | Blank AI response calls `generateAiResponse` in `services/ai/index.ts`. Set `AI_API_KEY` for a live model; otherwise a local demo reply is stored |
@@ -186,7 +186,7 @@ These are coordination tasks, so none of them are code. The things to track:
 | Coordinate the team, divide tasks, set deadlines | To do | Use the tables above |
 | Track everyone's progress and run meetings | To do | Update the Status column as work lands |
 | Make sure the parts integrate properly | Partly | Credits, upload, and invites now sit on the same evaluation path. Do not invent a second status list. Old marketplace code is still in the repo and unused |
-| Resolve blockers and make major decisions | To do | Decide: delete the old task marketplace code (`app/tasks`, `app/workers`, …) or leave it. Second: put a real `OPENNODE_API_KEY` on Vercel when you want live bitcoin |
+| Resolve blockers and make major decisions | To do | Delete old marketplace code or leave it. For live Lightning: create an Alby Hub, paste `NWC_URL` on Vercel (not OpenNode) |
 | Keep the project focused on the main problem | Ongoing | AI answers that work for African languages and local context |
 | Coordinate final testing | To do | Run the demo below after every merge. `npx tsc --noEmit` must pass |
 | Coordinate the final demo and presentation | To do | |
@@ -276,9 +276,15 @@ The first version of Taska was a general task marketplace. Its code is still in 
 
 ## Lightning
 
-Taska does not store wallet keys. Companies prepay work credits by paying a Lightning invoice (`app/employer/credits`). That budget is held when work is assigned and spent when a reviewer approves. Rejected work returns the hold. After approval, `services/settlement/index.ts` pays the evaluator (500 sats) and reviewer (200 sats) to a Lightning address. The company was charged 714 sats; 14 sats stay as the 2% fee. Failed pays mark the row Failed and leave the evaluation Completed. There is no in-app cash-out to local currency.
+Taska does not store wallet keys. Companies prepay by paying a Lightning invoice (`app/employer/credits`). That budget is held when work is assigned and spent when a reviewer approves. After approval, `services/settlement/index.ts` pays the evaluator (500 sats) and reviewer (200 sats) to a Lightning address. The company was charged 714 sats; 14 sats stay as the 2% fee.
 
-`LIGHTNING_PROVIDER=mock` (default) uses invoices that start with `lnmock1` and move no bitcoin. Set `OPENNODE_API_KEY` (or `LIGHTNING_PROVIDER=opennode`) for live invoices and LNURL-pay payouts. Keys stay in server environment variables.
+**Live (freedom tech):** set `NWC_URL` to a `nostr+walletconnect://…` connection from [Alby Hub](https://albyhub.com/). Taska creates invoices and sends payouts through that wallet over Nostr. The bitcoin sits in the Hub, not in Taska. Permissions needed: make invoices and pay invoices. Keep a balance in the Hub so payouts can leave.
+
+**Demo:** `LIGHTNING_PROVIDER=mock` (or no `NWC_URL`) uses `lnmock1` invoices. No bitcoin moves.
+
+OpenNode still works if `OPENNODE_API_KEY` is set and NWC is not. That is custodial; NWC is the hackathon path.
+
+Never put the NWC secret in the frontend or git.
 
 ## Environment variables
 
@@ -287,7 +293,8 @@ Taska does not store wallet keys. Companies prepay work credits by paying a Ligh
 | `DATABASE_URL` | Postgres connection string |
 | `AUTH_SECRET` | Session signing secret |
 | `AUTH_URL` | Public app URL |
-| `LIGHTNING_PROVIDER` | `mock` (default) or `opennode` |
+| `LIGHTNING_PROVIDER` | `mock`, `nwc`, or `opennode`. Ignored when `NWC_URL` is set (NWC wins) |
+| `NWC_URL` | `nostr+walletconnect://…` from Alby Hub. Enables live invoices and payouts |
 | `EVALUATOR_PAYOUT_SATS` | Payout to the evaluator (default 500) |
 | `REVIEWER_PAYOUT_SATS` | Payout to the reviewer (default 200) |
 | `PLATFORM_FEE_BPS` | Platform fee in basis points (default 200 = 2%) |

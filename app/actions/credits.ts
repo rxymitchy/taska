@@ -2,12 +2,13 @@
 
 import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
+import { CREDIT_PACKS } from "@/lib/credit-packs"
 import { lightningProviderName } from "@/lib/pricing"
 import { applyPaidDeposit } from "@/lib/credits"
 import { requireRole } from "@/lib/session"
 import { getLightningService } from "@/services/lightning"
 
-const PACKS = [10_000, 50_000, 100_000, 500_000] as const
+const PACKS = CREDIT_PACKS
 
 export type CreditActionState = { error: string; invoice?: string; checkoutUrl?: string }
 
@@ -39,7 +40,15 @@ export async function createCreditInvoice(_prev: CreditActionState, formData: Fo
     })
     revalidatePath("/employer/credits")
     return { error: "", invoice: created.invoice, checkoutUrl: created.checkoutUrl }
-  } catch {
+  } catch (error) {
+    if (lightningProviderName() === "nwc") {
+      return {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Alby Hub did not create an invoice. Is it online, and is NWC_URL set on the server?",
+      }
+    }
     return { error: "Could not create a Lightning invoice. Try again." }
   }
 }
