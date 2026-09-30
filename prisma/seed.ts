@@ -190,9 +190,13 @@ async function recordOutcome(input: {
 }
 
 async function main() {
+  await prisma.creditLedger.deleteMany()
+  await prisma.creditDeposit.deleteMany()
+  await prisma.reviewerInvite.deleteMany()
   await prisma.evaluationPayout.deleteMany()
   await prisma.evaluationSubmission.deleteMany()
   await prisma.evaluation.deleteMany()
+  await prisma.evaluationBatch.deleteMany()
   await prisma.lightningPayment.deleteMany()
   await prisma.payment.deleteMany()
   await prisma.taskSubmission.deleteMany()
@@ -213,6 +217,8 @@ async function main() {
         create: {
           companyName: "Helios AI",
           companyDescription: "A research team checking assistant quality before models ship.",
+          prepaidSats: 49286,
+          heldSats: 714,
           createdAt: daysAgo(80),
         },
       },
@@ -496,6 +502,7 @@ async function main() {
       language: "Swahili",
       context: "Kenya / M-Pesa",
       status: "ASSIGNED",
+      heldSats: 714,
       assignedWorkerId: amina.id,
       assignedAt: daysAgo(0),
     },

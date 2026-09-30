@@ -10,6 +10,28 @@ export const signupSchema = z.object({
   companyName: z.string().trim().max(120).optional(),
 })
 
+const destination = z
+  .string()
+  .trim()
+  .max(2048)
+  .refine(
+    (value) =>
+      value.length === 0 ||
+      /^ln/i.test(value) ||
+      /^[a-zA-Z0-9._~+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value),
+    "Enter a Lightning address (name@provider.com) or an invoice",
+  )
+
+export const destinationSchema = destination
+
+export const inviteSignupSchema = z.object({
+  name: z.string().trim().min(2).max(80),
+  email: z.string().trim().email().max(160),
+  password: z.string().min(8).max(100),
+  invite: z.string().min(16).max(128),
+  lightningAddress: destination.optional(),
+})
+
 export const taskSchema = z.object({
   title: z.string().trim().min(4).max(120),
   description: z.string().trim().min(10).max(2000),
@@ -50,18 +72,6 @@ export const evaluationSchema = z.object({
   choice: z.enum(["A", "B", "SIMILAR", "NEITHER"]),
   reason: z.string().trim().max(500).optional(),
 })
-
-const destination = z
-  .string()
-  .trim()
-  .max(2048)
-  .refine(
-    (value) =>
-      value.length === 0 ||
-      /^ln/i.test(value) ||
-      /^[a-zA-Z0-9._~+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value),
-    "Enter a Lightning address (name@provider.com) or an invoice",
-  )
 
 const optionalUrl = z
   .string()

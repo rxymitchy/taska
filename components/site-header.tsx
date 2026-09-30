@@ -16,14 +16,25 @@ export async function SiteHeader() {
         </Link>
         <nav className="flex items-center gap-1 text-sm font-medium">
           {role === "WORKER" ? (
-            <Link className={btnQuiet} href="/dashboard">
-              My evaluations
-            </Link>
+            <>
+              <Link className={btnQuiet} href="/dashboard">
+                My evaluations
+              </Link>
+              <Link className={btnQuiet} href="/profile">
+                Profile
+              </Link>
+            </>
           ) : null}
           {role === "EMPLOYER" ? (
             <>
               <Link className={btnQuiet} href="/employer">
                 Evaluations
+              </Link>
+              <Link className={btnQuiet} href="/employer/credits">
+                Credits
+              </Link>
+              <Link className={btnQuiet} href="/employer/upload">
+                Upload
               </Link>
               <Link className={btnPrimary} href="/employer/evaluations/new">
                 New evaluation
@@ -31,9 +42,14 @@ export async function SiteHeader() {
             </>
           ) : null}
           {role === "ADMIN" ? (
-            <Link className={btnQuiet} href="/admin">
-              Review queue
-            </Link>
+            <>
+              <Link className={btnQuiet} href="/admin">
+                Review queue
+              </Link>
+              <Link className={btnQuiet} href="/admin/invite">
+                Invite
+              </Link>
+            </>
           ) : null}
           {session ? (
             <form

@@ -10,6 +10,7 @@ export type Invoice = {
   invoice: string
   paymentHash: string
   amountSats: number
+  checkoutUrl?: string
 }
 
 export type PayInvoiceInput = {

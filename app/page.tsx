@@ -16,6 +16,33 @@ const checks = [
   ["Does it know the place?", "Like how M-Pesa actually works."],
 ]
 
+const samples = [
+  {
+    language: "Swahili",
+    place: "Kenya",
+    question: "Ninaweza kutumia M-Pesa kulipa bili hii?",
+    questionEn: "Can I pay this bill with M-Pesa?",
+    answer: "Ndiyo, unaweza kutumia M-Pesa kulipa bili yako…",
+    answerEn: "Yes, you can pay your bill with M-Pesa…",
+  },
+  {
+    language: "Yoruba",
+    place: "Nigeria",
+    question: "Ṣé mo lè fi transfer san owó ìwé yìí?",
+    questionEn: "Can I pay this school fee by bank transfer?",
+    answer: "Bẹẹni. Lo àkọọ́lẹ̀ banki tó wà lórí ìwé náà…",
+    answerEn: "Yes. Use the bank details on the bill…",
+  },
+  {
+    language: "Twi",
+    place: "Ghana",
+    question: "Metumi de mobile money atua bill yi?",
+    questionEn: "Can I pay this bill with mobile money?",
+    answer: "Aane. Fa MoMo kɔ merchant number a ɛwɔ bill no so…",
+    answerEn: "Yes. Send MoMo to the merchant number on the bill…",
+  },
+]
+
 export default function HomePage() {
   return (
     <>
@@ -25,11 +52,11 @@ export default function HomePage() {
             <h1 className="max-w-xl text-4xl leading-[1.05] tracking-tight sm:text-6xl">{brand.tagline}</h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">{brand.support}</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link className={btnPrimary} href="/login?callbackUrl=/employer/evaluations/new">
-                Get an AI answer checked
+              <Link className={btnPrimary} href="/signup">
+                Sign up
               </Link>
-              <Link className={btnSecondary} href="/login">
-                Log in
+              <Link className={btnSecondary} href="/login?callbackUrl=/employer/evaluations/new">
+                Get answers checked
               </Link>
             </div>
           </div>
@@ -89,19 +116,34 @@ export default function HomePage() {
 
       <section className="border-b border-line">
         <Container className="py-16">
-          <h2 className="text-2xl tracking-tight">Example</h2>
-          <div className="mt-6 max-w-2xl space-y-4 rounded-lg border border-line bg-card p-5">
-            <p className="text-sm text-muted">Swahili · Kenya</p>
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-muted">Question</p>
-              <p className="mt-1">Ninaweza kutumia M-Pesa kulipa bili hii?</p>
-              <p className="text-sm text-muted">Can I pay this bill with M-Pesa?</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-muted">AI answer</p>
-              <p className="mt-1">Ndiyo, unaweza kutumia M-Pesa kulipa bili yako…</p>
-              <p className="text-sm text-muted">Yes, you can pay your bill with M-Pesa…</p>
-            </div>
+          <h2 className="text-2xl tracking-tight">Sample evaluations</h2>
+          <p className="mt-2 max-w-2xl text-muted">This is the kind of work companies send and local speakers check.</p>
+          <div className="mt-8 grid gap-4 lg:grid-cols-3">
+            {samples.map((sample) => (
+              <article key={sample.language} className="rounded-lg border border-line bg-card p-5">
+                <p className="text-sm text-muted">
+                  {sample.language} · {sample.place}
+                </p>
+                <div className="mt-4">
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted">Question</p>
+                  <p className="mt-1">{sample.question}</p>
+                  <p className="text-sm text-muted">{sample.questionEn}</p>
+                </div>
+                <div className="mt-4">
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted">AI answer</p>
+                  <p className="mt-1">{sample.answer}</p>
+                  <p className="text-sm text-muted">{sample.answerEn}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link className={btnPrimary} href="/signup">
+              Sign up
+            </Link>
+            <Link className={btnSecondary} href="/login?callbackUrl=/employer/evaluations/new">
+              Get answers checked
+            </Link>
           </div>
         </Container>
       </section>
@@ -110,7 +152,8 @@ export default function HomePage() {
         <Container className="py-16">
           <h2 className="text-2xl tracking-tight">Getting paid</h2>
           <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted">
-            Checkers and reviewers get paid for each approved answer, fast and across borders, with Bitcoin Lightning.
+            Companies prepay in Lightning. Checkers and reviewers are paid for each approved answer, straight to a
+            Lightning address. Taska keeps a 2% fee. There is no cash-out to local currency in the app.
           </p>
         </Container>
       </section>

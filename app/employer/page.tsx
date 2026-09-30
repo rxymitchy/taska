@@ -1,8 +1,10 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Container, StatusPill } from "@/components/ui"
+import { formatSats } from "@/lib/money"
+import { companyCostPerEvaluation } from "@/lib/pricing"
 import { prisma } from "@/lib/prisma"
-import { btnPrimary } from "@/lib/styles"
+import { btnPrimary, btnSecondary } from "@/lib/styles"
 import { requireRole } from "@/lib/session"
 
 export const metadata: Metadata = { title: "Company" }
@@ -24,17 +26,29 @@ export default async function EmployerPage() {
     )
   }
   if (!company) return null
+  const cost = companyCostPerEvaluation()
 
   return (
     <Container className="py-10">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-3xl tracking-tight">{company.companyName}</h1>
-          <p className="mt-1 text-muted">AI evaluations you have submitted.</p>
+          <p className="mt-1 text-muted">
+            {formatSats(company.prepaidSats)} available · {formatSats(company.heldSats)} held · {formatSats(cost)} per
+            evaluation
+          </p>
         </div>
-        <Link className={btnPrimary} href="/employer/evaluations/new">
-          New evaluation
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link className={btnSecondary} href="/employer/credits">
+            Credits
+          </Link>
+          <Link className={btnSecondary} href="/employer/upload">
+            Upload
+          </Link>
+          <Link className={btnPrimary} href="/employer/evaluations/new">
+            New evaluation
+          </Link>
+        </div>
       </div>
       <ul className="mt-8 divide-y divide-line rounded-lg border border-line bg-card">
         {company.evaluations.length === 0 ? (

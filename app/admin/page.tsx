@@ -24,8 +24,15 @@ export default async function AdminPage() {
 
   return (
     <Container className="py-10">
-      <h1 className="text-3xl tracking-tight">Review queue</h1>
-      <p className="mt-2 text-muted">Open a completed evaluation, then approve or reject it.</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-3xl tracking-tight">Review queue</h1>
+          <p className="mt-2 text-muted">Open a completed evaluation, then approve or reject it.</p>
+        </div>
+        <Link className="text-sm font-semibold text-accent underline" href="/admin/invite">
+          Invite a reviewer
+        </Link>
+      </div>
       {payouts.length > 0 ? (
         <div className="mt-6 space-y-2">
           {payouts.map((payout) => (

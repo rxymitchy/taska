@@ -11,9 +11,13 @@ async function main() {
   const password = process.env.DEMO_PASSWORD || "demo1234"
   const passwordHash = await hash(password, 10)
 
+  await prisma.creditLedger.deleteMany()
+  await prisma.creditDeposit.deleteMany()
+  await prisma.reviewerInvite.deleteMany()
   await prisma.evaluationPayout.deleteMany()
   await prisma.evaluationSubmission.deleteMany()
   await prisma.evaluation.deleteMany()
+  await prisma.evaluationBatch.deleteMany()
   await prisma.lightningPayment.deleteMany()
   await prisma.payment.deleteMany()
   await prisma.taskSubmission.deleteMany()
@@ -44,7 +48,9 @@ async function main() {
       email: "employer@taska.demo",
       passwordHash,
       role: "EMPLOYER",
-      employerProfile: { create: { companyName: "Helios AI" } },
+      employerProfile: {
+        create: { companyName: "Helios AI", prepaidSats: 49286, heldSats: 714 },
+      },
     },
     include: { employerProfile: true },
   })
@@ -66,6 +72,7 @@ async function main() {
       language: "Swahili",
       context: "Kenya / M-Pesa",
       status: "ASSIGNED",
+      heldSats: 714,
       assignedWorkerId: worker.workerProfile!.id,
       assignedAt: new Date(),
     },

@@ -6,7 +6,8 @@ import { signIn } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { homeForRole } from "@/lib/session"
 import { rateLimit } from "@/lib/rate-limit"
-import { signupSchema } from "@/lib/validators"
+import { signupSchema, inviteSignupSchema } from "@/lib/validators"
+import { findOpenInvite, hashInviteToken } from "@/lib/invites"
 
 export type AuthState = { error: string }
 
@@ -57,6 +58,9 @@ export async function loginDemo(_prev: AuthState, formData: FormData): Promise<A
 }
 
 export async function signup(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const inviteToken = String(formData.get("invite") ?? "")
+  if (inviteToken) return signupReviewer(formData)
+
   const parsed = signupSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -108,6 +112,48 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
             }
           : undefined,
     },
+  })
+
+  const result = await signInWithPassword(email, parsed.data.password, homeForRole(user.role))
+  return result ?? { error: "" }
+}
+
+async function signupReviewer(formData: FormData): Promise<AuthState> {
+  const parsed = inviteSignupSchema.safeParse({
+    name: formData.get("name"),
+    email: formData.get("email"),
+    password: formData.get("password"),
+    invite: formData.get("invite"),
+    lightningAddress: formData.get("lightningAddress") || undefined,
+  })
+  if (!parsed.success) {
+    return { error: "Check your name, email, and password (8 or more characters)." }
+  }
+
+  const invite = await findOpenInvite(parsed.data.invite)
+  if (!invite) return { error: "This invite is invalid or has expired." }
+
+  const email = parsed.data.email.toLowerCase()
+  if (email !== invite.email) return { error: "Use the email this invite was sent to." }
+
+  const limit = rateLimit(`signup:${email}`, 5, 60 * 60 * 1000)
+  if (!limit.ok) return { error: "Too many attempts. Try again later." }
+
+  const existing = await prisma.user.findUnique({ where: { email } })
+  if (existing) return { error: "An account with that email already exists." }
+
+  const passwordHash = await hash(parsed.data.password, 10)
+  const user = await prisma.user.create({
+    data: {
+      email,
+      passwordHash,
+      role: "ADMIN",
+      lightningAddress: parsed.data.lightningAddress || null,
+    },
+  })
+  await prisma.reviewerInvite.updateMany({
+    where: { tokenHash: hashInviteToken(parsed.data.invite), usedAt: null },
+    data: { usedAt: new Date() },
   })
 
   const result = await signInWithPassword(email, parsed.data.password, homeForRole(user.role))

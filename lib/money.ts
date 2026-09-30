@@ -7,7 +7,10 @@ export function satsToUsd(sats: number) {
 }
 
 export function formatSats(sats: number) {
-  return `${sats.toLocaleString("en-US")} sats`
+  const formatted = Math.trunc(sats)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+  return `${formatted} sats`
 }
 
 export function formatUsd(sats: number) {

@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { holdCompanyCredits, releaseEvaluationHold, spendEvaluationHold } from "@/lib/credits"
+import { companyCostPerEvaluation } from "@/lib/pricing"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
 import { aiEvaluationSchema, humanEvaluationSchema } from "@/lib/validators"
@@ -35,6 +37,9 @@ export async function createEvaluation(_prev: { error: string }, formData: FormD
     aiModel = generated.model
   }
 
+  const held = await holdCompanyCredits(company.id, 1, "New evaluation")
+  if ("error" in held && held.error) return { error: held.error }
+
   const created = await prisma.evaluation.create({
     data: {
       companyId: company.id,
@@ -44,6 +49,7 @@ export async function createEvaluation(_prev: { error: string }, formData: FormD
       language: parsed.data.language,
       context: parsed.data.context,
       status: "PENDING",
+      heldSats: companyCostPerEvaluation(),
     },
   })
   await assignEvaluation(created.id)
@@ -134,6 +140,7 @@ export async function decideEvaluation(formData: FormData) {
       where: { id: evaluation.id },
       data: { status: "ASSIGNED" },
     })
+    await releaseEvaluationHold(evaluation.id)
     revalidatePath("/admin")
     revalidatePath("/dashboard")
     revalidatePath(`/employer/evaluations/${evaluation.id}`)
@@ -152,6 +159,7 @@ export async function decideEvaluation(formData: FormData) {
     where: { id: evaluation.id },
     data: { status: "COMPLETED", completedAt: new Date() },
   })
+  await spendEvaluationHold(evaluation.id)
   await recordPendingLightningPayouts({
     evaluationId: evaluation.id,
     workerUserId: evaluation.assignedWorker.userId,

@@ -7,42 +7,58 @@ import { btnPrimary, inputClass, labelClass } from "@/lib/styles"
 
 const initial: AuthState = { error: "" }
 
-export function SignupForm() {
+export function SignupForm({
+  inviteToken,
+  inviteEmail,
+}: {
+  inviteToken?: string
+  inviteEmail?: string
+}) {
   const [state, action, pending] = useActionState(signup, initial)
   const [role, setRole] = useState<"WORKER" | "EMPLOYER">("WORKER")
+  const invited = Boolean(inviteToken)
 
   return (
     <form action={action} className="space-y-4">
-      <fieldset className="space-y-2">
-        <legend className={labelClass}>I want to</legend>
-        <div className="flex gap-4 text-sm">
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              name="role"
-              value="WORKER"
-              checked={role === "WORKER"}
-              onChange={() => setRole("WORKER")}
-            />
-            Evaluate AI responses
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              name="role"
-              value="EMPLOYER"
-              checked={role === "EMPLOYER"}
-              onChange={() => setRole("EMPLOYER")}
-            />
-            Submit AI responses for evaluation
-          </label>
-        </div>
-      </fieldset>
+      {invited ? (
+        <>
+          <input type="hidden" name="invite" value={inviteToken} />
+          <p className="rounded-md border border-line bg-card px-3 py-2 text-sm">
+            You were invited to review evaluations.
+          </p>
+        </>
+      ) : (
+        <fieldset className="space-y-2">
+          <legend className={labelClass}>I want to</legend>
+          <div className="flex gap-4 text-sm">
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="role"
+                value="WORKER"
+                checked={role === "WORKER"}
+                onChange={() => setRole("WORKER")}
+              />
+              Evaluate AI responses
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="role"
+                value="EMPLOYER"
+                checked={role === "EMPLOYER"}
+                onChange={() => setRole("EMPLOYER")}
+              />
+              Submit AI responses for evaluation
+            </label>
+          </div>
+        </fieldset>
+      )}
       <label className="space-y-1.5">
-        <span className={labelClass}>{role === "WORKER" ? "Name" : "Your name"}</span>
+        <span className={labelClass}>{invited || role === "WORKER" ? "Name" : "Your name"}</span>
         <input className={inputClass} name="name" required />
       </label>
-      {role === "WORKER" ? (
+      {!invited && role === "WORKER" ? (
         <label className="space-y-1.5">
           <span className={labelClass}>Country</span>
           <select className={inputClass} name="country" required defaultValue="">
@@ -54,15 +70,23 @@ export function SignupForm() {
             ))}
           </select>
         </label>
-      ) : (
+      ) : null}
+      {!invited && role === "EMPLOYER" ? (
         <label className="space-y-1.5">
           <span className={labelClass}>Company</span>
           <input className={inputClass} name="companyName" required />
         </label>
-      )}
+      ) : null}
+      {invited ? (
+        <label className="space-y-1.5">
+          <span className={labelClass}>Lightning address</span>
+          <input className={inputClass} name="lightningAddress" placeholder="name@provider.com" />
+          <span className="block text-xs text-muted">Where Taska should send reviewer payouts.</span>
+        </label>
+      ) : null}
       <label className="space-y-1.5">
         <span className={labelClass}>Email</span>
-        <input className={inputClass} name="email" type="email" required />
+        <input className={inputClass} name="email" type="email" required defaultValue={inviteEmail} readOnly={invited} />
       </label>
       <label className="space-y-1.5">
         <span className={labelClass}>Password</span>
