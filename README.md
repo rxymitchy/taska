@@ -10,12 +10,6 @@ Taska is how someone who actually speaks the language catches that. They get pai
 
 Work is assigned by language: Rita for Swahili, Chinedu for Yoruba, Ama for Twi. If nobody speaks that language, the row waits.
 
-One approved check costs the company **918 sats**: 500 to the speaker, 400 to the reviewer, 18 to Taska (2%). Rejected work is not charged.
-
-Demo logins (password `demo1234`): **Rita**, **Company**, **Reviewer**. Extra buttons: Chinedu · Yoruba, Ama · Twi.
-
-`/api/health` returns `{ ok, db, lightning }`. `lightning` is `nwc` when a live wallet is connected, otherwise `mock`.
-
 ## How the app works
 
 Money, status, and roles follow one path. Do not add a second one.
