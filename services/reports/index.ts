@@ -1,3 +1,5 @@
+import { prisma } from "@/lib/prisma"
+
 export type CompanyReport = {
   prompt: string
   aiResponse: string
@@ -52,4 +54,12 @@ export function buildCompanyReport(evaluation: ReportSource): CompanyReport {
     comment: latest?.comment ?? "",
     validated: evaluation.status === "COMPLETED",
   }
+}
+
+export async function findValidatedEvaluations(companyId: string) {
+  return prisma.evaluation.findMany({
+    where: { companyId, status: "COMPLETED" },
+    include: { submissions: true },
+    orderBy: { completedAt: "desc" },
+  })
 }
