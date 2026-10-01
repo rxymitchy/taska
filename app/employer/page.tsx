@@ -39,18 +39,22 @@ export default async function EmployerPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link className={btnSecondary} href="/api/employer/export?format=csv">
-            Download CSV
-          </Link>
-          <Link className={btnSecondary} href="/api/employer/export?format=json">
-            Download JSON
-          </Link>
           <Link className={btnSecondary} href="/employer/credits">
             Add credit
           </Link>
           <Link className={btnSecondary} href="/employer/upload">
             Upload
           </Link>
+          {company.evaluations.some((evaluation) => evaluation.status === "COMPLETED") ? (
+            <>
+              <Link className={btnSecondary} href="/api/employer/export?format=csv">
+                Download CSV
+              </Link>
+              <Link className={btnSecondary} href="/api/employer/export?format=json">
+                Download JSON
+              </Link>
+            </>
+          ) : null}
           <Link className={btnPrimary} href="/employer/evaluations/new">
             Check an answer
           </Link>

@@ -8,14 +8,17 @@ import { buildExportRows } from "@/services/reports/export"
 const Query = z.object({ format: z.enum(["csv", "json"]).default("json") })
 const CSV_COLUMNS = [
   "evaluationId",
+  "prompt",
+  "aiResponse",
+  "aiModel",
   "language",
   "context",
-  "question",
-  "aiAnswer",
-  "isAccurate",
-  "isNatural",
-  "isCulturallyAware",
+  "factuallyCorrect",
+  "languageNatural",
+  "understandsContext",
   "betterAnswer",
+  "comment",
+  "validated",
   "completedAt",
 ] as const
 

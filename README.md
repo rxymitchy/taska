@@ -135,7 +135,7 @@ Status: **Done** means it works today. **Partly** means some of it exists but st
 | Receive and store submissions  | Done   | `submitHumanEvaluation`, `EvaluationSubmission`           |
 | Manage task status             | Done   | `app/actions/evaluations.ts`                              |
 | Store AI evaluation results    | Done   | Human and optional AI rubric results + model are stored   |
-| Dataset export                 | To do  | Add download of validated rows from `buildCompanyReport`  |
+| Dataset export                 | Done   | CSV/JSON downloads of validated rows from the employer dashboard |
 | Lightning payments             | Done   | Credits, 500 / 400 / 2%. `services/lightning/`            |
 | Retry failed payouts           | Done   | Reviewer queue                                            |
 | Assign by language             | Done   | Swahili → Rita, Yoruba → Chinedu, Twi → Ama               |
