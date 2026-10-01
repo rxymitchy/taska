@@ -11,6 +11,7 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
     "db:seed:demo": "tsx scripts/seed-demo.ts",
+    "db:samples": "tsx scripts/ensure-demo-evaluations.ts",
     "postinstall": "prisma generate"
   },
   "prisma": {

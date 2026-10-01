@@ -5,5 +5,5 @@ export const brand = {
   support:
     "Greetings, new slang, and how things work where you live — if the answer is off, you say so and write it the way people talk. The AI gets better. You get paid. Everyone can use it well. Win-win.",
   cta: "Sign me up",
-  footer: "Check an answer. Get paid. No minimum.",
+  footer: "Bitcoin over Lightning. No minimum.",
 } as const

@@ -11,6 +11,7 @@ import { PrismaClient, type Task } from "@prisma/client"
 import { hash } from "bcryptjs"
 import { randomBytes } from "crypto"
 import { evaluationBank } from "../lib/evaluation-bank"
+import { demoEvaluations, speakerEmail } from "../lib/demo-evaluations"
 import { companyCostPerEvaluation } from "../lib/pricing"
 import { refreshWorkerStats } from "../services/stats"
 
@@ -209,6 +210,7 @@ async function main() {
 
   const passwordHash = await hash(process.env.DEMO_PASSWORD || "demo1234", 10)
   const hold = companyCostPerEvaluation()
+  const held = hold * demoEvaluations.length
   const employer = await prisma.user.create({
     data: {
       email: "employer@taska.demo",
@@ -220,7 +222,7 @@ async function main() {
           companyName: "Helios AI",
           companyDescription: "A research team checking assistant quality before models ship.",
           prepaidSats: 49286,
-          heldSats: hold,
+          heldSats: held,
           createdAt: daysAgo(80),
         },
       },
@@ -495,20 +497,22 @@ async function main() {
     await refreshWorkerStats(person.id)
   }
 
-  await prisma.evaluation.create({
-    data: {
-      companyId: employerId,
-      prompt: "Ninaweza kutumia M-Pesa kulipa bili hii?",
-      aiResponse:
-        "Ndiyo, unaweza kutumia M-Pesa kulipa bili yako. Chagua Lipa na M-Pesa, kisha Pay Bill, weka nambari ya biashara na nambari ya akaunti iliyo kwenye bili.",
-      language: "Swahili",
-      context: "Kenya / M-Pesa",
-      status: "ASSIGNED",
-      heldSats: hold,
-      assignedWorkerId: amina.id,
-      assignedAt: daysAgo(0),
-    },
-  })
+  for (const sample of demoEvaluations) {
+    const speaker = byEmail[speakerEmail[sample.speaker]]
+    await prisma.evaluation.create({
+      data: {
+        companyId: employerId,
+        prompt: sample.prompt,
+        aiResponse: sample.aiResponse,
+        language: sample.language,
+        context: sample.context,
+        status: "ASSIGNED",
+        heldSats: hold,
+        assignedWorkerId: speaker.id,
+        assignedAt: daysAgo(0),
+      },
+    })
+  }
 }
 
 function openTask(

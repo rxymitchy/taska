@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Container } from "@/components/ui"
 import { brand } from "@/lib/brand"
+import { demoEvaluations } from "@/lib/demo-evaluations"
 import { btnPrimary, btnSecondary } from "@/lib/styles"
 
 const steps = [
@@ -41,33 +42,6 @@ const pay = [
     "Nobody can freeze your pay",
     "It goes to you, not into an account we can lock. A ban here cannot sit on what you already earned.",
   ],
-]
-
-const samples = [
-  {
-    language: "Swahili",
-    place: "Kenya",
-    question: "Niaje, uko poa?",
-    questionEn: "Hey, you good?",
-    answer: "Habari yako? Nina furaha kukuona. Uko vizuri?",
-    answerEn: "How are you? I am pleased to see you. Are you well?",
-  },
-  {
-    language: "Yoruba",
-    place: "Nigeria",
-    question: "Ṣé mo lè fi transfer san owó ìwé yìí?",
-    questionEn: "Can I pay this school fee by bank transfer?",
-    answer: "Bẹẹni. Lo àkọọ́lẹ̀ banki tó wà lórí ìwé náà…",
-    answerEn: "Yes. Use the bank details on the bill…",
-  },
-  {
-    language: "Twi",
-    place: "Ghana",
-    question: "Metumi de mobile money atua bill yi?",
-    questionEn: "Can I pay this bill with mobile money?",
-    answer: "Aane. Fa MoMo kɔ merchant number a ɛwɔ bill no so…",
-    answerEn: "Yes. Send MoMo to the merchant number on the bill…",
-  },
 ]
 
 export default function HomePage() {
@@ -132,8 +106,9 @@ export default function HomePage() {
         <Container className="py-16">
           <h2 className="text-2xl tracking-tight">Get paid as you go</h2>
           <p className="mt-2 max-w-2xl text-muted">
-            Small work still pays. You do not wait for a minimum. And the money is yours — not stuck in an account
-            someone else can freeze.
+            Pay is bitcoin, sent over Lightning. Lightning is the fast lane: when a check is agreed, a small amount
+            can leave right then and land in a wallet on your phone in seconds — like mobile money, not a bank
+            transfer that waits. We never hold it, so there is no minimum and no frozen balance.
           </p>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {pay.map(([title, copy]) => (
@@ -164,23 +139,24 @@ export default function HomePage() {
         <Container className="py-16">
           <h2 className="text-2xl tracking-tight">This is the kind of thing you check</h2>
           <p className="mt-2 max-w-2xl text-muted">
-            A greeting. New slang. How you pay a bill. If the AI is off, you say so — and write it how people talk.
+            A greeting. New slang. How you pay a bill. These are samples — if the AI is off, you say so and write it
+            how people talk.
           </p>
-          <div className="mt-8 grid gap-4 lg:grid-cols-3">
-            {samples.map((sample) => (
-              <article key={sample.language} className="rounded-lg border border-line bg-card p-5">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {demoEvaluations.map((sample) => (
+              <article key={sample.prompt} className="rounded-lg border border-line bg-card p-5">
                 <p className="text-sm text-muted">
                   {sample.language} · {sample.place}
                 </p>
                 <div className="mt-4">
                   <p className="text-xs font-medium uppercase tracking-wider text-muted">Question</p>
-                  <p className="mt-1">{sample.question}</p>
-                  <p className="text-sm text-muted">{sample.questionEn}</p>
+                  <p className="mt-1">{sample.prompt}</p>
+                  <p className="text-sm text-muted">{sample.promptEn}</p>
                 </div>
                 <div className="mt-4">
                   <p className="text-xs font-medium uppercase tracking-wider text-muted">AI answer</p>
-                  <p className="mt-1">{sample.answer}</p>
-                  <p className="text-sm text-muted">{sample.answerEn}</p>
+                  <p className="mt-1">{sample.aiResponse}</p>
+                  <p className="text-sm text-muted">{sample.aiResponseEn}</p>
                 </div>
               </article>
             ))}

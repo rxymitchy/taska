@@ -6,9 +6,17 @@ Live: [taska-beta.vercel.app](https://taska-beta.vercel.app) · Hack4Freedom 202
 
 AI already answers people in Nairobi, Lagos, and Accra. A lot of those answers are fluent and still wrong — a greeting that is too stiff, slang that misses, or the wrong way to pay a bill.
 
-Taska is how someone who actually speaks the language catches that. They get paid when a reviewer agrees. There is no minimum to wait for, and Taska never holds the money, so a frozen account cannot sit on what they already earned.
+Taska is how someone who actually speaks the language catches that. They get paid when a reviewer agrees.
+
+Pay is **bitcoin, sent over Lightning**. Lightning is the fast lane for small amounts: when the check is agreed, money leaves right then and lands in a wallet on their phone in seconds — like mobile money, not a bank transfer that waits, and not a PayPal balance that sits until it hits a minimum. Taska never holds the money or the wallet keys, so a frozen account cannot sit on what they already earned.
 
 Work is assigned by language: Rita for Swahili, Chinedu for Yoruba, Ama for Twi. If nobody speaks that language, the row waits.
+
+The company pays a Lightning invoice so the work can start. When a reviewer agrees, bitcoin goes out over Lightning to the speaker and the reviewer — straight to wallets they hold. Rejected work is not charged. Nothing sits in Taska waiting to be cashed out.
+
+Demo logins (password `demo1234`): **Rita**, **Company**, **Reviewer**. Extra buttons: Chinedu · Yoruba, Ama · Twi.
+
+`/api/health` returns `{ ok, db, lightning }`. `lightning` is `nwc` when a live wallet is connected, otherwise `mock`.
 
 ## How the app works
 
@@ -166,20 +174,19 @@ Status: **Done** works today, **Partly** exists but needs more, **To do** is not
 | Document how the platform works | Done | This README + `docs/team.md` |
 | Screenshots | To do | `docs/screenshots/` |
 | Final technical docs | To do | |
-| Help the pitch | Done | Homepage story + the demo below |
+| Pitch PowerPoint | To do | Deck for Demo Day: the language problem, the loop, how bitcoin moves over Lightning |
+| Pitch / demo videos | To do | Record the walkthrough (same path as Demo below) |
 
 ### 5. Group Lead / Project Lead
 
+She checks in on the team. She does not ship the product — that is the other four roles.
+
 | Task | Status | Notes |
 | --- | --- | --- |
-| Coordinate the team | Ongoing | Tables above |
-| Track progress | Ongoing | Update Status as work lands |
-| Make sure parts integrate | Partly | One evaluation path. Old marketplace code is unused and still in the repo |
-| Resolve blockers | To do | Connect Alby Hub (`NWC_URL` on Vercel). Real Lightning addresses on Rita and the reviewer for a live sats demo. Decide whether to delete old `/tasks` code |
-| Keep focus | Ongoing | Local people paid in sats to catch a bad African-language AI answer |
-| Final testing | To do | Demo below after every merge. `npx tsc --noEmit` must pass |
-| Final demo / pitch | To do | One loop. Assignment is a 30-second extra, not a second product |
-| Ready for submission | Partly | Live app + GitHub. Confirm `DEMO_LOGIN`. Live bitcoin needs Hub connected |
+| Call meetings | Ongoing | Set times, keep them short, make sure people show up |
+| Check in on everyone | Ongoing | Confirm each person is moving and not stuck |
+| Progress updates | Ongoing | Make sure people update Status in this README when they ship |
+| Keep focus | Ongoing | Language work that gets paid. Not extra features |
 
 ## Local development
 
@@ -241,14 +248,24 @@ Password for every demo account: `demo1234`
 
 The login page has buttons when `DEMO_LOGIN=true`.
 
+**Sample checks already loaded** (greeting + how you pay, in three languages):
+
+| Who | Language | Samples |
+| --- | --- | --- |
+| Rita | Swahili | `Niaje, uko poa?` · M-Pesa bill · M-Pesa without a phone |
+| Chinedu | Yoruba | `Bawo ni, ṣé o wa okay?` · school fee by transfer |
+| Ama | Twi | `Ɛte sɛn? Woyɛ okay?` · mobile money bill |
+
+They are samples, not the only work. A company can send more.
+
 **Main loop (show this):**
 
-1. **Company** — credits are loaded. **Get an answer checked**, Swahili, Kenya / M-Pesa. Hold 918 sats. The list should say **Rita Mwangi**.
-2. **Rita** — three questions. A No needs a better answer.
+1. **Company** — credits are loaded. The list already has several checks. Open one Swahili row — it should say **Rita Mwangi**.
+2. **Rita** — she has more than one. Three questions. A No needs a better answer.
 3. **Reviewer** — agree, pay the speaker (or send it back).
-4. **Company** — validated result. Rita and the reviewer see Lightning Sent and the sats.
+4. **Company** — validated result. Rita and the reviewer get paid over Lightning.
 
-**Assignment extra (only if asked):** company sends Yoruba → Chinedu, Twi → Ama.
+**Assignment extra:** open **Chinedu · Yoruba** or **Ama · Twi** to see the other samples.
 
 Set `DEMO_LOGIN=false` before a fully public launch if you do not want the demo buttons.
 
@@ -306,6 +323,7 @@ Never commit `.env`. Never put Lightning keys or seeds in the frontend or the da
 - `npm run dev` — app
 - `npm run db` — local Postgres
 - `npm run db:seed` — demo data
+- `npm run db:samples` — add the extra sample checks without wiping
 - `npm run build` — production build
 - `npm run lint` — lint
 
