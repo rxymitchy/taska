@@ -4,19 +4,21 @@ Check whether AI answers sound right in your language. If they do not, write the
 
 Live: [taska-beta.vercel.app](https://taska-beta.vercel.app) · Hack4Freedom 2026 · [GitHub](https://github.com/rxymitchy/taska)
 
-AI already answers people in Nairobi, Lagos, and Accra. A lot of those answers are fluent and still wrong — a greeting that is too stiff, slang that misses, or the wrong way to pay a bill.
+AI can sound fluent and still get things wrong.
 
-Taska is how someone who actually speaks the language catches that. They get paid when a reviewer agrees.
+A greeting might feel unnatural. Slang might be completely off. A payment instruction might not make sense locally.
 
-Pay is **bitcoin, sent over Lightning**. Lightning is the fast lane for small amounts: when the check is agreed, money leaves right then and lands in a wallet on their phone in seconds — like mobile money, not a bank transfer that waits, and not a PayPal balance that sits until it hits a minimum. Taska never holds the money or the wallet keys, so a frozen account cannot sit on what they already earned.
+Taska lets people who actually speak the language check AI responses and get paid for it.
 
-Work is assigned by language: Rita for Swahili, Chinedu for Yoruba, Ama for Twi. If nobody speaks that language, the row waits.
+Work is matched by language — Rita checks Swahili, Chinedu checks Yoruba, and Ama checks Twi. If there’s no speaker for a language, the work waits.
 
-The company pays a Lightning invoice so the work can start. When a reviewer agrees, bitcoin goes out over Lightning to the speaker and the reviewer — straight to wallets they hold. Rejected work is not charged. Nothing sits in Taska waiting to be cashed out.
+Get paid as you go
 
-Demo logins (password `demo1234`): **Rita**, **Company**, **Reviewer**. Extra buttons: Chinedu · Yoruba, Ama · Twi.
+Payments are made in Bitcoin over Lightning. When a reviewer approves the work, payment is sent directly to the speaker and reviewer’s wallets in seconds.
 
-`/api/health` returns `{ ok, db, lightning }`. `lightning` is `nwc` when a live wallet is connected, otherwise `mock`.
+It works more like mobile money than a traditional bank transfer: no minimum balance, no waiting for a payout, and Taska never holds your money.
+
+Rejected work isn’t charged.
 
 ## How the app works
 
