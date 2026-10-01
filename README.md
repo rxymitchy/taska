@@ -164,13 +164,13 @@ Status: **Done** means it works today. **Partly** means some of it exists but st
 
 | Task                                | Status | Where to start                                      |
 | ----------------------------------- | ------ | --------------------------------------------------- |
-| Research models / SDKs              | To do  | Keep API keys in server environment                 |
-| Test African-language support       | To do  | Languages in `lib/catalog.ts`; start with Swahili   |
-| AI-assisted task generation         | Partly | `generateAiResponse` fills a blank company response |
-| AI response evaluation              | To do  | Pre-check using the same three questions            |
-| Fluency, accuracy and local context | To do  | Three evaluation questions                          |
-| Compare AI vs human                 | To do  | Show differences on company and reviewer pages      |
-| Document AI models                  | To do  | `docs/ai.md`                                        |
+| Research models / SDKs              | Done   | Keep API keys in server environment                 |
+| Test African-language support       | Done   | Languages in `lib/catalog.ts`; start with Swahili   |
+| AI-assisted task generation         | Done   | `generateAiResponse` fills a blank company response |
+| AI response evaluation              | Done   | Pre-check using the same three questions            |
+| Fluency, accuracy and local context | Done   | Three evaluation questions                          |
+| Compare AI vs human                 | Done   | Show differences on company and reviewer pages      |
+| Document AI models                  | Done   | `docs/ai.md`                                        |
 
 ## 4. Documentation Lead
 
