@@ -2,6 +2,14 @@ import Link from "next/link"
 import { Container } from "@/components/ui"
 import { brand } from "@/lib/brand"
 import { demoEvaluations } from "@/lib/demo-evaluations"
+
+const homepageSamples = demoEvaluations.filter((sample) =>
+  [
+    "Niaje, uko poa?",
+    "Ṣé mo lè fi transfer san owó ìwé yìí?",
+    "Metumi de mobile money atua bill yi?",
+  ].includes(sample.prompt),
+)
 import { btnPrimary, btnSecondary } from "@/lib/styles"
 
 const steps = [
@@ -31,16 +39,16 @@ const checks = [
 
 const pay = [
   [
-    "Even a little still pays",
-    "You do not wait until it adds up to some big number. When the check is agreed, you get paid.",
+    "Bitcoin over Lightning",
+    "When a check is approved, a small payment can be sent straight to your phone wallet in seconds.",
   ],
   [
-    "No minimum to take it out",
-    "With apps like PayPal, small money sits there until you hit a threshold. Here the work pays as it goes.",
+    "Like mobile money",
+    "Think mobile money, not a bank transfer — no waiting for payment to clear.",
   ],
   [
-    "Nobody can freeze your pay",
-    "It goes to you, not into an account we can lock. A ban here cannot sit on what you already earned.",
+    "We never hold it",
+    "No minimum balance, no frozen money, and no waiting to get paid.",
   ],
 ]
 
@@ -57,8 +65,8 @@ export default function HomePage() {
               <Link className={btnPrimary} href="/signup">
                 {brand.cta}
               </Link>
-              <Link className={btnSecondary} href="/login?callbackUrl=/employer/evaluations/new">
-                Check my AI
+              <Link className={btnSecondary} href="/signup?as=company">
+                For companies
               </Link>
             </div>
           </div>
@@ -105,10 +113,13 @@ export default function HomePage() {
       <section className="border-b border-line">
         <Container className="py-16">
           <h2 className="text-2xl tracking-tight">Get paid as you go</h2>
-          <p className="mt-2 max-w-2xl text-muted">
-            Pay is bitcoin, sent over Lightning. Lightning is the fast lane: when a check is agreed, a small amount
-            can leave right then and land in a wallet on your phone in seconds — like mobile money, not a bank
-            transfer that waits. We never hold it, so there is no minimum and no frozen balance.
+          <p className="mt-4 max-w-2xl text-xl leading-snug">Get paid in Bitcoin, instantly over Lightning.</p>
+          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted">
+            When a check is approved, a small payment can be sent straight to your phone wallet in seconds. Think
+            mobile money, not a bank transfer — no waiting for payment to clear.
+          </p>
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-muted">
+            We never hold your funds, so there is no minimum balance, no frozen money, and no waiting to get paid.
           </p>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {pay.map(([title, copy]) => (
@@ -137,13 +148,13 @@ export default function HomePage() {
 
       <section>
         <Container className="py-16">
-          <h2 className="text-2xl tracking-tight">This is the kind of thing you check</h2>
+          <h2 className="text-2xl tracking-tight">This is the kind of work you check</h2>
           <p className="mt-2 max-w-2xl text-muted">
             A greeting. New slang. How you pay a bill. These are samples — if the AI is off, you say so and write it
             how people talk.
           </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {demoEvaluations.map((sample) => (
+            {homepageSamples.map((sample) => (
               <article key={sample.prompt} className="rounded-lg border border-line bg-card p-5">
                 <p className="text-sm text-muted">
                   {sample.language} · {sample.place}

@@ -92,7 +92,7 @@ Do not add a second status list. Change `EvaluationStatus` only in `app/actions/
 | UI | React 19, Tailwind CSS 4 |
 | Language | TypeScript |
 | Database | PostgreSQL through Prisma 6. PGlite locally, Neon in production |
-| Auth | Auth.js (NextAuth v5), email and password, JWT sessions, bcrypt hashing |
+| Auth | Auth.js (NextAuth v5), email and password, JWT sessions (1 hour), bcrypt hashing |
 | Validation | Zod 4 |
 | Payments | Bitcoin Lightning. Live: Nostr Wallet Connect (`NWC_URL`, Alby Hub). Mock if unset |
 | Hosting | Vercel + Neon. Live: https://taska-beta.vercel.app |
@@ -105,6 +105,7 @@ Do not add a second status list. Change `EvaluationStatus` only in `app/actions/
 - Reviewer: queue, approve or reject (sats move only on agree), invite others, retry failed payouts.
 - Lightning: invoice in, payout to Lightning addresses (LNURL-pay when live). Keys never in the database. OpenNode is not used.
 - Demo accounts. Homepage: slang, get paid as you go, no minimum.
+- Signup emails a confirmation when `RESEND_API_KEY` is set. Login lasts one hour.
 
 ## What each teammate builds
 
@@ -304,6 +305,8 @@ Never put the NWC secret in the frontend or git.
 | `DATABASE_URL` | Postgres connection string |
 | `AUTH_SECRET` | Session signing secret |
 | `AUTH_URL` | Public app URL |
+| `RESEND_API_KEY` | Sends the signup confirmation email |
+| `EMAIL_FROM` | From address for that email, e.g. `Taska <noreply@yourdomain.com>` |
 | `NWC_URL` | Alby Hub connection. Turns on live invoices and payouts |
 | `EVALUATOR_PAYOUT_SATS` | Speaker payout (default 500) |
 | `REVIEWER_PAYOUT_SATS` | Reviewer payout (default 400) |

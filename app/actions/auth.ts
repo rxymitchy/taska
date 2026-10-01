@@ -8,6 +8,7 @@ import { homeForRole } from "@/lib/session"
 import { rateLimit } from "@/lib/rate-limit"
 import { signupSchema, inviteSignupSchema } from "@/lib/validators"
 import { findOpenInvite, hashInviteToken } from "@/lib/invites"
+import { sendSignupConfirmation } from "@/lib/mail"
 
 export type AuthState = { error: string }
 
@@ -126,6 +127,11 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
     },
   })
 
+  await sendSignupConfirmation({
+    to: email,
+    name: parsed.data.name,
+    role: user.role,
+  })
   const result = await signInWithPassword(email, parsed.data.password, homeForRole(user.role))
   return result ?? { error: "" }
 }
@@ -168,6 +174,11 @@ async function signupReviewer(formData: FormData): Promise<AuthState> {
     data: { usedAt: new Date() },
   })
 
+  await sendSignupConfirmation({
+    to: email,
+    name: parsed.data.name,
+    role: user.role,
+  })
   const result = await signInWithPassword(email, parsed.data.password, homeForRole(user.role))
   return result ?? { error: "" }
 }

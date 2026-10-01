@@ -10,12 +10,14 @@ const initial: AuthState = { error: "" }
 export function SignupForm({
   inviteToken,
   inviteEmail,
+  asCompany = false,
 }: {
   inviteToken?: string
   inviteEmail?: string
+  asCompany?: boolean
 }) {
   const [state, action, pending] = useActionState(signup, initial)
-  const [role, setRole] = useState<"WORKER" | "EMPLOYER">("WORKER")
+  const [role, setRole] = useState<"WORKER" | "EMPLOYER">(asCompany ? "EMPLOYER" : "WORKER")
   const invited = Boolean(inviteToken)
 
   return (
@@ -29,7 +31,7 @@ export function SignupForm({
         </>
       ) : (
         <fieldset className="space-y-2">
-          <legend className={labelClass}>I want to</legend>
+          <legend className={labelClass}>I am a</legend>
           <div className="flex flex-col gap-2 text-sm">
             <label className="flex items-center gap-2">
               <input
@@ -39,7 +41,7 @@ export function SignupForm({
                 checked={role === "WORKER"}
                 onChange={() => setRole("WORKER")}
               />
-              Check answers in my language
+              Speaker — I get paid
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -49,7 +51,7 @@ export function SignupForm({
                 checked={role === "EMPLOYER"}
                 onChange={() => setRole("EMPLOYER")}
               />
-              Get my AI answers checked
+              Company — I send work
             </label>
           </div>
         </fieldset>
@@ -89,6 +91,7 @@ export function SignupForm({
       <label className="space-y-1.5">
         <span className={labelClass}>Email</span>
         <input className={inputClass} name="email" type="email" required defaultValue={inviteEmail} readOnly={invited} />
+        <span className="block text-xs text-muted">We'll send a confirmation email.</span>
       </label>
       <label className="space-y-1.5">
         <span className={labelClass}>Password</span>

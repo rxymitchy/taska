@@ -4,9 +4,12 @@
 import type { Role } from "@prisma/client"
 import type { NextAuthConfig } from "next-auth"
 
+const hour = 60 * 60
+
 export const authConfig = {
   pages: { signIn: "/login" },
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt", maxAge: hour, updateAge: hour },
+  jwt: { maxAge: hour },
   trustHost: true,
   providers: [],
   callbacks: {
