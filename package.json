@@ -14,9 +14,6 @@
     "db:samples": "tsx scripts/ensure-demo-evaluations.ts",
     "postinstall": "prisma generate"
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "dependencies": {
     "@getalby/sdk": "^8.0.3",
     "@prisma/client": "^6.19.3",

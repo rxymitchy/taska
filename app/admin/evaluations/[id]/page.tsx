@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
 import { decideEvaluation } from "@/app/actions/evaluations"
+import { AiHumanComparison } from "@/components/ai-human-comparison"
 import { Container } from "@/components/ui"
-import { checkLabels, yesNo } from "@/lib/evaluation-copy"
 import { prisma } from "@/lib/prisma"
 import { btnPrimary, btnSecondary } from "@/lib/styles"
 import { requireRole } from "@/lib/session"
@@ -50,12 +50,20 @@ export default async function ReviewEvaluationPage({
           <p className="mt-1 whitespace-pre-wrap">{evaluation.aiResponse}</p>
           <p className="mt-1 text-sm text-muted">Model: {evaluation.aiModel}</p>
         </div>
-        <dl className="space-y-2 rounded-lg border border-line bg-card p-4 text-sm">
-          <div className="flex justify-between gap-4"><dt>{checkLabels.factuallyCorrect}</dt><dd>{yesNo(answers.factuallyCorrect)}</dd></div>
-          <div className="flex justify-between gap-4"><dt>{checkLabels.languageNatural}</dt><dd>{yesNo(answers.languageNatural)}</dd></div>
-          <div className="flex justify-between gap-4"><dt>{checkLabels.understandsContext}</dt><dd>{yesNo(answers.understandsContext)}</dd></div>
-          {answers.comment ? <p className="pt-2 text-muted">{answers.comment}</p> : null}
-        </dl>
+        <AiHumanComparison
+          ai={{
+            factuallyCorrect: evaluation.aiPrecheckFactuallyCorrect,
+            languageNatural: evaluation.aiPrecheckLanguageNatural,
+            understandsContext: evaluation.aiPrecheckUnderstandsContext,
+            model: evaluation.aiPrecheckModel,
+          }}
+          human={{
+            factuallyCorrect: answers.factuallyCorrect,
+            languageNatural: answers.languageNatural,
+            understandsContext: answers.understandsContext,
+          }}
+        />
+        {answers.comment ? <p className="text-sm text-muted">{answers.comment}</p> : null}
         {answers.betterAnswer ? (
           <div>
             <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Evaluator’s better answer</h2>

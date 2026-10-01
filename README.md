@@ -16,9 +16,9 @@ Taska gives companies a simple way to check AI responses with people who actuall
 
 A company sends an AI response to Taska. A local speaker checks it for:
 
-* **Accuracy** — Is the answer correct?
-* **Naturalness** — Does it sound like something people actually say?
-* **Local context** — Does it make sense for people in that place?
+- **Accuracy** — Is the answer correct?
+- **Naturalness** — Does it sound like something people actually say?
+- **Local context** — Does it make sense for people in that place?
 
 If something is wrong, the speaker writes a better answer.
 
@@ -26,9 +26,9 @@ A reviewer then checks the submission before payment is released.
 
 Work is matched by language and country. For example:
 
-* Swahili / Kenya → Rita
-* Yoruba / Nigeria → Chinedu
-* Twi / Ghana → Ama
+- Swahili / Kenya → Rita
+- Yoruba / Nigeria → Chinedu
+- Twi / Ghana → Ama
 
 If there is no available speaker for a language, the work waits.
 
@@ -124,23 +124,23 @@ Status: **Done** means it works today. **Partly** means some of it exists but st
 
 ## 1. Backend Developer
 
-| Task                           | Status | Where to start                                                     |
-| ------------------------------ | ------ | ------------------------------------------------------------------ |
-| Build the backend/API          | Done   | Server Actions in `app/actions/evaluations.ts`                     |
-| Create the database            | Done   | `prisma/schema.prisma`, `prisma/migrations/`                       |
-| User registration and login    | Done   | `app/actions/auth.ts`, `auth.ts`                                   |
-| Manage users and roles         | Done   | Speaker, company, reviewer. Reviewers use `/admin/invite`          |
-| Create and assign work         | Done   | Language + country in `services/assignment/index.ts`               |
-| CSV/JSON upload                | Done   | `app/actions/upload.ts`                                            |
-| Receive and store submissions  | Done   | `submitHumanEvaluation`, `EvaluationSubmission`                    |
-| Manage task status             | Done   | `app/actions/evaluations.ts`                                       |
-| Store AI evaluation results    | Partly | Human results and `aiModel` are stored. AI pre-check is still open |
-| Dataset export                 | To do  | Add download of validated rows from `buildCompanyReport`           |
-| Lightning payments             | Done   | Credits, 500 / 400 / 2%. `services/lightning/`                     |
-| Retry failed payouts           | Done   | Reviewer queue                                                     |
-| Assign by language             | Done   | Swahili → Rita, Yoruba → Chinedu, Twi → Ama                        |
-| Connect AI + database          | Done   | `generateAiResponse`; set `AI_API_KEY` for a live model            |
-| Connect Alby Hub in production | To do  | Add `NWC_URL` to Vercel                                            |
+| Task                           | Status | Where to start                                            |
+| ------------------------------ | ------ | --------------------------------------------------------- |
+| Build the backend/API          | Done   | Server Actions in `app/actions/evaluations.ts`            |
+| Create the database            | Done   | `prisma/schema.prisma`, `prisma/migrations/`              |
+| User registration and login    | Done   | `app/actions/auth.ts`, `auth.ts`                          |
+| Manage users and roles         | Done   | Speaker, company, reviewer. Reviewers use `/admin/invite` |
+| Create and assign work         | Done   | Language + country in `services/assignment/index.ts`      |
+| CSV/JSON upload                | Done   | `app/actions/upload.ts`                                   |
+| Receive and store submissions  | Done   | `submitHumanEvaluation`, `EvaluationSubmission`           |
+| Manage task status             | Done   | `app/actions/evaluations.ts`                              |
+| Store AI evaluation results    | Done   | Human and optional AI rubric results + model are stored   |
+| Dataset export                 | To do  | Add download of validated rows from `buildCompanyReport`  |
+| Lightning payments             | Done   | Credits, 500 / 400 / 2%. `services/lightning/`            |
+| Retry failed payouts           | Done   | Reviewer queue                                            |
+| Assign by language             | Done   | Swahili → Rita, Yoruba → Chinedu, Twi → Ama               |
+| Connect AI + database          | Done   | Generation + optional rubric pre-check; see `docs/ai.md`  |
+| Connect Alby Hub in production | To do  | Add `NWC_URL` to Vercel                                   |
 
 ## 2. Frontend Developer
 
@@ -164,13 +164,13 @@ Status: **Done** means it works today. **Partly** means some of it exists but st
 
 | Task                                | Status | Where to start                                      |
 | ----------------------------------- | ------ | --------------------------------------------------- |
-| Research models / SDKs              | To do  | Keep API keys in server environment                 |
-| Test African-language support       | To do  | Languages in `lib/catalog.ts`; start with Swahili   |
-| AI-assisted task generation         | Partly | `generateAiResponse` fills a blank company response |
-| AI response evaluation              | To do  | Pre-check using the same three questions            |
-| Fluency, accuracy and local context | To do  | Three evaluation questions                          |
-| Compare AI vs human                 | To do  | Show differences on company and reviewer pages      |
-| Document AI models                  | To do  | `docs/ai.md`                                        |
+| Research models / SDKs              | Done   | Keep API keys in server environment                 |
+| Test African-language support       | Done   | Languages in `lib/catalog.ts`; start with Swahili   |
+| AI-assisted task generation         | Done   | `generateAiResponse` fills a blank company response |
+| AI response evaluation              | Done   | Pre-check using the same three questions            |
+| Fluency, accuracy and local context | Done   | Three evaluation questions                          |
+| Compare AI vs human                 | Done   | Show differences on company and reviewer pages      |
+| Document AI models                  | Done   | `docs/ai.md`                                        |
 
 ## 4. Documentation Lead
 
@@ -202,41 +202,41 @@ The project lead keeps the team moving but does not own a separate product modul
 
 # What is built
 
-* Three roles: speaker, company and reviewer
-* Public speaker/company signup
-* Reviewer invitations
-* Language and country-based task assignment
-* Company credits
-* Lightning invoices
-* Single evaluations
-* CSV/JSON uploads up to 200 rows
-* Speaker evaluation with three checks
-* Better-answer flow when a response is marked incorrect
-* Reviewer approval and rejection
-* Lightning payouts
-* Failed payout retry
-* AI-generated draft responses
-* Company results
-* Demo accounts and sample data
-* Signup confirmation emails
-* Forgot password reset emails
-* Responsive dashboards
+- Three roles: speaker, company and reviewer
+- Public speaker/company signup
+- Reviewer invitations
+- Language and country-based task assignment
+- Company credits
+- Lightning invoices
+- Single evaluations
+- CSV/JSON uploads up to 200 rows
+- Speaker evaluation with three checks
+- Better-answer flow when a response is marked incorrect
+- Reviewer approval and rejection
+- Lightning payouts
+- Failed payout retry
+- AI-generated draft responses
+- Company results
+- Demo accounts and sample data
+- Signup confirmation emails
+- Forgot password reset emails
+- Responsive dashboards
 
 # Tech stack
 
-| Layer               | Technology                               |
-| ------------------- | ---------------------------------------- |
-| Framework           | Next.js 16, App Router, Server Actions   |
-| UI                  | React 19, Tailwind CSS 4                 |
-| Language            | TypeScript                               |
-| Database            | PostgreSQL through Prisma 6              |
-| Local database      | PGlite                                   |
-| Production database | Neon                                     |
+| Layer               | Technology                                                   |
+| ------------------- | ------------------------------------------------------------ |
+| Framework           | Next.js 16, App Router, Server Actions                       |
+| UI                  | React 19, Tailwind CSS 4                                     |
+| Language            | TypeScript                                                   |
+| Database            | PostgreSQL through Prisma 6                                  |
+| Local database      | PGlite                                                       |
+| Production database | Neon                                                         |
 | Auth                | Auth.js, JWT sessions (1 hour), bcrypt, password reset email |
-| Validation          | Zod 4                                    |
-| AI                  | OpenAI-compatible API                    |
-| Payments            | Bitcoin Lightning + Nostr Wallet Connect |
-| Hosting             | Vercel + Neon                            |
+| Validation          | Zod 4                                                        |
+| AI                  | OpenAI-compatible API                                        |
+| Payments            | Bitcoin Lightning + Nostr Wallet Connect                     |
+| Hosting             | Vercel + Neon                                                |
 
 # Project structure
 
@@ -422,9 +422,9 @@ npm run lint         # Run linting
 
 # Documentation
 
-* `docs/team.md` — team responsibilities and module ownership
-* `docs/architecture.md` — system architecture
-* `docs/ai.md` — AI component and model research
+- `docs/team.md` — team responsibilities and module ownership
+- `docs/architecture.md` — system architecture
+- `docs/ai.md` — AI component and model research
 
 # License
 
