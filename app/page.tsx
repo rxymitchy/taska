@@ -113,14 +113,7 @@ export default function HomePage() {
       <section className="border-b border-line">
         <Container className="py-16">
           <h2 className="text-2xl tracking-tight">Get paid as you go</h2>
-          <p className="mt-4 max-w-2xl text-xl leading-snug">Get paid in Bitcoin, instantly over Lightning.</p>
-          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted">
-            When a check is approved, a small payment can be sent straight to your phone wallet in seconds. Think
-            mobile money, not a bank transfer — no waiting for payment to clear.
-          </p>
-          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-muted">
-            We never hold your funds, so there is no minimum balance, no frozen money, and no waiting to get paid.
-          </p>
+          <p className="mt-4 max-w-2xl text-xl leading-snug">Get paid in Bitcoin, instantly.</p>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {pay.map(([title, copy]) => (
               <article key={title} className="rounded-lg border border-line bg-card p-4">

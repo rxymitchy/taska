@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useActionState } from "react"
 import { login, loginDemo, type AuthState } from "@/app/actions/auth"
 import { btnPrimary, btnSecondary, inputClass, labelClass } from "@/lib/styles"
@@ -28,6 +29,11 @@ export function LoginForm({
           <span className={labelClass}>Password</span>
           <input className={inputClass} name="password" type="password" autoComplete="current-password" required />
         </label>
+        <p className="text-sm">
+          <Link className="text-accent underline" href="/forgot-password">
+            Forgot password?
+          </Link>
+        </p>
         {state.error ? <p className="text-sm text-bad">{state.error}</p> : null}
         <button className={btnPrimary} type="submit" disabled={pending}>
           {pending ? "Signing in…" : "Log in"}

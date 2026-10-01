@@ -49,7 +49,7 @@ The approximate dollar amount is `sats / 100_000_000 * BTC_USD_PRICE`. It is a d
 
 ## Auth
 
-Email and password. Passwords are hashed with bcrypt. Sessions are JWTs signed with `AUTH_SECRET` and last one hour. Signup sends a confirmation email when `RESEND_API_KEY` and `EMAIL_FROM` are set. Admin and employer pages check the role on the server before reading or changing data.
+Email and password. Passwords are hashed with bcrypt. Sessions are JWTs signed with `AUTH_SECRET` and last one hour. Signup sends a confirmation email when `RESEND_API_KEY` and `EMAIL_FROM` are set. `/forgot-password` emails a one-hour reset link. Admin and employer pages check the role on the server before reading or changing data.
 
 CV uploads accept PDF only, check the `%PDF` header, and are stored outside `public/`. Download is limited to the worker, an employer, or an admin.
 

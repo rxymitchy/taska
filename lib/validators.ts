@@ -24,6 +24,21 @@ const destination = z
 
 export const destinationSchema = destination
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().trim().email().max(160),
+})
+
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(16).max(128),
+    password: z.string().min(8).max(100),
+    confirm: z.string().min(8).max(100),
+  })
+  .refine((data) => data.password === data.confirm, {
+    message: "Passwords do not match.",
+    path: ["confirm"],
+  })
+
 export const inviteSignupSchema = z.object({
   name: z.string().trim().min(2).max(80),
   email: z.string().trim().email().max(160),

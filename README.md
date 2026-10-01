@@ -219,6 +219,7 @@ The project lead keeps the team moving but does not own a separate product modul
 * Company results
 * Demo accounts and sample data
 * Signup confirmation emails
+* Forgot password reset emails
 * Responsive dashboards
 
 # Tech stack
@@ -231,7 +232,7 @@ The project lead keeps the team moving but does not own a separate product modul
 | Database            | PostgreSQL through Prisma 6              |
 | Local database      | PGlite                                   |
 | Production database | Neon                                     |
-| Auth                | Auth.js, JWT sessions, bcrypt            |
+| Auth                | Auth.js, JWT sessions (1 hour), bcrypt, password reset email |
 | Validation          | Zod 4                                    |
 | AI                  | OpenAI-compatible API                    |
 | Payments            | Bitcoin Lightning + Nostr Wallet Connect |
@@ -392,7 +393,7 @@ Never put the NWC connection or wallet secrets in the frontend, database, or Git
 | `DATABASE_URL`               | PostgreSQL connection              |
 | `AUTH_SECRET`                | Session signing secret             |
 | `AUTH_URL`                   | Public app URL                     |
-| `RESEND_API_KEY`             | Signup confirmation emails         |
+| `RESEND_API_KEY`             | Signup and password-reset emails   |
 | `EMAIL_FROM`                 | Email sender                       |
 | `NWC_URL`                    | Lightning wallet connection        |
 | `EVALUATOR_PAYOUT_SATS`      | Speaker payout, default 500        |

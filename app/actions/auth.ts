@@ -6,11 +6,12 @@ import { signIn } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { homeForRole } from "@/lib/session"
 import { rateLimit } from "@/lib/rate-limit"
-import { signupSchema, inviteSignupSchema } from "@/lib/validators"
+import { signupSchema, inviteSignupSchema, forgotPasswordSchema, resetPasswordSchema } from "@/lib/validators"
 import { findOpenInvite, hashInviteToken } from "@/lib/invites"
-import { sendSignupConfirmation } from "@/lib/mail"
+import { findOpenReset, hashResetToken, newResetToken } from "@/lib/password-reset"
+import { sendPasswordResetEmail, sendSignupConfirmation } from "@/lib/mail"
 
-export type AuthState = { error: string }
+export type AuthState = { error: string; sent?: boolean }
 
 function safeCallback(value: FormDataEntryValue | null) {
   if (typeof value !== "string") return null
@@ -180,5 +181,71 @@ async function signupReviewer(formData: FormData): Promise<AuthState> {
     role: user.role,
   })
   const result = await signInWithPassword(email, parsed.data.password, homeForRole(user.role))
+  return result ?? { error: "" }
+}
+
+export async function requestPasswordReset(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const parsed = forgotPasswordSchema.safeParse({ email: formData.get("email") })
+  if (!parsed.success) return { error: "Enter a valid email." }
+
+  const email = parsed.data.email.toLowerCase()
+  const limit = rateLimit(`reset:${email}`, 5, 60 * 60 * 1000)
+  if (!limit.ok) return { error: "Too many attempts. Try again later." }
+
+  const user = await prisma.user.findUnique({
+    where: { email },
+    include: { workerProfile: true, employerProfile: true },
+  })
+  if (user) {
+    await prisma.passwordReset.updateMany({
+      where: { userId: user.id, usedAt: null },
+      data: { usedAt: new Date() },
+    })
+    const token = newResetToken()
+    await prisma.passwordReset.create({
+      data: {
+        userId: user.id,
+        tokenHash: hashResetToken(token),
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+      },
+    })
+    const origin = (process.env.AUTH_URL || "http://localhost:3000").replace(/\/$/, "")
+    const name = user.workerProfile?.name || user.employerProfile?.companyName || "there"
+    await sendPasswordResetEmail({
+      to: email,
+      name,
+      resetUrl: `${origin}/reset-password?token=${token}`,
+    })
+  }
+
+  return { error: "", sent: true }
+}
+
+export async function resetPassword(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const parsed = resetPasswordSchema.safeParse({
+    token: formData.get("token"),
+    password: formData.get("password"),
+    confirm: formData.get("confirm"),
+  })
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Check the new password (8 or more characters)." }
+  }
+
+  const reset = await findOpenReset(parsed.data.token)
+  if (!reset) return { error: "This link is invalid or has expired. Ask for a new one." }
+
+  const passwordHash = await hash(parsed.data.password, 10)
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: reset.userId },
+      data: { passwordHash },
+    }),
+    prisma.passwordReset.update({
+      where: { id: reset.id },
+      data: { usedAt: new Date() },
+    }),
+  ])
+
+  const result = await signInWithPassword(reset.user.email, parsed.data.password, homeForRole(reset.user.role))
   return result ?? { error: "" }
 }
