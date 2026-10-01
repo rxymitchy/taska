@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
 import { aiEvaluationSchema, humanEvaluationSchema } from "@/lib/validators"
 import { assignEvaluation } from "@/services/assignment"
-import { generateAiResponse } from "@/services/ai"
+import { generateAiResponse, precheckAiResponse } from "@/services/ai"
 import { payoutDestinationsReady, recordPendingLightningPayouts } from "@/services/settlement"
 import { payableLightningDestination, usesLiveLightning } from "@/lib/payout-destination"
 
@@ -37,6 +37,12 @@ export async function createEvaluation(_prev: { error: string }, formData: FormD
     aiResponse = generated.text
     aiModel = generated.model
   }
+  const aiPrecheck = await precheckAiResponse({
+    prompt: parsed.data.prompt,
+    response: aiResponse,
+    language: parsed.data.language,
+    context: parsed.data.context,
+  })
 
   const held = await holdCompanyCredits(company.id, 1, "New evaluation")
   if ("error" in held && held.error) return { error: held.error }
@@ -47,6 +53,10 @@ export async function createEvaluation(_prev: { error: string }, formData: FormD
       prompt: parsed.data.prompt,
       aiResponse,
       aiModel,
+      aiPrecheckFactuallyCorrect: aiPrecheck?.factuallyCorrect,
+      aiPrecheckLanguageNatural: aiPrecheck?.languageNatural,
+      aiPrecheckUnderstandsContext: aiPrecheck?.understandsContext,
+      aiPrecheckModel: aiPrecheck?.model,
       language: parsed.data.language,
       context: parsed.data.context,
       status: "PENDING",

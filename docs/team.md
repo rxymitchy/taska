@@ -33,19 +33,19 @@ Password for every account: `demo1234`.
 
 ## Core files
 
-| File | What it owns |
-| --- | --- |
-| `prisma/schema.prisma` | Evaluations, credits, batches, reviewer invites, `EvaluationStatus` |
-| `lib/pricing.ts` | 500 / 400 / 918 sats |
-| `lib/credits.ts` | Hold, spend, refund, Lightning deposits |
-| `app/actions/evaluations.ts` | `createEvaluation`, `submitHumanEvaluation`, `decideEvaluation`, every status change |
-| `app/actions/upload.ts` | CSV/JSON → many evaluations |
-| `app/actions/credits.ts` | Company Lightning invoices |
-| `app/actions/invites.ts` | Reviewer invite links |
-| `services/assignment/index.ts` | Picks a speaker of that language (Rita / Chinedu / Ama) |
-| `app/employer/` | Company list, credits, upload, result page |
-| `app/dashboard/` | Evaluator list and form |
-| `app/admin/` | Review queue, invite, approve or reject |
+| File                           | What it owns                                                                         |
+| ------------------------------ | ------------------------------------------------------------------------------------ |
+| `prisma/schema.prisma`         | Evaluations, credits, batches, reviewer invites, `EvaluationStatus`                  |
+| `lib/pricing.ts`               | 500 / 400 / 918 sats                                                                 |
+| `lib/credits.ts`               | Hold, spend, refund, Lightning deposits                                              |
+| `app/actions/evaluations.ts`   | `createEvaluation`, `submitHumanEvaluation`, `decideEvaluation`, every status change |
+| `app/actions/upload.ts`        | CSV/JSON → many evaluations                                                          |
+| `app/actions/credits.ts`       | Company Lightning invoices                                                           |
+| `app/actions/invites.ts`       | Reviewer invite links                                                                |
+| `services/assignment/index.ts` | Picks a speaker of that language (Rita / Chinedu / Ama)                              |
+| `app/employer/`                | Company list, credits, upload, result page                                           |
+| `app/dashboard/`               | Evaluator list and form                                                              |
+| `app/admin/`                   | Review queue, invite, approve or reject                                              |
 
 ---
 
@@ -75,7 +75,7 @@ A failed payment must not undo the validated evaluation. Keys stay in server env
 
 **Connects:** `createEvaluation` and CSV upload call this when the AI response is blank. The paste field stays on the form.
 
-The AI pre-check goes in this file too: the model answers the same three questions before the evaluator does. It needs a new column or table (with the backend developer), and the company and reviewer pages show it next to the human answers (with the frontend developer).
+The optional AI pre-check uses the same three questions before the evaluator does. Its nullable scores and model are stored on `Evaluation`; company results and reviewer decisions show them beside the human answers. It is not an approval signal. See `docs/ai.md` for configuration and quality checks.
 
 Keep API keys on the server. Store which model produced a response.
 

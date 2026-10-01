@@ -9,10 +9,13 @@
 
 import { PGlite } from "@electric-sql/pglite"
 import { PGLiteSocketServer } from "@electric-sql/pglite-socket"
+import { mkdir } from "node:fs/promises"
 import path from "path"
 
 const port = Number(process.env.DB_PORT || 5432)
-const db = new PGlite(path.join(process.cwd(), "data", "pglite"))
+const dataPath = path.join(process.cwd(), "data", "pglite")
+await mkdir(dataPath, { recursive: true })
+const db = new PGlite(dataPath)
 await db.waitReady
 
 const server = new PGLiteSocketServer({

@@ -7,7 +7,7 @@ import { holdCompanyCredits } from "@/lib/credits"
 import { companyCostPerEvaluation } from "@/lib/pricing"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
-import { generateAiResponse } from "@/services/ai"
+import { generateAiResponse, precheckAiResponse } from "@/services/ai"
 import { assignEvaluation } from "@/services/assignment"
 
 export async function uploadEvaluations(_prev: { error: string }, formData: FormData) {
@@ -37,7 +37,13 @@ export async function uploadEvaluations(_prev: { error: string }, formData: Form
       aiResponse = generated.text
       aiModel = generated.model
     }
-    rows.push({ ...row, aiResponse, aiModel })
+    const aiPrecheck = await precheckAiResponse({
+      prompt: row.prompt,
+      response: aiResponse,
+      language: row.language,
+      context: row.context,
+    })
+    rows.push({ ...row, aiResponse, aiModel, aiPrecheck })
   }
 
   const held = await holdCompanyCredits(company.id, rows.length, `Upload ${file.name}`)
@@ -61,6 +67,10 @@ export async function uploadEvaluations(_prev: { error: string }, formData: Form
         prompt: row.prompt,
         aiResponse: row.aiResponse,
         aiModel: row.aiModel,
+        aiPrecheckFactuallyCorrect: row.aiPrecheck?.factuallyCorrect,
+        aiPrecheckLanguageNatural: row.aiPrecheck?.languageNatural,
+        aiPrecheckUnderstandsContext: row.aiPrecheck?.understandsContext,
+        aiPrecheckModel: row.aiPrecheck?.model,
         language: row.language,
         context: row.context,
         status: "PENDING",

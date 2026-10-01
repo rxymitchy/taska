@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { AiHumanComparison } from "@/components/ai-human-comparison"
 import { Container, StatusPill } from "@/components/ui"
-import { checkLabels, yesNo } from "@/lib/evaluation-copy"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
 import { buildCompanyReport } from "@/services/reports"
@@ -42,30 +42,32 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
         </div>
       </section>
       {report.validated ? (
-        <section className="mt-8 rounded-lg border border-line bg-card p-4">
-          <h2 className="text-xl tracking-tight">Checked answer</h2>
-          <dl className="mt-4 space-y-2 text-sm">
-            <div className="flex justify-between gap-4">
-              <dt>{checkLabels.factuallyCorrect}</dt>
-              <dd>{yesNo(report.factuallyCorrect)}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt>{checkLabels.languageNatural}</dt>
-              <dd>{yesNo(report.languageNatural)}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt>{checkLabels.understandsContext}</dt>
-              <dd>{yesNo(report.understandsContext)}</dd>
-            </div>
-          </dl>
-          {report.betterAnswer ? (
-            <div className="mt-4">
-              <h3 className="text-sm font-medium uppercase tracking-wider text-muted">Better answer</h3>
-              <p className="mt-1 whitespace-pre-wrap">{report.betterAnswer}</p>
-            </div>
+        <>
+          <AiHumanComparison
+            ai={{
+              factuallyCorrect: report.aiPrecheckFactuallyCorrect,
+              languageNatural: report.aiPrecheckLanguageNatural,
+              understandsContext: report.aiPrecheckUnderstandsContext,
+              model: report.aiPrecheckModel,
+            }}
+            human={{
+              factuallyCorrect: report.factuallyCorrect,
+              languageNatural: report.languageNatural,
+              understandsContext: report.understandsContext,
+            }}
+          />
+          {report.betterAnswer || report.comment ? (
+            <section className="mt-4 rounded-lg border border-line bg-card p-4">
+              {report.betterAnswer ? (
+                <div>
+                  <h3 className="text-sm font-medium uppercase tracking-wider text-muted">Better answer</h3>
+                  <p className="mt-1 whitespace-pre-wrap">{report.betterAnswer}</p>
+                </div>
+              ) : null}
+              {report.comment ? <p className="mt-4 text-sm text-muted">{report.comment}</p> : null}
+            </section>
           ) : null}
-          {report.comment ? <p className="mt-4 text-sm text-muted">{report.comment}</p> : null}
-        </section>
+        </>
       ) : (
         <p className="mt-8 text-sm text-muted">
           {evaluation.status === "PENDING" && !evaluation.assignedWorkerId
