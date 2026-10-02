@@ -43,7 +43,7 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-dm-sans), var(--font-manrope), "Manrope", sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.5;
 }
 
