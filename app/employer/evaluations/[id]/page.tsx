@@ -1,46 +1,78 @@
-import type { Metadata } from "next"
-import { notFound } from "next/navigation"
-import { AiHumanComparison } from "@/components/ai-human-comparison"
-import { Container, StatusPill } from "@/components/ui"
-import { prisma } from "@/lib/prisma"
-import { requireRole } from "@/lib/session"
-import { buildCompanyReport } from "@/services/reports"
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
-export const metadata: Metadata = { title: "Evaluation" }
+import { AiHumanComparison } from "@/components/ai-human-comparison";
+import { Container, StatusPill } from "@/components/ui";
 
-export default async function CompanyEvaluationPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const user = await requireRole(["EMPLOYER", "ADMIN"])
+import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/session";
+import { buildCompanyReport } from "@/services/reports";
+
+export const metadata: Metadata = { title: "Evaluation" };
+
+export default async function CompanyEvaluationPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  const user = await requireRole(["EMPLOYER", "ADMIN"]);
+
   const evaluation = await prisma.evaluation.findUnique({
     where: { id },
-    include: { company: true, submissions: true, assignedWorker: { select: { name: true } } },
-  })
-  if (!evaluation) notFound()
-  if (user.role !== "ADMIN" && evaluation.company.userId !== user.id) notFound()
+    include: {
+      company: true,
+      submissions: true,
+      assignedWorker: {
+        select: { name: true },
+      },
+    },
+  });
 
-  const report = buildCompanyReport(evaluation)
+  if (!evaluation) notFound();
+
+  if (user.role !== "ADMIN" && evaluation.company.userId !== user.id) {
+    notFound();
+  }
+
+  const report = buildCompanyReport(evaluation);
 
   return (
     <Container className="page-frame max-w-2xl!">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted">
           {report.language} · {report.context}
-          {evaluation.assignedWorker ? ` · ${evaluation.assignedWorker.name}` : " · waiting for someone"}
+          {evaluation.assignedWorker
+            ? ` · ${evaluation.assignedWorker.name}`
+            : " · waiting for someone"}
         </p>
+
         <StatusPill status={evaluation.status} />
       </div>
+
       <h1 className="mt-3 text-3xl tracking-tight">Evaluation</h1>
+
       <section className="content-surface mt-6 space-y-4">
         <div>
-          <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Question</h2>
+          <h2 className="text-sm font-medium uppercase tracking-wider text-muted">
+            Question
+          </h2>
+
           <p className="mt-1 whitespace-pre-wrap">{report.prompt}</p>
         </div>
+
         <div>
-          <h2 className="text-sm font-medium uppercase tracking-wider text-muted">AI response</h2>
+          <h2 className="text-sm font-medium uppercase tracking-wider text-muted">
+            AI response
+          </h2>
+
           <p className="mt-1 whitespace-pre-wrap">{report.aiResponse}</p>
+
           <p className="mt-1 text-sm text-muted">Model: {report.aiModel}</p>
         </div>
       </section>
+
       {report.validated ? (
         <>
           <AiHumanComparison
@@ -56,15 +88,24 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
               understandsContext: report.understandsContext,
             }}
           />
+
           {report.betterAnswer || report.comment ? (
             <section className="content-surface mt-4">
               {report.betterAnswer ? (
                 <div>
-                  <h3 className="text-sm font-medium uppercase tracking-wider text-muted">Better answer</h3>
-                  <p className="mt-1 whitespace-pre-wrap">{report.betterAnswer}</p>
+                  <h3 className="text-sm font-medium uppercase tracking-wider text-muted">
+                    Better answer
+                  </h3>
+
+                  <p className="mt-1 whitespace-pre-wrap">
+                    {report.betterAnswer}
+                  </p>
                 </div>
               ) : null}
-              {report.comment ? <p className="mt-4 text-sm text-muted">{report.comment}</p> : null}
+
+              {report.comment ? (
+                <p className="mt-4 text-sm text-muted">{report.comment}</p>
+              ) : null}
             </section>
           ) : null}
         </>
@@ -76,5 +117,5 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
         </p>
       )}
     </Container>
-  )
+  );
 }
