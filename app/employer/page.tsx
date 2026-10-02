@@ -41,6 +41,19 @@ export default async function EmployerPage() {
             {company.prepaidSats < cost ? "Add credit to get started" : "Add credit"}
           </Link>
           <Link className={company.prepaidSats < cost ? btnSecondary : btnPrimary} href="/employer/evaluations/new">
+          <Link className={btnSecondary} href="/employer/upload">
+            Upload
+          </Link>
+          {company.evaluations.some((evaluation) => evaluation.status === "COMPLETED") ? (
+            <>
+              <Link className={btnSecondary} href="/api/employer/export?format=csv">
+                Download CSV
+              </Link>
+              <Link className={btnSecondary} href="/api/employer/export?format=json">
+                Download JSON
+              </Link>
+            </>
+          ) : null}
             Check an answer
           </Link>
         </div>

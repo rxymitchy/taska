@@ -63,6 +63,7 @@ Approved?
         ↓
    Payment is released
         ↓
+   Company is charged 918 sats
    Speaker → 500 sats
    Reviewer → 400 sats
    Taska → 18 sats (2% fee)
@@ -135,8 +136,8 @@ Status: **Done** means it works today. **Partly** means some of it exists but st
 | Receive and store submissions  | Done   | `submitHumanEvaluation`, `EvaluationSubmission`           |
 | Manage task status             | Done   | `app/actions/evaluations.ts`                              |
 | Store AI evaluation results    | Done   | Human and optional AI rubric results + model are stored   |
-| Dataset export                 | To do  | Add download of validated rows from `buildCompanyReport`  |
-| Lightning payments             | Done   | Credits, 500 / 400 / 2%. `services/lightning/`            |
+| Dataset export                 | Done   | CSV/JSON downloads of validated rows from the employer dashboard |
+| Lightning payments             | Done   | Credits, 500 / 400 / 918 (2%). `services/lightning/`      |
 | Retry failed payouts           | Done   | Reviewer queue                                            |
 | Assign by language             | Done   | Swahili → Rita, Yoruba → Chinedu, Twi → Ama               |
 | Connect AI + database          | Done   | Generation + optional rubric pre-check; see `docs/ai.md`  |
@@ -345,9 +346,9 @@ The current payment split is:
 ```text
 Speaker     500 sats
 Reviewer    400 sats
-Taska        18 sats
+Taska        18 sats (2%)
 --------------------
-Total       918 sats
+Company     918 sats
 ```
 
 The Taska fee is 2%.
