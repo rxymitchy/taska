@@ -238,6 +238,10 @@ model Evaluation {
   prompt           String
   aiResponse       String
   aiModel          String           @default("pasted")
+  aiPrecheckFactuallyCorrect Boolean?
+  aiPrecheckLanguageNatural Boolean?
+  aiPrecheckUnderstandsContext Boolean?
+  aiPrecheckModel String?
   language         String
   context          String
   status           EvaluationStatus   @default(PENDING)

@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 import { HumanEvaluationForm } from "@/components/human-evaluation-form"
 import { LightningPending } from "@/components/lightning-pending"
@@ -26,15 +27,15 @@ export default async function WorkerEvaluationPage({ params }: { params: Promise
   })
 
   return (
-    <Container className="max-w-2xl py-10">
-      <div className="flex items-center justify-between gap-3">
+    <Container className="page-frame max-w-2xl!">
+      <div className="page-intro flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted">
           {evaluation.language} · {evaluation.context}
         </p>
         <StatusPill status={evaluation.status} />
       </div>
       <h1 className="mt-3 text-3xl tracking-tight">Does this sound right?</h1>
-      <section className="mt-6 space-y-4">
+      <section className="content-surface mt-6 space-y-4">
         <div>
           <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Question</h2>
           <p className="mt-1 whitespace-pre-wrap">{evaluation.prompt}</p>
@@ -48,8 +49,11 @@ export default async function WorkerEvaluationPage({ params }: { params: Promise
       {evaluation.status === "ASSIGNED" ? (
         <div className="mt-8">
           {!worker.lightningAddress ? (
-            <p className="mb-4 text-sm text-warn">
-              Add where you get paid on your profile before you send this.
+            <p className="mb-4 rounded-md border border-accent/20 bg-tint px-4 py-3 text-sm text-ink">
+              Add a payout address before submitting so we know where to send your earnings.{" "}
+              <Link className="font-semibold text-accent underline underline-offset-4" href="/profile">
+                Set up payouts
+              </Link>
             </p>
           ) : null}
           <HumanEvaluationForm evaluationId={evaluation.id} defaults={latest} />

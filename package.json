@@ -2,6 +2,9 @@
   "name": "taska",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && prisma migrate deploy && next build",
@@ -14,15 +17,14 @@
     "db:samples": "tsx scripts/ensure-demo-evaluations.ts",
     "postinstall": "prisma generate"
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "dependencies": {
-    "@getalby/sdk": "^8.0.3",
+    "@breeztech/breez-sdk-spark": "^0.27.0-dev2",
     "@prisma/client": "^6.19.3",
     "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^13.0.3",
     "next": "16.3.3",
     "next-auth": "^5.0.0-beta.32",
+    "pg": "^8.23.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "zod": "^4.6.5"

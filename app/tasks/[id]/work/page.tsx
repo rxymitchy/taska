@@ -43,16 +43,18 @@ export default async function WorkPage({ params }: { params: Promise<{ id: strin
       : null
 
   return (
-    <Container className="max-w-3xl py-10">
-      <p className="text-sm text-muted">{task.category}</p>
-      <h1 className="mt-2 text-3xl tracking-tight">{task.title}</h1>
-      <p className="mt-3 text-sm leading-relaxed text-muted">{task.instructions}</p>
+    <Container className="page-frame max-w-3xl!">
+      <header className="page-intro">
+        <p className="text-sm font-bold text-accent">{task.category}</p>
+        <h1 className="mt-2 text-3xl tracking-tight">{task.title}</h1>
+        <p className="mt-3 text-sm leading-relaxed text-muted">{task.instructions}</p>
+      </header>
       {!worker.lightningAddress ? (
-        <p className="mt-4 text-sm text-warn">
+        <p className="mt-5 rounded-md border border-accent/20 bg-tint px-4 py-3 text-sm text-ink">
           Add a Lightning address on your <Link className="underline" href="/profile">profile</Link> before you submit.
         </p>
       ) : null}
-      <div className="mt-8">
+      <div className="content-surface mt-6">
         {item || recentResult ? (
           <EvaluationClient item={item} initialResult={recentResult} />
         ) : (

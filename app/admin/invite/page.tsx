@@ -11,13 +11,15 @@ export default async function InvitePage() {
   const me = await prisma.user.findUnique({ where: { id: user.id }, select: { lightningAddress: true } })
 
   return (
-    <Container className="max-w-2xl py-10">
+    <Container className="page-frame max-w-2xl!">
       <h1 className="text-3xl tracking-tight">Invite reviewers</h1>
       <p className="mt-2 text-muted">
         Invite someone who can catch a bad answer. They set a password and get paid when they agree a check.
       </p>
       <div className="mt-8">
-        <InviteForm />
+          <div className="form-surface mt-6">
+            <InviteForm />
+          </div>
       </div>
       <section className="mt-12">
         <h2 className="text-lg">Where you get paid</h2>

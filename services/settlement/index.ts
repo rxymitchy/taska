@@ -81,7 +81,7 @@ async function settlePayout(payout: EvaluationPayout) {
 
 /**
  * Pays the evaluator and reviewer over Lightning after approval.
- * Live rail is Alby Hub (NWC). Mock invoices start with lnmock1 and do not move bitcoin.
+ * Live rail is Breez. Mock invoices start with lnmock1 and do not move bitcoin.
  * A failed pay leaves the evaluation Completed; retryFailedPayouts can send again without paying twice.
  */
 export async function recordPendingLightningPayouts(input: ValidatedPayout) {

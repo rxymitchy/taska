@@ -15,7 +15,7 @@ export default async function NewEvaluationPage() {
   const cost = companyCostPerEvaluation()
 
   return (
-    <Container className="max-w-2xl py-10">
+    <Container className="page-frame max-w-2xl!">
       <h1 className="text-3xl tracking-tight">Check an answer</h1>
       <p className="mt-2 text-muted">
         Send a question in the language people actually use — slang, a greeting, how something works here. Paste the AI
@@ -29,7 +29,7 @@ export default async function NewEvaluationPage() {
           Upload many
         </Link>
       </p>
-      <div className="mt-8">
+      <div className="form-surface mt-8">
         <CompanyEvaluationForm />
       </div>
     </Container>

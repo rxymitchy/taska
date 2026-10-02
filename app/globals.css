@@ -1,39 +1,174 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #f3f0e8;
-  --ink: #1c211e;
-  --muted: #5c665f;
-  --line: #e3ddd2;
-  --card: #fffcf7;
-  --accent: #1b4332;
-  --accent-dark: #143328;
-  --good: #1f6b45;
-  --warn: #8a5a12;
-  --bad: #8d2f2f;
+  --deep: #05120c;
+  --paper: #f3f7f4;
+  --card: #ffffff;
+  --ink: #0a1a12;
+  --muted: #55665d;
+  --line: #dce6e0;
+  --accent: #0e9a60;
+  --tint: #e7f5ed;
+  --hl: #ffb82e;
+  --lime: #c6f24a;
+  --good: #0e9a60;
+  --warn: #55665d;
+  --bad: #b4472f;
 }
 
 @theme inline {
+  --color-deep: var(--deep);
   --color-paper: var(--paper);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-line: var(--line);
   --color-card: var(--card);
   --color-accent: var(--accent);
-  --color-accent-dark: var(--accent-dark);
+  --color-tint: var(--tint);
+  --color-hl: var(--hl);
+  --color-lime: var(--lime);
   --color-good: var(--good);
   --color-warn: var(--warn);
   --color-bad: var(--bad);
-  --font-sans: var(--font-source);
-  --font-display: var(--font-display-face);
+  --font-sans: var(--font-dm-sans);
+  --font-display: var(--font-bricolage);
+  --radius-sm: 14px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+  --radius-2xl: 22px;
 }
 
 body {
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-source), "Source Sans 3", sans-serif;
+  font-family: var(--font-dm-sans), var(--font-manrope), "Manrope", sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
-h1, h2, .font-display {
-  font-family: var(--font-display-face), Georgia, serif;
+input[type="radio"],
+input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-bricolage), var(--font-display-face), Fraunces, Georgia, serif;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.lagoon-dark-panel {
+  background: linear-gradient(140deg, var(--accent), var(--deep) 65%);
+  box-shadow: 0 40px 80px -30px rgba(5, 18, 12, .6);
+}
+
+.lagoon-glass {
+  border: 1px solid rgba(255, 255, 255, .18);
+  background: rgba(255, 255, 255, .1);
+  backdrop-filter: blur(16px);
+}
+
+.lagoon-raised {
+  border: 1px solid var(--line);
+  background: var(--card);
+  box-shadow: 0 30px 60px -30px rgba(15, 42, 32, .25);
+}
+
+.page-frame {
+  padding-block: clamp(32px, 5vw, 64px);
+}
+
+.form-surface {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  padding: clamp(20px, 4vw, 32px);
+  box-shadow: 0 30px 60px -30px rgba(15, 42, 32, .2);
+}
+
+.content-surface {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  padding: clamp(16px, 3vw, 24px);
+}
+
+.page-intro {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 24px;
+}
+
+body:has(.login-layout) header nav > a:last-child {
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: none;
+}
+
+input[aria-invalid="true"],
+select[aria-invalid="true"],
+textarea[aria-invalid="true"],
+input:user-invalid,
+select:user-invalid,
+textarea:user-invalid {
+  border-color: var(--bad);
+}
+
+.form-surface,
+.content-surface,
+.lagoon-raised,
+.rounded-lg.border.border-line.bg-card {
+  border-radius: 18px;
+  box-shadow: none;
+}
+
+[class~="bg-hl"] {
+  border-radius: 999px;
+  background-color: var(--hl);
+  color: #2a1d00;
+  padding: 3px 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.lagoon-dark-panel :focus-visible {
+  outline-color: var(--lime);
+}
+
+.mesh {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.mesh i {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  animation: drift 14s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  to {
+    transform: translate(-50px, 40px) scale(1.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

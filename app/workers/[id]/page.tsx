@@ -33,8 +33,8 @@ export default async function WorkerPage({ params }: { params: Promise<{ id: str
   const photo = portraitFor(worker.name)
 
   return (
-    <Container className="max-w-3xl py-10">
-      <div className="flex gap-5">
+    <Container className="page-frame max-w-3xl!">
+      <div className="flex flex-wrap items-center gap-5 border-b border-line pb-6">
         {photo ? (
           <img src={photo} alt="" className="h-28 w-24 shrink-0 rounded-xl object-cover object-top" />
         ) : (
@@ -47,18 +47,18 @@ export default async function WorkerPage({ params }: { params: Promise<{ id: str
         </div>
       </div>
       {worker.bio ? <p className="mt-6 max-w-2xl leading-relaxed">{worker.bio}</p> : null}
-      <dl className="mt-8 grid gap-4 sm:grid-cols-3">
-        <div>
+      <dl className="mt-6 grid gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-3">
+        <div className="bg-card p-4">
           <dt className="text-xs uppercase tracking-wider text-muted">Tasks completed</dt>
           <dd className="mt-1 text-2xl">{worker.tasksCompleted}</dd>
         </div>
-        <div>
+        <div className="bg-card p-4">
           <dt className="text-xs uppercase tracking-wider text-muted">Approval rate</dt>
           <dd className="mt-1 text-2xl">
             {worker.tasksCompleted === 0 ? "—" : `${Math.round(worker.approvalRate)}%`}
           </dd>
         </div>
-        <div>
+        <div className="bg-card p-4">
           <dt className="text-xs uppercase tracking-wider text-muted">Quality score</dt>
           <dd className="mt-1 text-2xl">
             {worker.tasksCompleted === 0 ? "—" : Math.round(worker.qualityScore)}
@@ -93,7 +93,7 @@ export default async function WorkerPage({ params }: { params: Promise<{ id: str
       <section className="mt-10">
         <h2 className="text-xl">Verified work history</h2>
         <p className="mt-1 text-sm text-muted">Approved tasks on Taska, not a generic freelancer badge.</p>
-        <ul className="mt-4 divide-y divide-line rounded-lg border border-line bg-card">
+        <ul className="mt-4 divide-y divide-line border-y border-line bg-card">
           {worker.submissions.length === 0 ? (
             <li className="px-4 py-4 text-sm text-muted">No approved work yet.</li>
           ) : (

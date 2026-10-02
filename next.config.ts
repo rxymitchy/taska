@@ -3,7 +3,8 @@ import type { NextConfig } from "next"
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   agentRules: false,
-  serverExternalPackages: ["@getalby/sdk", "nostr-tools"],
+  // Keep the Spark WASM and native stores off the Next bundler.
+  serverExternalPackages: ["@breeztech/breez-sdk-spark", "better-sqlite3", "pg"],
   async headers() {
     return [
       {
