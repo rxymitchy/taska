@@ -41,7 +41,7 @@ export async function createCreditInvoice(_prev: CreditActionState, formData: Fo
     revalidatePath("/employer/credits")
     return { error: "", invoice: created.invoice, checkoutUrl: created.checkoutUrl }
   } catch (error) {
-    if (lightningProviderName() === "nwc") {
+    if (lightningProviderName() === "opennode") {
       return {
         error:
           error instanceof Error

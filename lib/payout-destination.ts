@@ -1,12 +1,12 @@
 import { lightningProviderName } from "@/lib/pricing"
 
-/** Seed/demo addresses. Fine for mock. Live NWC must not pay these. */
+/** Seed/demo addresses. Fine for mock. Live OpenNode must not pay these. */
 export function isPlaceholderLightningAddress(value: string) {
   return /@(taska\.demo|demo\.taska)$/i.test(value.trim())
 }
 
 export function usesLiveLightning() {
-  return lightningProviderName() === "nwc"
+  return lightningProviderName() === "opennode"
 }
 
 export function payableLightningDestination(value: string | null | undefined) {

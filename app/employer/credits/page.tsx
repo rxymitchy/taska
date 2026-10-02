@@ -31,8 +31,8 @@ export default async function CreditsPage() {
         Pay once, then send answers to check. Each agreed check costs {formatSats(cost)} (
         {formatSats(evaluatorPayoutSats())} to the person who checked it, {formatSats(reviewerPayoutSats())} to the
         reviewer). If the check is sent back, that hold comes back to you.
-        {rail === "nwc"
-          ? " Pay from your wallet."
+        {rail === "opennode"
+          ? " Pay the invoice from any bitcoin wallet."
           : " Demo: you can mark a payment as paid to try the flow."}
       </p>
       <dl className="mt-6 grid gap-3 sm:grid-cols-2">

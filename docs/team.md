@@ -55,13 +55,13 @@ Password for every account: `demo1234`.
 
 **Input:** `{ evaluationId, workerUserId, reviewerUserId }`, sent after a reviewer approves.
 
-**Processing:** pay the evaluator and reviewer Lightning addresses (LNURL-pay when live). Store the payment hash. Mock unless `NWC_URL` (Alby Hub / NWC) is set. Company credits are spent in `lib/credits.ts` before this runs. `retryFailedPayouts` can send again without paying a Sent row twice.
+**Processing:** pay the evaluator and reviewer Lightning addresses (LNURL-pay when live). Store the payment hash. Mock unless `OPENNODE_API_KEY` is set. Company credits are spent in `lib/credits.ts` before this runs. `retryFailedPayouts` can send again without paying a Sent row twice.
 
 **Output:** each `EvaluationPayout` row moves from `PENDING` to `SENT` or `FAILED`.
 
 **Connects:** `decideEvaluation` calls this after the evaluation becomes `COMPLETED`.
 
-A failed payment must not undo the validated evaluation. Keys stay in server environment variables. Live NWC will not pay `@taska.demo` placeholders.
+A failed payment must not undo the validated evaluation. Keys stay in server environment variables. Live OpenNode will not pay `@taska.demo` placeholders.
 
 ## AI model (AI/ML Developer)
 

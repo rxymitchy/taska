@@ -140,7 +140,7 @@ Status: **Done** means it works today. **Partly** means some of it exists but st
 | Retry failed payouts           | Done   | Reviewer queue                                            |
 | Assign by language             | Done   | Swahili → Rita, Yoruba → Chinedu, Twi → Ama               |
 | Connect AI + database          | Done   | Generation + optional rubric pre-check; see `docs/ai.md`  |
-| Connect Alby Hub in production | To do  | Add `NWC_URL` to Vercel                                   |
+| Connect OpenNode in production | To do  | Add `OPENNODE_API_KEY` to Vercel                          |
 
 ## 2. Frontend Developer
 
@@ -235,7 +235,7 @@ The project lead keeps the team moving but does not own a separate product modul
 | Auth                | Auth.js, JWT sessions (1 hour), bcrypt, password reset email |
 | Validation          | Zod 4                                                        |
 | AI                  | OpenAI-compatible API                                        |
-| Payments            | Bitcoin Lightning + Nostr Wallet Connect                     |
+| Payments            | Bitcoin Lightning (OpenNode)                                 |
 | Hosting             | Vercel + Neon                                                |
 
 # Project structure
@@ -332,9 +332,9 @@ Do not run `scripts/seed-demo.ts` against production unless you intend to reset 
 
 # Lightning payments
 
-Taska uses **Nostr Wallet Connect (NWC)** to connect to a Lightning wallet such as Alby Hub.
+Taska uses **OpenNode** to create Lightning invoices and pay speakers.
 
-Taska does not store wallet keys.
+Taska does not store wallet keys. Speakers get paid at the Lightning address on their profile.
 
 Companies prepay by paying a Lightning invoice. That credit is reserved when work is created and spent when the work is approved.
 
@@ -352,15 +352,13 @@ The Taska fee is 2%.
 
 ## Live Lightning
 
-Set `NWC_URL` to a valid Nostr Wallet Connect connection from your Lightning wallet.
+Set `OPENNODE_API_KEY` on the server (Vercel, not git). Use a withdrawals-enabled key so payouts can leave the OpenNode account.
 
-The wallet needs permission to create invoices and make payments.
-
-Speaker and reviewer Lightning addresses must be real when live payments are enabled. Demo addresses such as `@taska.demo` are not paid through a live wallet.
+Speaker and reviewer Lightning addresses must be real when live payments are enabled. Demo addresses such as `@taska.demo` are not paid.
 
 ## Demo Lightning
 
-If `NWC_URL` is not set, Taska uses a mock Lightning provider.
+If `OPENNODE_API_KEY` is not set, Taska uses a mock Lightning provider.
 
 No real Bitcoin moves.
 
@@ -380,11 +378,11 @@ Example:
 }
 ```
 
-When a live NWC wallet is connected, `lightning` reports `nwc`.
+When OpenNode is connected, `lightning` reports `opennode`.
 
 Failed payouts can be retried from the reviewer queue. A payout that has already been sent will not be sent twice.
 
-Never put the NWC connection or wallet secrets in the frontend, database, or Git.
+Never put the OpenNode key in the frontend, database, or Git.
 
 # Environment variables
 
@@ -395,7 +393,8 @@ Never put the NWC connection or wallet secrets in the frontend, database, or Git
 | `AUTH_URL`                   | Public app URL                     |
 | `RESEND_API_KEY`             | Signup and password-reset emails   |
 | `EMAIL_FROM`                 | Email sender                       |
-| `NWC_URL`                    | Lightning wallet connection        |
+| `OPENNODE_API_KEY`           | Live Lightning (invoices + payouts)|
+| `OPENNODE_ENV`               | `live` (default) or `dev`          |
 | `EVALUATOR_PAYOUT_SATS`      | Speaker payout, default 500        |
 | `REVIEWER_PAYOUT_SATS`       | Reviewer payout, default 400       |
 | `PLATFORM_FEE_BPS`           | Taska fee, default 200 = 2%        |

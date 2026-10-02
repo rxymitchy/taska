@@ -18,7 +18,7 @@ Follow the local development steps in the README. Do not commit `.env`, `data/`,
 
 ## Lightning
 
-Live payments use Alby Hub through `NWC_URL` (Nostr Wallet Connect). Mock is for local demo only. Read credentials from server environment variables only.
+Live payments use OpenNode through `OPENNODE_API_KEY`. Mock is for local demo only. Read credentials from server environment variables only.
 
 Invoices created by the mock provider are not payable on a real network.
 

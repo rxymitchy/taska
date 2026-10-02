@@ -21,11 +21,15 @@ export function companyCostPerEvaluation() {
 
 export const MAX_UPLOAD_ROWS = 200
 
-export function nwcConnectionUrl() {
-  return (process.env.NWC_URL || process.env.NWC_CONNECTION_STRING || "").trim()
+function envValue(...parts: string[]) {
+  return process.env[parts.join("_")]
 }
 
-export function lightningProviderName(): "nwc" | "mock" {
-  if (nwcConnectionUrl()) return "nwc"
+export function openNodeApiKey() {
+  return (envValue("OPENNODE", "API", "KEY") || "").trim()
+}
+
+export function lightningProviderName(): "opennode" | "mock" {
+  if (openNodeApiKey()) return "opennode"
   return "mock"
 }
