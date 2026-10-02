@@ -1,12 +1,13 @@
 import { lightningProviderName } from "@/lib/pricing"
 
-/** Seed/demo addresses. Fine for mock. Live OpenNode must not pay these. */
+/** Seed/demo addresses. Fine for mock. Live Breez must not pay these. */
 export function isPlaceholderLightningAddress(value: string) {
   return /@(taska\.demo|demo\.taska)$/i.test(value.trim())
 }
 
+/** True only when Breez secrets are present. Mock still pays @taska.demo. */
 export function usesLiveLightning() {
-  return lightningProviderName() === "opennode"
+  return lightningProviderName() === "breez"
 }
 
 export function payableLightningDestination(value: string | null | undefined) {

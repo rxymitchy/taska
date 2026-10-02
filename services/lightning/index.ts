@@ -1,6 +1,6 @@
+import { BreezLightningProvider } from "./breez-provider"
 import { MockLightningProvider } from "./mock-provider"
 import { invoiceForDestination } from "./lnurl"
-import { OpenNodeLightningProvider } from "./opennode-provider"
 import type {
   CreateInvoiceInput,
   LightningProvider,
@@ -9,7 +9,7 @@ import type {
 import { lightningProviderName } from "@/lib/pricing"
 
 /**
- * Payment rail for Taska: OpenNode when OPENNODE_API_KEY is set, otherwise mock.
+ * Payment rail for Taska: Breez when BREEZ_API_KEY and BREEZ_MNEMONIC are set, otherwise mock.
  * Secrets stay in server environment variables. Never import from client code.
  */
 export class LightningService {
@@ -39,8 +39,8 @@ export class LightningService {
 }
 
 export function getLightningService() {
-  if (lightningProviderName() === "opennode") {
-    return new LightningService(new OpenNodeLightningProvider())
+  if (lightningProviderName() === "breez") {
+    return new LightningService(new BreezLightningProvider())
   }
   return new LightningService(new MockLightningProvider())
 }

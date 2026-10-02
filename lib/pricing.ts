@@ -25,11 +25,28 @@ function envValue(...parts: string[]) {
   return process.env[parts.join("_")]
 }
 
-export function openNodeApiKey() {
-  return (envValue("OPENNODE", "API", "KEY") || "").trim()
+/** Breez emails a one-line cert. PEM headers make the SDK fail to decode it. */
+export function breezApiKey() {
+  const raw = (envValue("BREEZ", "API", "KEY") || "").trim().replace(/\\n/g, "\n")
+  if (!raw) return ""
+  return raw
+    .replace(/-----BEGIN [A-Z ]+-----/g, "")
+    .replace(/-----END [A-Z ]+-----/g, "")
+    .replace(/\s+/g, "")
 }
 
-export function lightningProviderName(): "opennode" | "mock" {
-  if (openNodeApiKey()) return "opennode"
+export function breezMnemonic() {
+  return (envValue("BREEZ", "MNEMONIC") || "").trim()
+}
+
+export function breezNetwork(): "mainnet" | "regtest" | "signet" {
+  const value = (envValue("BREEZ", "NETWORK") || "mainnet").trim().toLowerCase()
+  if (value === "regtest" || value === "signet") return value
+  return "mainnet"
+}
+
+/** Health and payouts treat both secrets as required before real bitcoin can move. */
+export function lightningProviderName(): "breez" | "mock" {
+  if (breezApiKey() && breezMnemonic()) return "breez"
   return "mock"
 }

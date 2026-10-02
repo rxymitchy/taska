@@ -12,6 +12,8 @@ const PACKS = CREDIT_PACKS
 
 export type CreditActionState = { error: string; invoice?: string; checkoutUrl?: string }
 
+/** Company prepay. Live Breez returns a real invoice; mock lets the company mark it paid. */
+
 export async function createCreditInvoice(_prev: CreditActionState, formData: FormData): Promise<CreditActionState> {
   const user = await requireRole(["EMPLOYER"])
   const company = await prisma.employerProfile.findUnique({ where: { userId: user.id } })
@@ -41,7 +43,7 @@ export async function createCreditInvoice(_prev: CreditActionState, formData: Fo
     revalidatePath("/employer/credits")
     return { error: "", invoice: created.invoice, checkoutUrl: created.checkoutUrl }
   } catch (error) {
-    if (lightningProviderName() === "opennode") {
+    if (lightningProviderName() === "breez") {
       return {
         error:
           error instanceof Error

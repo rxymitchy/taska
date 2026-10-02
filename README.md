@@ -140,7 +140,7 @@ Status: **Done** means it works today. **Partly** means some of it exists but st
 | Retry failed payouts           | Done   | Reviewer queue                                            |
 | Assign by language             | Done   | Swahili → Rita, Yoruba → Chinedu, Twi → Ama               |
 | Connect AI + database          | Done   | Generation + optional rubric pre-check; see `docs/ai.md`  |
-| Connect OpenNode in production | To do  | Add `OPENNODE_API_KEY` to Vercel                          |
+| Connect Breez in production    | Done   | Breez SDK Spark on Vercel. Health reports `breez`         |
 
 ## 2. Frontend Developer
 
@@ -150,7 +150,7 @@ Status: **Done** means it works today. **Partly** means some of it exists but st
 | Company dashboard      | Done   | `app/employer/`                                                      |
 | Speaker dashboard      | Done   | `app/dashboard/`                                                     |
 | Evaluation page        | Done   | `app/dashboard/evaluations/[id]`                                     |
-| Admin dashboard        | Partly | Queue, invites and payout retry work; summary totals still need work |
+| Admin dashboard        | Partly | Queue, invites, payout retry, and till balance; summary totals still need work |
 | Company credit balance | Done   | `app/employer/credits`                                               |
 | Progress and results   | Done   | Status + validated result                                            |
 | Earnings               | Done   | Lightning Sent or Failed + sat amounts                               |
@@ -235,7 +235,7 @@ The project lead keeps the team moving but does not own a separate product modul
 | Auth                | Auth.js, JWT sessions (1 hour), bcrypt, password reset email |
 | Validation          | Zod 4                                                        |
 | AI                  | OpenAI-compatible API                                        |
-| Payments            | Bitcoin Lightning (OpenNode)                                 |
+| Payments            | Bitcoin Lightning (Breez)                                    |
 | Hosting             | Vercel + Neon                                                |
 
 # Project structure
@@ -332,9 +332,11 @@ Do not run `scripts/seed-demo.ts` against production unless you intend to reset 
 
 # Lightning payments
 
-Taska uses **OpenNode** to create Lightning invoices and pay speakers.
+Taska uses **Breez SDK Spark** to create Lightning invoices and pay speakers.
 
-Taska does not store wallet keys. Speakers get paid at the Lightning address on their profile.
+Taska does not store wallet keys in the database. Speakers get paid at the Lightning address on their profile. The Breez API key and seed stay in server environment variables on Vercel.
+
+The Review queue (`/admin`) shows **Bitcoin in the till** — what companies have paid in, minus what Taska has paid out. A company’s **Available** credit on Add credit is their prepaid share, not a second wallet.
 
 Companies prepay by paying a Lightning invoice. That credit is reserved when work is created and spent when the work is approved.
 
@@ -352,13 +354,24 @@ The Taska fee is 2%.
 
 ## Live Lightning
 
-Set `OPENNODE_API_KEY` on the server (Vercel, not git). Use a withdrawals-enabled key so payouts can leave the OpenNode account.
+Production already has `BREEZ_API_KEY` and `BREEZ_MNEMONIC` on Vercel. Health should report `"lightning":"breez"`.
+
+A new environment needs a Breez Spark API key (they email it after a short form):
+
+```bash
+curl -d "fullname=Taska" -d "company=Taska" -d "email=YOUR_EMAIL" -d "message=Hack4Freedom Taska Lightning payouts" \
+  https://breez.technology/contact/apikey
+```
+
+Paste the key as one line. Do not wrap it in `BEGIN CERTIFICATE` headers. Write the mnemonic down offline first. Never put either value in Git.
+
+On Vercel the wallet cache lives under `/tmp/breez` and is rebuilt from the mnemonic. Set `BREEZ_DATABASE_URL` only if you want Breez to use its own Postgres tables.
 
 Speaker and reviewer Lightning addresses must be real when live payments are enabled. Demo addresses such as `@taska.demo` are not paid.
 
 ## Demo Lightning
 
-If `OPENNODE_API_KEY` is not set, Taska uses a mock Lightning provider.
+If `BREEZ_API_KEY` or `BREEZ_MNEMONIC` is not set, Taska uses a mock Lightning provider.
 
 No real Bitcoin moves.
 
@@ -374,15 +387,15 @@ Example:
 {
   "ok": true,
   "db": true,
-  "lightning": "mock"
+  "lightning": "breez"
 }
 ```
 
-When OpenNode is connected, `lightning` reports `opennode`.
+Local demo without those secrets reports `"lightning":"mock"`.
 
 Failed payouts can be retried from the reviewer queue. A payout that has already been sent will not be sent twice.
 
-Never put the OpenNode key in the frontend, database, or Git.
+Never put the Breez key or mnemonic in the frontend, database, or Git.
 
 # Environment variables
 
@@ -393,8 +406,11 @@ Never put the OpenNode key in the frontend, database, or Git.
 | `AUTH_URL`                   | Public app URL                     |
 | `RESEND_API_KEY`             | Signup and password-reset emails   |
 | `EMAIL_FROM`                 | Email sender                       |
-| `OPENNODE_API_KEY`           | Live Lightning (invoices + payouts)|
-| `OPENNODE_ENV`               | `live` (default) or `dev`          |
+| `BREEZ_API_KEY`              | Live Lightning API key             |
+| `BREEZ_MNEMONIC`             | Live Lightning wallet seed         |
+| `BREEZ_NETWORK`              | `mainnet` (default), `regtest`, or `signet` |
+| `BREEZ_DATABASE_URL`         | Optional Postgres URL for Breez    |
+| `DIRECT_URL`                 | Optional Neon direct URL for Breez |
 | `EVALUATOR_PAYOUT_SATS`      | Speaker payout, default 500        |
 | `REVIEWER_PAYOUT_SATS`       | Reviewer payout, default 400       |
 | `PLATFORM_FEE_BPS`           | Taska fee, default 200 = 2%        |

@@ -24,6 +24,7 @@ export type PaymentResult = {
   feeSats?: number
 }
 
+/** Swap mock for Breez in `getLightningService()`. Do not import this from the browser. */
 export interface LightningProvider {
   createInvoice(input: CreateInvoiceInput): Promise<Invoice>
   payInvoice(input: PayInvoiceInput): Promise<PaymentResult>

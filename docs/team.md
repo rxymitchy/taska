@@ -25,7 +25,7 @@ Password for every account: `demo1234`.
 
 1. Log in as the company, `employer@taska.demo`. Credits are already loaded. Open **Get an answer checked** and submit a Swahili, Kenya / M-Pesa response (or **Upload** a CSV). The list should name **Rita Mwangi**.
 2. Log in as Rita, `rita@taska.demo` (or the **Rita** button). Answer the three questions. A No makes **Better answer** required.
-3. Log in as the reviewer, `admin@taska.demo`. Open **Review queue**, then agree — pay the speaker. **Invite** is how new reviewers join.
+3. Log in as the reviewer, `admin@taska.demo`. Open **Review queue**. **Bitcoin in the till** is the live Breez pot (0 until a company pays a real invoice). Then agree — pay the speaker. **Invite** is how new reviewers join.
 4. Log in as the company again. The evaluation shows the validated result.
 5. Rita and the reviewer screens show Lightning Sent and the sat amounts (500 and 400).
 
@@ -45,7 +45,8 @@ Password for every account: `demo1234`.
 | `services/assignment/index.ts` | Picks a speaker of that language (Rita / Chinedu / Ama)                              |
 | `app/employer/`                | Company list, credits, upload, result page                                           |
 | `app/dashboard/`               | Evaluator list and form                                                              |
-| `app/admin/`                   | Review queue, invite, approve or reject                                              |
+| `app/admin/`                   | Review queue, till balance, invite, approve or reject                                |
+| `services/lightning/`          | Breez Spark (live) or mock. Secrets stay in environment variables                    |
 
 ---
 
@@ -55,13 +56,13 @@ Password for every account: `demo1234`.
 
 **Input:** `{ evaluationId, workerUserId, reviewerUserId }`, sent after a reviewer approves.
 
-**Processing:** pay the evaluator and reviewer Lightning addresses (LNURL-pay when live). Store the payment hash. Mock unless `OPENNODE_API_KEY` is set. Company credits are spent in `lib/credits.ts` before this runs. `retryFailedPayouts` can send again without paying a Sent row twice.
+**Processing:** pay the evaluator and reviewer Lightning addresses (LNURL-pay when live). Store the payment hash. Mock unless `BREEZ_API_KEY` and `BREEZ_MNEMONIC` are set. Company credits are spent in `lib/credits.ts` before this runs. `retryFailedPayouts` can send again without paying a Sent row twice.
 
 **Output:** each `EvaluationPayout` row moves from `PENDING` to `SENT` or `FAILED`.
 
 **Connects:** `decideEvaluation` calls this after the evaluation becomes `COMPLETED`.
 
-A failed payment must not undo the validated evaluation. Keys stay in server environment variables. Live OpenNode will not pay `@taska.demo` placeholders.
+A failed payment must not undo the validated evaluation. Keys stay in server environment variables. Live Breez will not pay `@taska.demo` placeholders.
 
 ## AI model (AI/ML Developer)
 

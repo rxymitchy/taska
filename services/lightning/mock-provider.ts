@@ -10,7 +10,7 @@ import type {
 /**
  * Sandbox provider for local demos and tests.
  * Invoices are not valid BOLT11 and cannot move real bitcoin.
- * Replace this class from services/lightning/index.ts.
+ * Used when BREEZ_API_KEY or BREEZ_MNEMONIC is missing.
  */
 export class MockLightningProvider implements LightningProvider {
   private invoices = new Map<string, Invoice>()

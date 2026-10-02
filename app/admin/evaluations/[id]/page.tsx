@@ -8,6 +8,7 @@ import { btnPrimary, btnSecondary } from "@/lib/styles"
 import { requireRole } from "@/lib/session"
 
 export const metadata: Metadata = { title: "Review evaluation" }
+export const maxDuration = 60
 
 export default async function ReviewEvaluationPage({
   params,
