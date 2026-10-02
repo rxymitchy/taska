@@ -1,6 +1,6 @@
 # Taska
 
-**Is AI speaking your language correctly?**
+**Make AI sound like it belongs**
 
 Help train it. Get paid while you do.
 
