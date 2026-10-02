@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { CopyInvoiceButton } from "@/components/copy-invoice-button"
 import { ConfirmDepositButton, CreditsForm } from "@/components/credits-form"
 import { Container, StatusPill } from "@/components/ui"
 import { formatSats } from "@/lib/money"
@@ -61,7 +62,10 @@ export default async function CreditsPage() {
                   <span className="block font-medium">{formatSats(deposit.amountSats)}</span>
                   <span className="mt-1 block"><StatusPill status={deposit.status} /></span>
                 </span>
-                {deposit.status === "PENDING" ? <ConfirmDepositButton depositId={deposit.id} mock={mock} /> : null}
+                <span className="flex flex-wrap items-center gap-2">
+                  <CopyInvoiceButton invoice={deposit.invoice} />
+                  {deposit.status === "PENDING" ? <ConfirmDepositButton depositId={deposit.id} mock={mock} /> : null}
+                </span>
               </li>
             ))}
           </ul>

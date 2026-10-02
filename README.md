@@ -15,12 +15,12 @@ Taska is how a company gets an AI answer checked by someone who actually speaks 
 ## The short version
 
 1. A company pays a Lightning invoice and sends an AI answer (or a CSV of them).
-2. Taska assigns the work to a speaker of that language — Rita for Swahili, Chinedu for Yoruba, Ama for Twi.
-3. The speaker answers three questions. If anything is No, they write a better answer.
+2. Taska assigns the work to an evaluator of that language — Rita for Swahili, Chinedu for Yoruba, Ama for Twi.
+3. The evaluator answers three questions. If anything is No, they write a better answer.
 4. A reviewer agrees or sends it back.
-5. On approve, bitcoin goes to the speaker and the reviewer. Rejected work is not charged.
+5. On approve, bitcoin goes to the evaluator and the reviewer. Rejected work is not charged.
 
-That's the whole job. Sign up as a speaker or a company. Reviewers are invited.
+That's the whole job. Sign up as an evaluator or a company. Reviewers are invited.
 
 ---
 
@@ -44,7 +44,7 @@ Taska combines:
 - Instant Lightning payouts
 - An optional AI draft and pre-check that never approves or pays
 
-All in one path: invoice → speaker → reviewer → payment.
+All in one path: invoice → evaluator → reviewer → payment.
 
 ---
 
@@ -52,7 +52,7 @@ All in one path: invoice → speaker → reviewer → payment.
 
 A company sends a question in the language people actually use — slang, a greeting, how something works here. They paste the AI answer, or leave it blank and Taska generates one.
 
-A local speaker checks:
+A local evaluator checks:
 
 - **Accuracy** — Is the answer correct?
 - **Naturalness** — Does it sound like something people actually say?
@@ -64,13 +64,13 @@ A reviewer then checks the submission. If they agree, payment is released. If no
 
 Work is matched by language and country:
 
-| Language / place     | Speaker |
+| Language / place     | Evaluator |
 | -------------------- | ------- |
 | Swahili / Kenya      | Rita    |
 | Yoruba / Nigeria     | Chinedu |
 | Twi / Ghana          | Ama     |
 
-If there is no available speaker for a language, the work waits.
+If there is no available evaluator for a language, the work waits.
 
 ---
 
@@ -79,10 +79,10 @@ If there is no available speaker for a language, the work waits.
 | Role         | What they do                                                     |
 | ------------ | ---------------------------------------------------------------- |
 | **Company**  | Sends AI responses to be checked and pays for completed work     |
-| **Speaker**  | Checks responses in their language and improves them when needed |
-| **Reviewer** | Checks the speaker's work before payment is released             |
+| **Evaluator**  | Checks responses in their language and improves them when needed |
+| **Reviewer** | Checks the evaluator's work before payment is released             |
 
-Speakers and companies sign up publicly (**Sign me up** / **For companies**). Reviewers join by invite.
+Evaluators and companies sign up publicly (**Sign me up** / **For companies**). Reviewers join by invite.
 
 ---
 
@@ -90,7 +90,7 @@ Speakers and companies sign up publicly (**Sign me up** / **For companies**). Re
 
 Payments are **bitcoin, sent over Lightning**.
 
-When a reviewer agrees, money leaves right then and lands in a wallet on the speaker's phone in seconds — like mobile money, not a bank transfer that waits. There is no minimum balance. Taska never holds their money or their wallet keys.
+When a reviewer agrees, money leaves right then and lands in a wallet on the evaluator's phone in seconds — like mobile money, not a bank transfer that waits. There is no minimum balance. Taska never holds their money or their wallet keys.
 
 Rejected work is not charged.
 
@@ -101,9 +101,9 @@ Credits are added
    ↓
 Company submits AI responses
    ↓
-Task is assigned to a speaker
+Task is assigned to an evaluator
    ↓
-Speaker checks the response
+Evaluator checks the response
    ↓
 Reviewer checks the submission
    ↓
@@ -111,12 +111,12 @@ Approved?
    ├── No  → Task is sent back. Credits come back.
    └── Yes → Payment is released
                 Company is charged 918 sats
-                Speaker  → 500 sats
+                Evaluator  → 500 sats
                 Reviewer → 400 sats
                 Taska    →  18 sats (2% fee)
 ```
 
-The 2% is added on top of what the company pays. The speaker and reviewer still get the full 500 and 400. The leftover 18 sats stays in Taska's till.
+The 2% is added on top of what the company pays. The evaluator and reviewer still get the full 500 and 400. The leftover 18 sats stays in Taska's till.
 
 The smallest credit pack is **1,000 sats** — enough for one check.
 
@@ -134,15 +134,15 @@ The smallest credit pack is **1,000 sats** — enough for one check.
 ### Assignment
 
 - Language and country matching
-- Work waits if no speaker is available
-- Public speaker and company signup
+- Work waits if no evaluator is available
+- Public evaluator and company signup
 - Invite-only reviewers
 
 ### Lightning (Breez SDK Spark)
 
-- Company prepaid invoices
+- Company prepaid invoices, with a copy button
 - Credits held when work is created, spent on approve, returned on reject
-- Payouts to the Lightning address on a speaker or reviewer profile
+- Payouts to the Lightning address on an evaluator or reviewer profile
 - Failed payouts can be retried without paying a Sent row twice
 - Till balance on the review queue
 
@@ -160,7 +160,7 @@ The smallest credit pack is **1,000 sats** — enough for one check.
 
 What works today:
 
-- Speaker, company, and reviewer roles
+- Evaluator, company, and reviewer roles
 - Signup, login, and password reset
 - Language assignment (Rita / Chinedu / Ama)
 - Credits, invoices, holds, and Lightning payouts
@@ -172,7 +172,7 @@ What works today:
 
 What's still open:
 
-- Copy button and QR for Lightning invoices
+- QR for Lightning invoices
 - A more compact signed-in header on small screens
 - Reviewer summary totals
 - Screenshots and the pitch deck / demo video
@@ -185,12 +185,12 @@ What's still open:
 
 | Account  | Role     | Language                 |
 | -------- | -------- | ------------------------ |
-| Rita     | Speaker  | Swahili / Kenya          |
-| Chinedu  | Speaker  | Yoruba / Hausa / Nigeria |
-| Ama      | Speaker  | Twi / Ghana              |
+| Rita     | Evaluator  | Swahili / Kenya          |
+| Chinedu  | Evaluator  | Yoruba / Hausa / Nigeria |
+| Ama      | Evaluator  | Twi / Ghana              |
 | Company  | Company  | —                        |
 | Reviewer | Reviewer | —                        |
-| Amina    | Speaker  | Swahili                  |
+| Amina    | Evaluator  | Swahili                  |
 
 The login page includes demo buttons when `DEMO_LOGIN=true`.
 
@@ -233,7 +233,7 @@ Company  →  Lightning invoice  →  prepaid credits
                 ↓
          Evaluation created (hold 918 sats)
                 ↓
-         Speaker assigned by language
+         Evaluator assigned by language
                 ↓
          Human check + optional AI pre-check
                 ↓
@@ -241,7 +241,7 @@ Company  →  Lightning invoice  →  prepaid credits
                 ↓
     Spend credits    or    return the hold
                 ↓
-         Breez pays speaker (500) and reviewer (400)
+         Breez pays evaluator (500) and reviewer (400)
 ```
 
 `LightningService` is what the payment code calls. Live Breez is used when `BREEZ_API_KEY` and `BREEZ_MNEMONIC` are set. Otherwise the mock provider writes `lnmock1` invoices and does not move bitcoin.
@@ -258,10 +258,10 @@ The older task marketplace (`app/tasks`, `app/workers`) is still in the reposito
 app/
   actions/       Server Actions (evaluations, credits, upload, auth)
   employer/      Company dashboard, credits, upload, results
-  dashboard/     Speaker dashboard
+  dashboard/     Evaluator dashboard
   admin/         Review queue, till, invites
   login/         Demo buttons and password login
-  signup/        Speaker or company
+  signup/        Evaluator or company
 
 components/      Shared UI
 
@@ -373,7 +373,7 @@ npm run lint         # Run linting
 - See the validated result after a reviewer agrees
 - Download the validated dataset
 
-### For speakers
+### For evaluators
 
 - Save a real Lightning address on **Profile**
 - Open assigned work and answer the three questions
