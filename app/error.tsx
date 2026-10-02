@@ -1,17 +1,22 @@
-"use client"
+"use client";
 
-export default function ErrorPage({ reset }: { error: Error; reset: () => void }) {
+import { useEffect } from "react";
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    console.error(error);
+  }, [error]);
+
   return (
-    <div className="mx-auto max-w-lg px-4 py-20">
-      <h1 className="text-3xl tracking-tight">Something went wrong</h1>
-      <p className="mt-3 text-muted">Refresh the page. If this is a new setup, check that the database is running and seeded.</p>
-      <button
-        className="mt-6 rounded-md bg-accent px-4 py-2 text-sm font-semibold text-white"
-        onClick={() => reset()}
-        type="button"
-      >
-        Try again
-      </button>
+    <div>
+      <h2>Something went wrong!</h2>
+      <button onClick={reset}>Try again</button>
     </div>
-  )
+  );
 }

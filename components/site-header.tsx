@@ -2,6 +2,7 @@ import Link from "next/link"
 import { signOut } from "@/auth"
 import { auth } from "@/auth"
 import { brand } from "@/lib/brand"
+import Logo from "@/components/Logo"
 import { btnPrimary, btnQuiet } from "@/lib/styles"
 
 export async function SiteHeader() {
@@ -12,7 +13,7 @@ export async function SiteHeader() {
     <header className="sticky top-0 z-20 border-b border-line bg-paper/95 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4">
         <Link href="/" className="font-display text-2xl tracking-tight text-ink">
-          {brand.name}
+          <Logo />
         </Link>
         <nav className="flex items-center gap-1 text-sm font-medium">
           {role === "WORKER" ? (
