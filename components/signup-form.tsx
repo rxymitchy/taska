@@ -91,7 +91,7 @@ export function SignupForm({
       <label className="space-y-1.5">
         <span className={labelClass}>Email</span>
         <input className={inputClass} name="email" type="email" required defaultValue={inviteEmail} readOnly={invited} />
-        <span className="block text-xs text-muted">We'll send a confirmation email.</span>
+        <span className="block text-xs text-muted">We&apos;ll send a confirmation email.</span>
       </label>
       <label className="space-y-1.5">
         <span className={labelClass}>Password</span>

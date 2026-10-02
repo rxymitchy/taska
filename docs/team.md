@@ -90,6 +90,6 @@ Keep API keys on the server. Store which model produced a response.
 
 **Output:** `CompanyReport`
 
-**Connects:** `app/employer/evaluations/[id]/page.tsx`. Add fields to `CompanyReport` rather than querying from the page. CSV/JSON **export** (not upload) should build its rows from `CompanyReport` too, so the page and the file always match.
+**Connects:** `app/employer/evaluations/[id]/page.tsx` and the employer dashboard's CSV/JSON dataset download at `/api/employer/evaluations/export`. Add fields to `CompanyReport` rather than querying from the page. Export rows are built from `CompanyReport` too, so the page and the file always match.
 
 Only report as validated when the status is `COMPLETED`.
