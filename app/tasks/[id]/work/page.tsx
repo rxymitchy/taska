@@ -8,6 +8,10 @@ import { requireRole } from "@/lib/session"
 
 export const metadata: Metadata = { title: "Complete task" }
 
+function isRecentSubmission(submittedAt: Date) {
+  return Date.now() - submittedAt.getTime() < 15 * 60 * 1000
+}
+
 export default async function WorkPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const user = await requireRole(["WORKER"])
@@ -32,7 +36,7 @@ export default async function WorkPage({ params }: { params: Promise<{ id: strin
   const recentResult =
     recent &&
     (recent.status === "APPROVED" || recent.status === "PENDING") &&
-    Date.now() - recent.submittedAt.getTime() < 15 * 60 * 1000
+    isRecentSubmission(recent.submittedAt)
       ? {
           status: recent.status,
           qualityScore: recent.qualityScore,

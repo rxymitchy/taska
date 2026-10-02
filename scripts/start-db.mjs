@@ -14,7 +14,7 @@ import path from "path"
 
 const port = Number(process.env.DB_PORT || 5432)
 const dataPath = path.join(process.cwd(), "data", "pglite")
-await mkdir(dataPath, { recursive: true })
+await mkdir(path.dirname(dataPath), { recursive: true })
 const db = new PGlite(dataPath)
 await db.waitReady
 

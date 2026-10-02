@@ -14,7 +14,9 @@ export async function GET(
   }
   const { workerId } = await context.params
   if (session.user.role === "WORKER") {
-    const own = await prisma.workerProfile.findUnique({ where: { userId: session.user.id } })
+    const own = await prisma.workerProfile.findUnique({
+      where: { userId: session.user.id },
+    })
     if (own?.id !== workerId) return new NextResponse("Forbidden", { status: 403 })
   }
 
