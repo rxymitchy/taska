@@ -2,7 +2,7 @@
 
 Taska checks whether an AI response works for an African language and a local context.
 
-The shared core is finished. Money, CSV upload, and reviewer invites use the same evaluation path. Full picture for teammates: the arrow diagrams in the README (**How the app works**).
+The shared core is finished. Money, CSV upload, and reviewer invites use the same evaluation path. Full picture: the README (**How it works** and **Get paid as you go**).
 
 ```
 Company credits → hold 918 sats → Pending → Assigned

@@ -1,51 +1,101 @@
 # Taska
 
-**Check AI answers with people who actually speak the language — and pay them for it.**
+**Is AI speaking your language correctly?**
 
-Live: [taska-beta.vercel.app](https://taska-beta.vercel.app) · Hack4Freedom 2026 · [GitHub](https://github.com/rxymitchy/taska)
+Help train it. Get paid while you do.
+
+AI can sound fluent and still get things wrong. A greeting can feel off. Slang can miss. An answer about paying a bill can skip how people actually pay in that country.
+
+Taska is how a company gets an AI answer checked by someone who actually speaks the language — and how that person gets paid in bitcoin, instantly, over Lightning.
+
+[**Try it → taska-beta.vercel.app**](https://taska-beta.vercel.app)
+
+---
+
+## The short version
+
+1. A company pays a Lightning invoice and sends an AI answer (or a CSV of them).
+2. Taska assigns the work to a speaker of that language — Rita for Swahili, Chinedu for Yoruba, Ama for Twi.
+3. The speaker answers three questions. If anything is No, they write a better answer.
+4. A reviewer agrees or sends it back.
+5. On approve, bitcoin goes to the speaker and the reviewer. Rejected work is not charged.
+
+That's the whole job. Sign up as a speaker or a company. Reviewers are invited.
+
+---
 
 ## The problem
 
-AI can sound fluent and still get things wrong.
+AI assistants already answer people in Nairobi, Lagos, and Accra. A lot of those answers are fluent and still wrong — a polite Swahili sentence that would send someone through the wrong M-Pesa steps.
 
-A greeting can feel unnatural. Slang can be completely off. An answer about paying a bill can miss how people actually pay in that country.
+Most evaluation platforms are built for English, for offices, and for payouts that sit until they hit a minimum. Speakers of African languages should not have to wait on a bank, a PayPal balance, or a platform that holds their money.
 
-Taska gives companies a simple way to check AI responses with people who actually speak the language.
+Taska exists to close that gap.
 
-## How Taska works
+---
 
-A company sends an AI response to Taska. A local speaker checks it for:
+## What Taska does
+
+Taska combines:
+
+- Human checks for accuracy, naturalness, and local context
+- Assignment by language and country
+- Company prepaid credits
+- Instant Lightning payouts
+- An optional AI draft and pre-check that never approves or pays
+
+All in one path: invoice → speaker → reviewer → payment.
+
+---
+
+## How it works
+
+A company sends a question in the language people actually use — slang, a greeting, how something works here. They paste the AI answer, or leave it blank and Taska generates one.
+
+A local speaker checks:
 
 - **Accuracy** — Is the answer correct?
 - **Naturalness** — Does it sound like something people actually say?
 - **Local context** — Does it make sense for people in that place?
 
-If something is wrong, the speaker writes a better answer.
+If something is wrong, they write it the way people really talk.
 
-A reviewer then checks the submission before payment is released.
+A reviewer then checks the submission. If they agree, payment is released. If not, the work comes back and nobody is charged.
 
-Work is matched by language and country. For example:
+Work is matched by language and country:
 
-- Swahili / Kenya → Rita
-- Yoruba / Nigeria → Chinedu
-- Twi / Ghana → Ama
+| Language / place     | Speaker |
+| -------------------- | ------- |
+| Swahili / Kenya      | Rita    |
+| Yoruba / Nigeria     | Chinedu |
+| Twi / Ghana          | Ama     |
 
 If there is no available speaker for a language, the work waits.
 
+---
+
+## Who uses Taska
+
+| Role         | What they do                                                     |
+| ------------ | ---------------------------------------------------------------- |
+| **Company**  | Sends AI responses to be checked and pays for completed work     |
+| **Speaker**  | Checks responses in their language and improves them when needed |
+| **Reviewer** | Checks the speaker's work before payment is released             |
+
+Speakers and companies sign up publicly (**Sign me up** / **For companies**). Reviewers join by invite.
+
+---
+
 ## Get paid as you go
 
-Payments are made in **Bitcoin over Lightning**.
+Payments are **bitcoin, sent over Lightning**.
 
-When work is approved, payment goes directly to the speaker and reviewer’s wallets in seconds. There is no minimum balance or waiting for a payout, and Taska never holds their money.
+When a reviewer agrees, money leaves right then and lands in a wallet on the speaker's phone in seconds — like mobile money, not a bank transfer that waits. There is no minimum balance. Taska never holds their money or their wallet keys.
 
 Rejected work is not charged.
 
-## The payment flow
-
 ```text
-Company
-   ↓
-Pays a Lightning invoice
+Company pays a Lightning invoice
    ↓
 Credits are added
    ↓
@@ -58,32 +108,80 @@ Speaker checks the response
 Reviewer checks the submission
    ↓
 Approved?
-   ├── No → Task is sent back
-   └── Yes
-        ↓
-   Payment is released
-        ↓
-   Company is charged 918 sats
-   Speaker → 500 sats
-   Reviewer → 400 sats
-   Taska → 18 sats (2% fee)
-        ↓
-   Company sees the validated result
+   ├── No  → Task is sent back. Credits come back.
+   └── Yes → Payment is released
+                Company is charged 918 sats
+                Speaker  → 500 sats
+                Reviewer → 400 sats
+                Taska    →  18 sats (2% fee)
 ```
 
-## Who uses Taska?
+The 2% is added on top of what the company pays. The speaker and reviewer still get the full 500 and 400. The leftover 18 sats stays in Taska's till.
 
-| Role         | What they do                                                     |
-| ------------ | ---------------------------------------------------------------- |
-| **Company**  | Sends AI responses to be checked and pays for completed work     |
-| **Speaker**  | Checks responses in their language and improves them when needed |
-| **Reviewer** | Checks the speaker's work before payment is released             |
+The smallest credit pack is **1,000 sats** — enough for one check.
 
-Speakers and companies can sign up publicly. Reviewers are invited.
+---
+
+## Features
+
+### Human language checks
+
+- Three questions: accuracy, naturalness, local context
+- A better-answer field when anything is No
+- Reviewer approval before anyone is paid
+- CSV / JSON upload (up to 200 rows) and a validated dataset download
+
+### Assignment
+
+- Language and country matching
+- Work waits if no speaker is available
+- Public speaker and company signup
+- Invite-only reviewers
+
+### Lightning (Breez SDK Spark)
+
+- Company prepaid invoices
+- Credits held when work is created, spent on approve, returned on reject
+- Payouts to the Lightning address on a speaker or reviewer profile
+- Failed payouts can be retried without paying a Sent row twice
+- Till balance on the review queue
+
+### Optional AI
+
+- Fills a blank company answer
+- Pre-check using the same three questions
+- Shown beside the human result — not an approval signal and not a payment trigger
+
+---
+
+## Status
+
+**Live at [taska-beta.vercel.app](https://taska-beta.vercel.app).** Production Lightning is Breez Spark. Health at `/api/health` should report `"lightning":"breez"`.
+
+What works today:
+
+- Speaker, company, and reviewer roles
+- Signup, login, and password reset
+- Language assignment (Rita / Chinedu / Ama)
+- Credits, invoices, holds, and Lightning payouts
+- Single evaluations and CSV / JSON upload
+- Validated CSV / JSON export
+- Reviewer invites and payout retry
+- AI draft + optional pre-check
+- Demo accounts and sample evaluations
+
+What's still open:
+
+- Copy button and QR for Lightning invoices
+- A more compact signed-in header on small screens
+- Reviewer summary totals
+- Screenshots and the pitch deck / demo video
+
+---
 
 ## Demo
 
-**Demo password:** `demo1234`
+**Password for every demo account:** `demo1234`
 
 | Account  | Role     | Language                 |
 | -------- | -------- | ------------------------ |
@@ -100,130 +198,17 @@ The login page includes demo buttons when `DEMO_LOGIN=true`.
 
 1. Log in as **Company** and open a Swahili evaluation.
 2. See that it has been assigned to **Rita**.
-3. Log in as **Rita** and review the response.
-4. Submit a better answer if needed.
-5. Log in as **Reviewer** and approve or reject the submission.
-6. Log back in as **Company** to see the validated result.
+3. Log in as **Rita** and review the response. Write a better answer if needed.
+4. Log in as **Reviewer** and approve or reject.
+5. Log back in as **Company** to see the validated result.
 
-You can also open the Chinedu and Ama accounts to see the other languages.
+Sample prompts in the demo: `Niaje, uko poa?` (Swahili), a Yoruba school-fee transfer, and a Twi mobile-money bill.
 
-## Sample evaluations
+Do not run `npm run db:seed:demo` against production unless you intend to reset the demo data.
 
-The demo includes examples covering greetings and local payment instructions:
+---
 
-| Language | Example                                                  |
-| -------- | -------------------------------------------------------- |
-| Swahili  | `Niaje, uko poa?` · M-Pesa bill · M-Pesa without a phone |
-| Yoruba   | `Bawo ni, ṣé o wa okay?` · School fee by transfer        |
-| Twi      | `Ɛte sɛn? Woyɛ okay?` · Mobile money bill                |
-
-These are demo samples. Companies can submit additional evaluations through the app.
-
-# Team Progress
-
-Status: **Done** means it works today. **Partly** means some of it exists but still needs work. **To do** means it has not been started.
-
-## 1. Backend Developer
-
-| Task                           | Status | Where to start                                            |
-| ------------------------------ | ------ | --------------------------------------------------------- |
-| Build the backend/API          | Done   | Server Actions in `app/actions/evaluations.ts`            |
-| Create the database            | Done   | `prisma/schema.prisma`, `prisma/migrations/`              |
-| User registration and login    | Done   | `app/actions/auth.ts`, `auth.ts`                          |
-| Manage users and roles         | Done   | Speaker, company, reviewer. Reviewers use `/admin/invite` |
-| Create and assign work         | Done   | Language + country in `services/assignment/index.ts`      |
-| CSV/JSON upload                | Done   | `app/actions/upload.ts`                                   |
-| Receive and store submissions  | Done   | `submitHumanEvaluation`, `EvaluationSubmission`           |
-| Manage task status             | Done   | `app/actions/evaluations.ts`                              |
-| Store AI evaluation results    | Done   | Human and optional AI rubric results + model are stored   |
-| Dataset export                 | Done   | CSV/JSON downloads of validated rows from the employer dashboard |
-| Lightning payments             | Done   | Credits, 500 / 400 / 918 (2%). `services/lightning/`      |
-| Retry failed payouts           | Done   | Reviewer queue                                            |
-| Assign by language             | Done   | Swahili → Rita, Yoruba → Chinedu, Twi → Ama               |
-| Connect AI + database          | Done   | Generation + optional rubric pre-check; see `docs/ai.md`  |
-| Connect Breez in production    | Done   | Breez SDK Spark on Vercel. Health reports `breez`         |
-
-## 2. Frontend Developer
-
-| Task                   | Status | Where to start                                                       |
-| ---------------------- | ------ | -------------------------------------------------------------------- |
-| Build the website      | Done   | `app/page.tsx`                                                       |
-| Company dashboard      | Done   | `app/employer/`                                                      |
-| Speaker dashboard      | Done   | `app/dashboard/`                                                     |
-| Evaluation page        | Done   | `app/dashboard/evaluations/[id]`                                     |
-| Admin dashboard        | Partly | Queue, invites, payout retry, and till balance; summary totals still need work |
-| Company credit balance | Done   | `app/employer/credits`                                               |
-| Progress and results   | Done   | Status + validated result                                            |
-| Earnings               | Done   | Lightning Sent or Failed + sat amounts                               |
-| Connect UI to backend  | Done   | Forms call Server Actions                                            |
-| Responsive layout      | Partly | Works on mobile; signed-in header still needs compacting             |
-| Copy Lightning invoice | To do  | Add a copy button; QR can come later                                 |
-| Form errors            | Done   | Required fields + server errors                                      |
-| Demo logins            | Done   | Rita, Chinedu and Ama                                                |
-
-## 3. AI/ML Developer
-
-| Task                                | Status | Where to start                                      |
-| ----------------------------------- | ------ | --------------------------------------------------- |
-| Research models / SDKs              | Done   | Keep API keys in server environment                 |
-| Test African-language support       | Done   | Languages in `lib/catalog.ts`; start with Swahili   |
-| AI-assisted task generation         | Done   | `generateAiResponse` fills a blank company response |
-| AI response evaluation              | Done   | Pre-check using the same three questions            |
-| Fluency, accuracy and local context | Done   | Three evaluation questions                          |
-| Compare AI vs human                 | Done   | Show differences on company and reviewer pages      |
-| Document AI models                  | Done   | `docs/ai.md`                                        |
-
-## 4. Documentation Lead
-
-| Task                   | Status | Where to start                                                |
-| ---------------------- | ------ | ------------------------------------------------------------- |
-| Document the problem   | Done   | README + homepage                                             |
-| Document the solution  | Done   | Invoice → speaker → reviewer → payment                        |
-| Document users         | Done   | Companies, speakers and reviewers                             |
-| Maintain README        | Done   | This file                                                     |
-| System architecture    | Partly | `docs/architecture.md` needs cleanup from the old marketplace |
-| Document AI component  | To do  | `docs/ai.md`                                                  |
-| Document data quality  | Done   | Three questions + reviewer confirmation                       |
-| Document platform flow | Done   | README + `docs/team.md`                                       |
-| Screenshots            | To do  | `docs/screenshots/`                                           |
-| Final technical docs   | To do  | —                                                             |
-| Pitch PowerPoint       | To do  | Problem, Taska flow and Lightning payments                    |
-| Pitch / demo video     | To do  | Record the walkthrough using the demo flow                    |
-
-## 5. Group Lead / Project Lead
-
-The project lead keeps the team moving but does not own a separate product module.
-
-| Task                   | Status  | Notes                                   |
-| ---------------------- | ------- | --------------------------------------- |
-| Call meetings          | Ongoing | Keep meetings short and focused         |
-| Check in with everyone | Ongoing | Make sure nobody is blocked             |
-| Progress updates       | Ongoing | Update this README when work is shipped |
-| Keep focus             | Ongoing | Focus on language work that gets paid   |
-
-# What is built
-
-- Three roles: speaker, company and reviewer
-- Public speaker/company signup
-- Reviewer invitations
-- Language and country-based task assignment
-- Company credits
-- Lightning invoices
-- Single evaluations
-- CSV/JSON uploads up to 200 rows
-- Speaker evaluation with three checks
-- Better-answer flow when a response is marked incorrect
-- Reviewer approval and rejection
-- Lightning payouts
-- Failed payout retry
-- AI-generated draft responses
-- Company results
-- Demo accounts and sample data
-- Signup confirmation emails
-- Forgot password reset emails
-- Responsive dashboards
-
-# Tech stack
+## Tech stack
 
 | Layer               | Technology                                                   |
 | ------------------- | ------------------------------------------------------------ |
@@ -233,54 +218,83 @@ The project lead keeps the team moving but does not own a separate product modul
 | Database            | PostgreSQL through Prisma 6                                  |
 | Local database      | PGlite                                                       |
 | Production database | Neon                                                         |
-| Auth                | Auth.js, JWT sessions (1 hour), bcrypt, password reset email |
+| Auth                | Auth.js, JWT sessions (1 hour), bcrypt, password-reset email |
 | Validation          | Zod 4                                                        |
-| AI                  | OpenAI-compatible API                                        |
-| Payments            | Bitcoin Lightning (Breez)                                    |
+| AI                  | OpenAI-compatible API (optional)                             |
+| Payments            | Bitcoin Lightning via Breez SDK Spark                        |
 | Hosting             | Vercel + Neon                                                |
 
-# Project structure
+---
+
+## Architecture
+
+```text
+Company  →  Lightning invoice  →  prepaid credits
+                ↓
+         Evaluation created (hold 918 sats)
+                ↓
+         Speaker assigned by language
+                ↓
+         Human check + optional AI pre-check
+                ↓
+         Reviewer agrees or sends it back
+                ↓
+    Spend credits    or    return the hold
+                ↓
+         Breez pays speaker (500) and reviewer (400)
+```
+
+`LightningService` is what the payment code calls. Live Breez is used when `BREEZ_API_KEY` and `BREEZ_MNEMONIC` are set. Otherwise the mock provider writes `lnmock1` invoices and does not move bitcoin.
+
+Taska does not store wallet keys in the database. The till seed stays in server environment variables. A company's **Available** credit is a ledger, not a second wallet. Demo addresses such as `@taska.demo` are not paid when Lightning is live.
+
+The older task marketplace (`app/tasks`, `app/workers`) is still in the repository and is not linked from the current product.
+
+---
+
+## Project structure
 
 ```text
 app/
-  actions/       Server Actions
-  employer/      Company dashboard
+  actions/       Server Actions (evaluations, credits, upload, auth)
+  employer/      Company dashboard, credits, upload, results
   dashboard/     Speaker dashboard
-  admin/         Reviewer dashboard
+  admin/         Review queue, till, invites
+  login/         Demo buttons and password login
+  signup/        Speaker or company
 
 components/      Shared UI
 
 lib/
-  auth helpers
-  catalog
-  validation
-  pricing
+  pricing.ts     500 / 400 / 918 sats
+  credits.ts     Hold, spend, refund
+  catalog.ts     Languages and countries
 
 services/
-  ai/             AI generation
-  assignment/     Language assignment
-  reports/        Company reports
-  settlement/     Lightning payouts
-  lightning/      Lightning provider
+  ai/            Draft answers and pre-check
+  assignment/    Language matching
+  reports/       Company results and export
+  settlement/    Lightning payouts
+  lightning/     Breez Spark or mock
 
-prisma/
-  schema
-  migrations
-  seed
-
-docs/
-  team.md
-  architecture.md
-  ai.md
+prisma/          Schema, migrations, seed
+docs/            Team modules, architecture, AI notes
 ```
 
-An older task marketplace is still in the repository (`app/tasks`, `app/workers`, etc.) but is not linked to the current product. The speaker **Profile** page stores their Lightning address.
+---
 
-# Local development
+## Getting started
 
-Requirements: **Node.js 22+** and **npm**.
+### Prerequisites
+
+- Node.js 22+
+- npm
+
+### Setup
 
 ```bash
+git clone https://github.com/rxymitchy/taska.git
+cd taska
 cp .env.example .env
 npm install
 npm run db
@@ -294,11 +308,7 @@ npm run db:seed
 npm run dev
 ```
 
-Open:
-
-```text
-http://localhost:3000
-```
+Open [http://localhost:3000](http://localhost:3000).
 
 For local PostgreSQL instead of PGlite:
 
@@ -306,126 +316,42 @@ For local PostgreSQL instead of PGlite:
 docker compose up -d
 ```
 
-Local PostgreSQL connection:
-
 ```text
 postgresql://taska:taska@localhost:5432/taska?schema=public
 ```
 
-On Windows, stop `npm run dev` before running `npx prisma generate` or `npx prisma migrate deploy` if files are locked.
+On Windows, stop `npm run dev` before `npx prisma generate` or `npx prisma migrate deploy` if files are locked.
 
-# Production
+### Environment
 
-Live site:
+Copy `.env.example` to `.env`. The important ones:
 
-https://taska-beta.vercel.app
+```env
+DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres?schema=public&pgbouncer=true&connection_limit=1
+AUTH_SECRET=replace-with-a-long-random-string
+AUTH_URL=http://localhost:3000
 
-Taska uses **Vercel + Neon** in production.
+# Live Lightning. Leave empty for mock invoices.
+# BREEZ_API_KEY=
+# BREEZ_MNEMONIC=
+# BREEZ_NETWORK=mainnet
 
-After schema changes:
+EVALUATOR_PAYOUT_SATS=500
+REVIEWER_PAYOUT_SATS=400
+PLATFORM_FEE_BPS=200
 
-```bash
-vercel env run -e production -- npx prisma migrate deploy
-vercel deploy --prod
+# Optional AI. Without a key, Taska uses a local demo reply.
+# AI_API_KEY=
+# AI_BASE_URL=https://api.groq.com/openai/v1
+# AI_MODEL=openai/gpt-oss-20b
+
+DEMO_LOGIN=true
+DEMO_PASSWORD=demo1234
 ```
 
-Do not run `scripts/seed-demo.ts` against production unless you intend to reset the demo data.
+Never commit `.env`. Never put the Breez key or mnemonic in Git, the frontend, or the database. Paste a Breez API key as one line — do not wrap it in `BEGIN CERTIFICATE` headers.
 
-# Lightning payments
-
-Taska uses **Breez SDK Spark** to create Lightning invoices and pay speakers.
-
-Taska does not store wallet keys in the database. Speakers get paid at the Lightning address on their profile. The Breez API key and seed stay in server environment variables on Vercel.
-
-The Review queue (`/admin`) shows **Bitcoin in the till** — what companies have paid in, minus what Taska has paid out. A company’s **Available** credit on Add credit is their prepaid share, not a second wallet.
-
-Companies prepay by paying a Lightning invoice. That credit is reserved when work is created and spent when the work is approved.
-
-The current payment split is:
-
-```text
-Speaker     500 sats
-Reviewer    400 sats
-Taska        18 sats (2%)
---------------------
-Company     918 sats
-```
-
-The Taska fee is 2%.
-
-## Live Lightning
-
-Production already has `BREEZ_API_KEY` and `BREEZ_MNEMONIC` on Vercel. Health should report `"lightning":"breez"`.
-
-A new environment needs a Breez Spark API key (they email it after a short form):
-
-```bash
-curl -d "fullname=Taska" -d "company=Taska" -d "email=YOUR_EMAIL" -d "message=Hack4Freedom Taska Lightning payouts" \
-  https://breez.technology/contact/apikey
-```
-
-Paste the key as one line. Do not wrap it in `BEGIN CERTIFICATE` headers. Write the mnemonic down offline first. Never put either value in Git.
-
-On Vercel the wallet cache lives under `/tmp/breez` and is rebuilt from the mnemonic. Set `BREEZ_DATABASE_URL` only if you want Breez to use its own Postgres tables.
-
-Speaker and reviewer Lightning addresses must be real when live payments are enabled. Demo addresses such as `@taska.demo` are not paid.
-
-## Demo Lightning
-
-If `BREEZ_API_KEY` or `BREEZ_MNEMONIC` is not set, Taska uses a mock Lightning provider.
-
-No real Bitcoin moves.
-
-The health endpoint reports:
-
-```text
-/api/health
-```
-
-Example:
-
-```json
-{
-  "ok": true,
-  "db": true,
-  "lightning": "breez"
-}
-```
-
-Local demo without those secrets reports `"lightning":"mock"`.
-
-Failed payouts can be retried from the reviewer queue. A payout that has already been sent will not be sent twice.
-
-Never put the Breez key or mnemonic in the frontend, database, or Git.
-
-# Environment variables
-
-| Variable                     | Purpose                            |
-| ---------------------------- | ---------------------------------- |
-| `DATABASE_URL`               | PostgreSQL connection              |
-| `AUTH_SECRET`                | Session signing secret             |
-| `AUTH_URL`                   | Public app URL                     |
-| `RESEND_API_KEY`             | Signup and password-reset emails   |
-| `EMAIL_FROM`                 | Email sender                       |
-| `BREEZ_API_KEY`              | Live Lightning API key             |
-| `BREEZ_MNEMONIC`             | Live Lightning wallet seed         |
-| `BREEZ_NETWORK`              | `mainnet` (default), `regtest`, or `signet` |
-| `BREEZ_DATABASE_URL`         | Optional Postgres URL for Breez    |
-| `DIRECT_URL`                 | Optional Neon direct URL for Breez |
-| `EVALUATOR_PAYOUT_SATS`      | Speaker payout, default 500        |
-| `REVIEWER_PAYOUT_SATS`       | Reviewer payout, default 400       |
-| `PLATFORM_FEE_BPS`           | Taska fee, default 200 = 2%        |
-| `REVIEWER_LIGHTNING_ADDRESS` | Optional reviewer fallback address |
-| `AI_API_KEY`                 | Optional AI provider key           |
-| `AI_BASE_URL`                | Optional AI API base URL           |
-| `AI_MODEL`                   | Optional AI model                  |
-| `BTC_USD_PRICE`              | Display-only BTC price             |
-| `DEMO_LOGIN`                 | Enable demo account buttons        |
-| `DEMO_PASSWORD`              | Password for seeded demo accounts  |
-
-Never commit `.env`.
-
-# Scripts
+### Scripts
 
 ```bash
 npm run dev          # Start the app
@@ -436,12 +362,80 @@ npm run build        # Production build
 npm run lint         # Run linting
 ```
 
-# Documentation
+---
 
-- `docs/team.md` — team responsibilities and module ownership
-- `docs/architecture.md` — system architecture
-- `docs/ai.md` — AI component and model research
+## Usage
 
-# License
+### For companies
+
+- Add credit and pay the Lightning invoice
+- Check one answer, or upload a CSV / JSON file
+- See the validated result after a reviewer agrees
+- Download the validated dataset
+
+### For speakers
+
+- Save a real Lightning address on **Profile**
+- Open assigned work and answer the three questions
+- Get paid when the reviewer agrees
+
+### For reviewers
+
+- Open the review queue
+- See **Bitcoin in the till**
+- Agree (pay) or send the work back
+- Invite another reviewer
+
+---
+
+## Lightning
+
+Taska uses **Breez SDK Spark** to create invoices and pay Lightning addresses.
+
+A new environment needs a Breez Spark API key (they email it after a short form):
+
+```bash
+curl -d "fullname=Taska" -d "company=Taska" -d "email=YOUR_EMAIL" -d "message=Hack4Freedom Taska Lightning payouts" \
+  https://breez.technology/contact/apikey
+```
+
+Write the 12 words down offline first. On Vercel the wallet cache lives under `/tmp/breez` and is rebuilt from the mnemonic.
+
+If `BREEZ_API_KEY` or `BREEZ_MNEMONIC` is not set, Taska uses a mock provider. No real bitcoin moves. Local health reports `"lightning":"mock"`.
+
+---
+
+## Documentation
+
+- [`docs/team.md`](docs/team.md) — module ownership and the demo path
+- [`docs/architecture.md`](docs/architecture.md) — request path and data model
+- [`docs/ai.md`](docs/ai.md) — generation, pre-check, and model notes
+- [CONTRIBUTING.md](CONTRIBUTING.md) — how to open a pull request
+
+---
+
+## Contributing
+
+PRs welcome. Keep this path working: **task → work → review → Lightning payment**.
+
+1. Fork the repository
+2. Create a feature branch
+3. Run `npx tsc --noEmit` and the demo flow
+4. Open a pull request into `main`
+
+Do not add a custodial wallet, private keys, or a second payment rail in the core flow. New countries and languages belong in `lib/catalog.ts`.
+
+---
+
+## License
 
 MIT. See [LICENSE](LICENSE).
+
+---
+
+## Links
+
+- **Live app:** [taska-beta.vercel.app](https://taska-beta.vercel.app)
+- **Health:** [taska-beta.vercel.app/api/health](https://taska-beta.vercel.app/api/health)
+- **Code:** [github.com/rxymitchy/taska](https://github.com/rxymitchy/taska)
+- **Issues:** [github.com/rxymitchy/taska/issues](https://github.com/rxymitchy/taska/issues)
