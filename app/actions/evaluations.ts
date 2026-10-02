@@ -2,11 +2,15 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { holdCompanyCredits, releaseEvaluationHold, spendEvaluationHold } from "@/lib/credits"
+import { companyCostPerEvaluation } from "@/lib/pricing"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
 import { aiEvaluationSchema, humanEvaluationSchema } from "@/lib/validators"
 import { assignEvaluation } from "@/services/assignment"
-import { recordPendingLightningPayouts } from "@/services/settlement"
+import { generateAiResponse, precheckAiResponse } from "@/services/ai"
+import { payoutDestinationsReady, recordPendingLightningPayouts } from "@/services/settlement"
+import { payableLightningDestination, usesLiveLightning } from "@/lib/payout-destination"
 
 export async function createEvaluation(_prev: { error: string }, formData: FormData) {
   const user = await requireRole(["EMPLOYER"])
@@ -21,14 +25,42 @@ export async function createEvaluation(_prev: { error: string }, formData: FormD
   })
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the evaluation." }
 
+  let aiResponse = parsed.data.aiResponse ?? ""
+  let aiModel = "pasted"
+  if (aiResponse.length < 4) {
+    const generated = await generateAiResponse({
+      prompt: parsed.data.prompt,
+      language: parsed.data.language,
+      context: parsed.data.context,
+    })
+    if (!generated?.text) return { error: "Could not generate a response. Paste one and try again." }
+    aiResponse = generated.text
+    aiModel = generated.model
+  }
+  const aiPrecheck = await precheckAiResponse({
+    prompt: parsed.data.prompt,
+    response: aiResponse,
+    language: parsed.data.language,
+    context: parsed.data.context,
+  })
+
+  const held = await holdCompanyCredits(company.id, 1, "New evaluation")
+  if ("error" in held && held.error) return { error: held.error }
+
   const created = await prisma.evaluation.create({
     data: {
       companyId: company.id,
       prompt: parsed.data.prompt,
-      aiResponse: parsed.data.aiResponse,
+      aiResponse,
+      aiModel,
+      aiPrecheckFactuallyCorrect: aiPrecheck?.factuallyCorrect,
+      aiPrecheckLanguageNatural: aiPrecheck?.languageNatural,
+      aiPrecheckUnderstandsContext: aiPrecheck?.understandsContext,
+      aiPrecheckModel: aiPrecheck?.model,
       language: parsed.data.language,
       context: parsed.data.context,
       status: "PENDING",
+      heldSats: companyCostPerEvaluation(),
     },
   })
   await assignEvaluation(created.id)
@@ -42,6 +74,12 @@ export async function submitHumanEvaluation(_prev: { error: string }, formData: 
   const user = await requireRole(["WORKER"])
   const worker = await prisma.workerProfile.findUnique({ where: { userId: user.id } })
   if (!worker) return { error: "Evaluator profile not found." }
+  if (!worker.lightningAddress?.trim()) {
+    return { error: "Add where you get paid on your profile before you submit." }
+  }
+  if (usesLiveLightning() && !payableLightningDestination(worker.lightningAddress)) {
+    return { error: "Add a real pay address (not a demo placeholder) so we can pay you." }
+  }
 
   const parsed = humanEvaluationSchema.safeParse({
     evaluationId: formData.get("evaluationId"),
@@ -110,6 +148,15 @@ export async function decideEvaluation(formData: FormData) {
   }
 
   const submission = evaluation.submissions[0]
+  if (decision === "approve") {
+    const ready = await payoutDestinationsReady({
+      workerUserId: evaluation.assignedWorker.userId,
+      reviewerUserId: reviewer.id,
+    })
+    if (!ready.ok) {
+      redirect(`/admin/evaluations/${evaluation.id}?pay=need-address`)
+    }
+  }
   if (decision === "reject") {
     await prisma.evaluationSubmission.update({
       where: { id: submission.id },
@@ -119,6 +166,7 @@ export async function decideEvaluation(formData: FormData) {
       where: { id: evaluation.id },
       data: { status: "ASSIGNED" },
     })
+    await releaseEvaluationHold(evaluation.id)
     revalidatePath("/admin")
     revalidatePath("/dashboard")
     revalidatePath(`/employer/evaluations/${evaluation.id}`)
@@ -137,6 +185,7 @@ export async function decideEvaluation(formData: FormData) {
     where: { id: evaluation.id },
     data: { status: "COMPLETED", completedAt: new Date() },
   })
+  await spendEvaluationHold(evaluation.id)
   await recordPendingLightningPayouts({
     evaluationId: evaluation.id,
     workerUserId: evaluation.assignedWorker.userId,

@@ -11,11 +11,17 @@ import { PrismaClient, type Task } from "@prisma/client"
 import { hash } from "bcryptjs"
 import { randomBytes } from "crypto"
 import { evaluationBank } from "../lib/evaluation-bank"
+import { demoEvaluations, speakerEmail } from "../lib/demo-evaluations"
+import { companyCostPerEvaluation } from "../lib/pricing"
 import { refreshWorkerStats } from "../services/stats"
 
-for (const line of readFileSync(".env", "utf8").split(/\r?\n/)) {
-  const match = line.match(/^([^#=\s]+)\s*=\s*(.*)$/)
-  if (match && process.env[match[1]] == null) process.env[match[1]] = match[2]
+try {
+  for (const line of readFileSync(".env", "utf8").split(/\r?\n/)) {
+    const match = line.match(/^([^#=\s]+)\s*=\s*(.*)$/)
+    if (match && process.env[match[1]] == null) process.env[match[1]] = match[2]
+  }
+} catch {
+  // Production seed uses env vars from `vercel env run`. A local .env is optional.
 }
 
 const prisma = new PrismaClient()
@@ -186,9 +192,13 @@ async function recordOutcome(input: {
 }
 
 async function main() {
+  await prisma.creditLedger.deleteMany()
+  await prisma.creditDeposit.deleteMany()
+  await prisma.reviewerInvite.deleteMany()
   await prisma.evaluationPayout.deleteMany()
   await prisma.evaluationSubmission.deleteMany()
   await prisma.evaluation.deleteMany()
+  await prisma.evaluationBatch.deleteMany()
   await prisma.lightningPayment.deleteMany()
   await prisma.payment.deleteMany()
   await prisma.taskSubmission.deleteMany()
@@ -199,6 +209,8 @@ async function main() {
   await prisma.user.deleteMany()
 
   const passwordHash = await hash(process.env.DEMO_PASSWORD || "demo1234", 10)
+  const hold = companyCostPerEvaluation()
+  const held = hold * demoEvaluations.length
   const employer = await prisma.user.create({
     data: {
       email: "employer@taska.demo",
@@ -209,6 +221,8 @@ async function main() {
         create: {
           companyName: "Helios AI",
           companyDescription: "A research team checking assistant quality before models ship.",
+          prepaidSats: 49286,
+          heldSats: held,
           createdAt: daysAgo(80),
         },
       },
@@ -483,19 +497,22 @@ async function main() {
     await refreshWorkerStats(person.id)
   }
 
-  await prisma.evaluation.create({
-    data: {
-      companyId: employerId,
-      prompt: "Ninaweza kutumia M-Pesa kulipa bili hii?",
-      aiResponse:
-        "Ndiyo, unaweza kutumia M-Pesa kulipa bili yako. Chagua Lipa na M-Pesa, kisha Pay Bill, weka nambari ya biashara na nambari ya akaunti iliyo kwenye bili.",
-      language: "Swahili",
-      context: "Kenya / M-Pesa",
-      status: "ASSIGNED",
-      assignedWorkerId: amina.id,
-      assignedAt: daysAgo(0),
-    },
-  })
+  for (const sample of demoEvaluations) {
+    const speaker = byEmail[speakerEmail[sample.speaker]]
+    await prisma.evaluation.create({
+      data: {
+        companyId: employerId,
+        prompt: sample.prompt,
+        aiResponse: sample.aiResponse,
+        language: sample.language,
+        context: sample.context,
+        status: "ASSIGNED",
+        heldSats: hold,
+        assignedWorkerId: speaker.id,
+        assignedAt: daysAgo(0),
+      },
+    })
+  }
 }
 
 function openTask(

@@ -15,13 +15,12 @@ export function CompanyEvaluationForm() {
       </label>
       <label className="space-y-1.5">
         <span className={labelClass}>AI response</span>
-        <textarea
-          className={inputClass}
-          name="aiResponse"
-          rows={5}
-          required
-          placeholder="Ndiyo, unaweza kutumia M-Pesa kulipa bili yako..."
-        />
+          <textarea
+            className={inputClass}
+            name="aiResponse"
+            rows={5}
+            placeholder="Leave blank to generate. Or paste the AI answer."
+          />
       </label>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="space-y-1.5">
@@ -43,7 +42,7 @@ export function CompanyEvaluationForm() {
       </div>
       {state.error ? <p className="text-sm text-bad">{state.error}</p> : null}
       <button className={btnPrimary} disabled={pending}>
-        {pending ? "Submitting…" : "Submit evaluation"}
+        {pending ? "Sending…" : "Send to check"}
       </button>
     </form>
   )

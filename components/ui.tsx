@@ -20,7 +20,7 @@ export function Container({
   children: React.ReactNode
   className?: string
 }) {
-  return <div className={`mx-auto w-full max-w-6xl px-4 ${className}`}>{children}</div>
+  return <div className={`mx-auto w-full max-w-7xl px-5 lg:px-16 ${className}`}>{children}</div>
 }
 
 export function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
@@ -35,18 +35,18 @@ export function Stat({ label, value, hint }: { label: string; value: string; hin
 
 export function StatusPill({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    APPROVED: "bg-good/10 text-good",
-    COMPLETED: "bg-good/10 text-good",
-    FUNDED: "bg-good/10 text-good",
-    SENT: "bg-good/10 text-good",
-    PAID: "bg-good/10 text-good",
-    PENDING: "bg-warn/10 text-warn",
-    ASSIGNED: "bg-warn/10 text-warn",
-    WORKER_COMPLETED: "bg-warn/10 text-warn",
-    UNDER_REVIEW: "bg-warn/10 text-warn",
-    REJECTED: "bg-bad/10 text-bad",
-    FAILED: "bg-bad/10 text-bad",
-    CLOSED: "bg-black/5 text-muted",
+    APPROVED: "border border-good/20 bg-tint text-good",
+    COMPLETED: "border border-good/20 bg-tint text-good",
+    FUNDED: "border border-good/20 bg-tint text-good",
+    SENT: "border border-good/20 bg-tint text-good",
+    PAID: "border border-good/20 bg-tint text-good",
+    PENDING: "border border-warn/20 bg-warn/10 text-warn",
+    ASSIGNED: "border border-good/20 bg-tint text-good",
+    WORKER_COMPLETED: "border border-warn/20 bg-warn/10 text-warn",
+    UNDER_REVIEW: "border border-warn/20 bg-warn/10 text-warn",
+    REJECTED: "border border-bad/50 bg-card text-bad",
+    FAILED: "border border-bad/50 bg-card text-bad",
+    CLOSED: "border border-line bg-paper text-muted",
   }
   const labels: Record<string, string> = {
     PENDING: "Pending",
@@ -59,7 +59,7 @@ export function StatusPill({ status }: { status: string }) {
   }
   const label = labels[status] ?? status.charAt(0) + status.slice(1).toLowerCase()
   return (
-    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${styles[status] ?? "bg-black/5 text-muted"}`}>
+    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${styles[status] ?? "border border-line bg-paper text-muted"}`}>
       {label}
     </span>
   )

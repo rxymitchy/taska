@@ -63,14 +63,14 @@ export function ProfileForm({
         </div>
       </fieldset>
       <label className="space-y-1.5">
-        <span className={labelClass}>Lightning address or invoice</span>
+        <span className={labelClass}>Where you get paid</span>
         <input
           className={inputClass}
           name="lightningAddress"
           defaultValue={profile.lightningAddress ?? ""}
-          placeholder="amina@getalby.com"
+          placeholder="name@wallet.com"
         />
-        <span className="text-sm text-muted">Where approved payments are sent. Taska does not hold a balance.</span>
+        <span className="text-sm text-muted">Where we send your pay after a check is agreed.</span>
       </label>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="space-y-1.5">

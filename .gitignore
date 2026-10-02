@@ -34,8 +34,9 @@ yarn-error.log*
 .env*
 !.env.example
 
-# local postgres and uploads
+# local postgres, Breez wallet cache, and uploads
 /data
+/.data
 /uploads
 
 # vercel
@@ -44,3 +45,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
+.env*

@@ -1,205 +1,230 @@
-import Link from "next/link";
-import { Container } from "@/components/ui";
-import CheckDemo from "@/components/CheckDemo";
-import { brand } from "@/lib/brand";
-import { btnPrimary, btnSecondary } from "@/lib/styles";
-
-const problem = [
-  ["Is it true?", "A fluent answer can still have the wrong facts."],
-  [
-    "Does it sound natural?",
-    "The words can be correct and still not how anyone talks.",
-  ],
-  [
-    "Does it know the place?",
-    "Like how people actually pay a bill with M-Pesa.",
-  ],
-];
+import Link from "next/link"
+import CheckDemo from "@/components/CheckDemo"
+import { LandingDemoCard } from "@/components/landing-demo-card"
+import { LandingDock } from "@/components/landing-dock"
+import { btnGlass, btnPrimary } from "@/lib/styles"
 
 const people = [
-  [
-    "Companies",
-    "Ship AI that works for local customers, with proof that real speakers checked it.",
-  ],
-  [
-    "Local speakers",
-    "Earn from the language they speak. Paid in seconds, and their name stays private.",
-  ],
-  [
-    "Reviewers",
-    "Keep the checks honest and get paid for each approved answer.",
-  ],
-  [
-    "People using AI",
-    "Get answers that are right, natural and made for where they live.",
-  ],
-];
-
-const steps = [
-  ["A company shares an AI answer", "In any African language."],
-  ["A local speaker checks it", "If it’s wrong, they write a better answer."],
-  ["A reviewer double-checks", "To make sure the check is right."],
-  ["The company gets the result", "Checked by real people."],
-];
+  ["Companies", "Ship AI that works for local customers, with proof that real speakers checked it."],
+  ["Local speakers", "Earn from the language they speak. Paid in seconds, and their name stays private."],
+  ["Reviewers", "Keep the checks honest and get paid for each approved answer."],
+  ["People using AI", "Get answers that are right, natural and made for where they live."],
+]
 
 const split = [
-  ["Speaker", 500, "bg-accent"],
-  ["Reviewer", 400, "bg-accent/50"],
-  ["Taska fee (2%)", 18, "bg-muted"],
-] as const;
+  ["Speaker", 500, "bg-lime"],
+  ["Reviewer", 400, "bg-accent"],
+  ["Taska fee (2%)", 18, "bg-white/50"],
+] as const
 
 export default function HomePage() {
   return (
-    <>
-      {/* HERO */}
-      <section className="border-b border-line">
-        <Container className="grid items-start gap-12 py-12 lg:grid-cols-2 lg:gap-16 lg:py-20">
-          <div className="lg:pt-6">
-            <h1 className="max-w-xl text-4xl leading-[1.05] tracking-tight sm:text-6xl">
-              {brand.tagline}
+    <div className="landing-home max-[899px]:pb-[92px]">
+      <section id="top" className="relative isolate overflow-hidden bg-deep text-white">
+        <div className="mesh" aria-hidden="true">
+          <i className="right-[-120px] top-[-60px] h-[500px] w-[500px] bg-[radial-gradient(circle,#19c37d,#0b6b44_60%,transparent_72%)]" />
+          <i className="right-[140px] top-[220px] size-[380px] opacity-[0.55] bg-[radial-gradient(circle,#c6f24a,transparent_68%)]" />
+          <i className="right-[-60px] top-[340px] size-[340px] opacity-40 bg-[radial-gradient(circle,#ffb82e,transparent_68%)]" />
+        </div>
+        <div className="relative z-10 mx-auto grid w-full max-w-[1040px] items-center gap-7 px-5 pb-12 pt-[76px] min-[900px]:grid-cols-[1.1fr_0.9fr]">
+          <div>
+            <h1 className="max-w-xl text-[clamp(34px,5.4vw,60px)] leading-none tracking-[-0.035em]">
+              <span className="block">Make AI sound</span>
+              <span className="block bg-[linear-gradient(90deg,#c6f24a,#19c37d_60%,#ffb82e)] bg-clip-text text-transparent">like it belongs.</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
-              {brand.support}
+            <p className="mt-3.5 max-w-xl text-base leading-relaxed text-white/75">
+              Native speakers fix what AI gets wrong, in everyday language. You get paid in Bitcoin the moment it&apos;s approved.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a className={btnPrimary} href="#demo">
-                Try it now
-              </a>
-              <Link className={btnSecondary} href="/login">
-                Log in with a demo account
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link className={btnPrimary} href="/signup">
+                Sign me up
+              </Link>
+              <Link className={btnGlass} href="/signup?as=company">
+                For companies
               </Link>
             </div>
+            <a href="#demo" className="mt-4 inline-block text-sm font-medium text-white/80 underline underline-offset-4">
+              Try the demo first
+            </a>
           </div>
-
-          <div id="demo" className="scroll-mt-24">
-            <CheckDemo />
-          </div>
-        </Container>
+          <LandingDemoCard />
+        </div>
       </section>
 
-      {/* THE PROBLEM */}
-      <section className="border-b border-line">
-        <Container className="grid gap-10 py-14 lg:grid-cols-2 lg:gap-16 lg:py-16">
-          <div>
-            <h2 className="max-w-xl text-3xl tracking-tight sm:text-4xl">
-              AI can sound fluent in your language and still get it wrong
-            </h2>
-            <p className="mt-4 max-w-lg text-lg leading-relaxed text-muted">
-              Companies are putting AI in front of customers who speak African
-              languages. Without a local speaker checking the answers, mistakes
-              go unnoticed until a customer runs into them. Taska asks three
-              questions of every answer.
-            </p>
+      {/* TRY IT: the problem, complication and solution story */}
+      <section id="demo" className="scroll-mt-20 py-8 min-[900px]:py-10">
+        <div className="mx-auto w-full max-w-[1040px] px-5">
+          <h2 className="text-[clamp(24px,3.2vw,34px)] leading-none tracking-[-0.035em]">Try it yourself.</h2>
+          <p className="mt-2 max-w-xl text-muted">
+            Pick a language, play the speaker, play the reviewer, and watch the payment arrive.
+          </p>
+          <div className="mx-auto mt-5 max-w-2xl">
+            <CheckDemo />
           </div>
-          <ul className="divide-y divide-line border-y border-line">
-            {problem.map(([title, copy]) => (
-              <li key={title} className="py-4">
-                <h3 className="text-lg font-medium">{title}</h3>
-                <p className="mt-1 text-muted">{copy}</p>
-              </li>
-            ))}
-          </ul>
-        </Container>
+        </div>
+      </section>
+
+      <section id="how" className="py-8 min-[900px]:py-10">
+        <div className="mx-auto w-full max-w-[1040px] px-5">
+          <h2 className="text-[clamp(24px,3.2vw,34px)] leading-none tracking-[-0.035em]">From AI answer to paid review.</h2>
+          <div className="mt-5 grid grid-cols-2 gap-2.5 min-[900px]:grid-cols-4">
+            <article className="flex flex-col gap-2.5 rounded-[18px] border border-line bg-card p-4">
+              <span className="font-display text-[28px] font-extrabold leading-none text-accent">1</span>
+              <div>
+                <h3 className="text-[17px] leading-[1.1]">Company sends an AI answer</h3>
+                <p className="mt-1 text-[13.5px] leading-[1.4] text-muted">A greeting, slang or phrase.</p>
+              </div>
+            </article>
+            <article className="flex flex-col gap-2.5 rounded-[18px] border-2 border-ink bg-lime p-4 text-ink shadow-[4px_4px_0_#0a1a12]">
+              <span className="font-display text-[28px] font-extrabold leading-none">2</span>
+              <div>
+                <h3 className="text-[17px] leading-[1.1]">You fix what&apos;s off</h3>
+                <p className="mt-1 text-[13.5px] leading-[1.4] text-[#2c4a1a]">Write it how people talk.</p>
+              </div>
+            </article>
+            <article className="flex flex-col gap-2.5 rounded-[18px] border border-line bg-card p-4">
+              <span className="font-display text-[28px] font-extrabold leading-none text-accent">3</span>
+              <div>
+                <h3 className="text-[17px] leading-[1.1]">A speaker checks</h3>
+                <p className="mt-1 text-[13.5px] leading-[1.4] text-muted">Not approved? Nobody pays.</p>
+              </div>
+            </article>
+            <article className="flex flex-col gap-2.5 rounded-[18px] border border-transparent bg-deep p-4 text-[#eef6f1]">
+              <span className="font-display text-[28px] font-extrabold leading-none text-hl">4</span>
+              <div>
+                <h3 className="text-[17px] leading-[1.1]">You get paid</h3>
+                <p className="mt-1 text-[13.5px] leading-[1.4] text-[#a9bfb2]">Straight to your wallet. We never hold it.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="pt-0 pb-8 min-[900px]:pb-10">
+        <div className="mx-auto w-full max-w-[1040px] px-5">
+          <h2 className="text-[clamp(24px,3.2vw,34px)] leading-none tracking-[-0.035em]">Not just correct. True here.</h2>
+          <div className="mt-4 flex flex-wrap gap-[7px]">
+            <span className="rounded-full border border-transparent bg-accent px-3.5 py-1.5 font-display text-sm font-bold text-white">Greetings</span>
+            <span className="rounded-full border border-line bg-card px-3.5 py-1.5 font-display text-sm font-bold">Slang</span>
+            <span className="rounded-full border-2 border-ink bg-lime px-3.5 py-1.5 font-display text-sm font-bold text-ink">Mobile money</span>
+            <span className="rounded-full border border-line bg-card px-3.5 py-1.5 font-display text-sm font-bold">Jokes</span>
+            <span className="rounded-full border border-transparent bg-hl px-3.5 py-1.5 font-display text-sm font-bold text-[#2a1d00]">Paying bills</span>
+            <span className="rounded-full border border-transparent bg-accent px-3.5 py-1.5 font-display text-sm font-bold text-white">Asking for help</span>
+            <span className="rounded-full border border-line bg-card px-3.5 py-1.5 font-display text-sm font-bold">Street talk</span>
+          </div>
+          <div className="mt-4 grid gap-4 min-[900px]:grid-cols-3">
+            <article className="border-t-2 border-ink pt-2.5">
+              <h3 className="text-base leading-[1.1]">Does the slang land?</h3>
+              <p className="mt-1 text-[13.5px] leading-[1.4] text-muted">Words and jokes change fast.</p>
+            </article>
+            <article className="border-t-2 border-ink pt-2.5">
+              <h3 className="text-base leading-[1.1]">Would someone from here say it?</h3>
+              <p className="mt-1 text-[13.5px] leading-[1.4] text-muted">Not textbook. How people talk.</p>
+            </article>
+            <article className="border-t-2 border-ink pt-2.5">
+              <h3 className="text-base leading-[1.1]">Does it know how things work here?</h3>
+              <p className="mt-1 text-[13.5px] leading-[1.4] text-muted">Bills, money, help, the local way.</p>
+            </article>
+          </div>
+        </div>
       </section>
 
       {/* WHO WE HELP */}
-      <section className="border-b border-line">
-        <Container className="py-14 lg:py-16">
-          <h2 className="max-w-xl text-3xl tracking-tight sm:text-4xl">
-            Who Taska helps
-          </h2>
-          <ul className="mt-8 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+      <section className="pb-8 min-[900px]:pb-10">
+        <div className="mx-auto w-full max-w-[1040px] px-5">
+          <h2 className="text-[clamp(24px,3.2vw,34px)] leading-none tracking-[-0.035em]">Who Taska helps.</h2>
+          <div className="mt-5 grid grid-cols-2 gap-2.5 min-[900px]:grid-cols-4">
             {people.map(([title, copy]) => (
-              <li key={title} className="border-t-2 border-accent pt-5">
-                <h3 className="text-lg font-medium leading-snug">{title}</h3>
-                <p className="mt-2 text-muted">{copy}</p>
-              </li>
+              <article key={title} className="rounded-[18px] border border-line bg-card p-4">
+                <h3 className="text-[17px] leading-[1.1]">{title}</h3>
+                <p className="mt-1.5 text-[13.5px] leading-[1.4] text-muted">{copy}</p>
+              </article>
             ))}
-          </ul>
-        </Container>
+          </div>
+        </div>
       </section>
 
-      {/* HOW IT WORKS */}
-      <section className="border-b border-line">
-        <Container className="py-14 lg:py-16">
-          <h2 className="max-w-xl text-3xl tracking-tight sm:text-4xl">
-            How it works
-          </h2>
-          <ol className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {steps.map(([title, copy], index) => (
-              <li key={title}>
-                <span className="font-display text-3xl text-accent">
-                  {index + 1}
-                </span>
-                <p className="mt-2 text-lg font-medium leading-snug">{title}</p>
-                <p className="mt-1 text-muted">{copy}</p>
-              </li>
-            ))}
-          </ol>
-        </Container>
-      </section>
+      <section id="pay" className="relative isolate overflow-hidden bg-deep py-8 text-white min-[900px]:py-10">
+        <div className="mesh" aria-hidden="true">
+          <i className="left-[-150px] top-[-100px] h-[340px] w-[340px] opacity-60 bg-[radial-gradient(circle,#19c37d,#0b6b44_60%,transparent_72%)]" />
+          <i className="right-[-100px] top-[120px] size-[380px] opacity-[0.55] bg-[radial-gradient(circle,#c6f24a,transparent_68%)]" />
+        </div>
+        <div className="relative z-10 mx-auto w-full max-w-[1040px] px-5">
+          <h2 className="text-[clamp(24px,3.2vw,34px)] leading-none tracking-[-0.035em]">Good work pays promptly.</h2>
+          <div className="mt-[18px] grid gap-2.5 min-[900px]:grid-cols-[1.4fr_1fr_1fr]">
+            <article className="flex flex-col justify-between gap-2.5 rounded-[18px] border border-white/22 bg-[linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,.05))] p-3.5 shadow-[0_36px_70px_-30px_rgba(0,0,0,.6)] backdrop-blur-[22px]">
+              <svg className="h-[34px] w-full" viewBox="0 0 300 70" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="landing-payment-gradient" x1="0" x2="1">
+                    <stop offset="0" stopColor="#19c37d" />
+                    <stop offset="1" stopColor="#c6f24a" />
+                  </linearGradient>
+                </defs>
+                <path d="M0 58 C30 50 40 60 70 44 S120 48 150 30 S210 36 240 16 S280 14 300 6" fill="none" stroke="url(#landing-payment-gradient)" strokeWidth="4" strokeLinecap="round" />
+              </svg>
+              <div>
+                <h3 className="font-display text-[26px] font-extrabold leading-none tracking-tight">Bitcoin <span className="ml-1.5 text-[11px] font-semibold tracking-normal text-hl">Lightning</span></h3>
+                <p className="mt-1 text-[13.5px] leading-[1.4] text-white/80">Paid in seconds, no bank.</p>
+              </div>
+            </article>
+            <article className="flex flex-col justify-between gap-2.5 rounded-[18px] border border-white/22 bg-[linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,.05))] p-3.5 shadow-[0_36px_70px_-30px_rgba(0,0,0,.6)] backdrop-blur-[22px]">
+              <h3 className="font-display text-base leading-[1.1]">Like mobile money</h3>
+              <p className="text-[13.5px] leading-[1.4] text-white/80">Phone to phone, nothing to clear.</p>
+            </article>
+            <article className="flex flex-col justify-between gap-2.5 rounded-[18px] border border-white/22 bg-[linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,.05))] p-3.5 shadow-[0_36px_70px_-30px_rgba(0,0,0,.6)] backdrop-blur-[22px]">
+              <h3 className="font-display text-base leading-[1.1]">No balance to hold</h3>
+              <p className="text-[13.5px] leading-[1.4] text-white/80">No minimum, no frozen funds.</p>
+            </article>
+          </div>
 
-      {/* GETTING PAID + NUMBERS */}
-      <section className="border-b border-line">
-        <Container className="py-14 lg:py-16">
-          <h2 className="max-w-xl text-3xl tracking-tight sm:text-4xl">
-            Every approved answer pays people instantly
-          </h2>
-          <div className="mt-8 max-w-3xl">
+          {/* The numbers: where each approved answer's sats go */}
+          <div className="mt-2.5 rounded-[18px] border border-white/22 bg-white/5 p-4">
             <div
-              className="flex h-5 w-full gap-1 overflow-hidden rounded-full"
+              className="flex h-4 w-full gap-1 overflow-hidden rounded-full"
               role="img"
               aria-label="Payment split: speaker 500 sats, reviewer 400 sats, Taska 18 sats"
             >
               {split.map(([label, sats, color]) => (
-                <div
-                  key={label}
-                  className={`${color} rounded-full`}
-                  style={{ flexGrow: sats, flexBasis: 0 }}
-                />
+                <div key={label} className={`${color} rounded-full`} style={{ flexGrow: sats, flexBasis: 0 }} />
               ))}
             </div>
-            <dl className="mt-5 grid gap-4 sm:grid-cols-3">
-              {split.map(([label, sats, color]) => (
-                <div key={label} className="flex items-start gap-3">
-                  <span
-                    className={`mt-1.5 h-3 w-3 rounded-full ${color}`}
-                    aria-hidden="true"
-                  />
-                  <div>
-                    <dt className="text-muted">{label}</dt>
-                    <dd className="text-2xl font-medium">{sats} sats</dd>
-                  </div>
+            <dl className="mt-3 grid grid-cols-3 gap-3">
+              {split.map(([label, sats]) => (
+                <div key={label}>
+                  <dt className="text-[13.5px] text-white/70">{label}</dt>
+                  <dd className="font-display text-xl font-bold">{sats} sats</dd>
                 </div>
               ))}
             </dl>
-            <p className="mt-6 text-muted">
-              Paid over Bitcoin Lightning, with no minimum balance. Taska never
-              holds anyone’s money, and rejected work is not charged.
-            </p>
+            <p className="mt-2 text-[13.5px] text-white/70">918 sats per approved answer. Rejected work is not charged.</p>
           </div>
-        </Container>
+        </div>
       </section>
 
-      {/* CLOSING */}
-      <section>
-        <Container className="py-14 lg:py-16">
-          <h2 className="max-w-xl text-3xl tracking-tight sm:text-4xl">
-            See the real thing in two minutes
-          </h2>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link className={btnPrimary} href="/login">
-              Log in with a demo account
+      <section id="join" className="relative isolate overflow-hidden bg-deep pt-10 text-center text-white min-[900px]:pt-11">
+        <div className="mesh" aria-hidden="true">
+          <i className="right-[-120px] top-[-140px] size-[340px] opacity-60 bg-[radial-gradient(circle,#19c37d,#0b6b44_60%,transparent_72%)]" />
+          <i className="left-[12%] top-[20px] size-[300px] opacity-[0.4] bg-[radial-gradient(circle,#c6f24a,transparent_68%)]" />
+        </div>
+        <div className="relative z-10 mx-auto w-full max-w-[1040px] px-5">
+          <h2 className="mx-auto max-w-[14em] text-[clamp(24px,3.2vw,34px)] leading-none tracking-[-0.035em]">Bring local knowledge into the conversation.</h2>
+          <div className="mt-[18px] flex flex-wrap justify-center gap-3">
+            <Link className={btnPrimary} href="/signup">
+              Join as a speaker
             </Link>
-            <Link
-              className={btnSecondary}
-              href="/login?callbackUrl=/employer/evaluations/new"
-            >
-              Get an AI answer checked
+            <Link className={btnGlass} href="/signup?as=company">
+              For companies
             </Link>
           </div>
-        </Container>
+        </div>
+        <footer className="relative z-10 mt-7 border-t border-white/15 py-4 text-[13px] text-white/60">
+          <div className="mx-auto flex w-full max-w-[1040px] flex-wrap justify-between gap-2 px-5">
+            <p>Taska</p>
+            <p>Get paid in Bitcoin, instantly over Lightning.</p>
+          </div>
+        </footer>
       </section>
-    </>
-  );
+      <LandingDock />
+    </div>
+  )
 }

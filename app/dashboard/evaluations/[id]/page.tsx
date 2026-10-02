@@ -1,9 +1,10 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 import { HumanEvaluationForm } from "@/components/human-evaluation-form"
 import { LightningPending } from "@/components/lightning-pending"
 import { Container, StatusPill } from "@/components/ui"
-import { yesNo } from "@/lib/evaluation-copy"
+import { checkLabels, yesNo } from "@/lib/evaluation-copy"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
 
@@ -26,15 +27,15 @@ export default async function WorkerEvaluationPage({ params }: { params: Promise
   })
 
   return (
-    <Container className="max-w-2xl py-10">
-      <div className="flex items-center justify-between gap-3">
+    <Container className="page-frame max-w-2xl!">
+      <div className="page-intro flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted">
           {evaluation.language} · {evaluation.context}
         </p>
         <StatusPill status={evaluation.status} />
       </div>
-      <h1 className="mt-3 text-3xl tracking-tight">AI response</h1>
-      <section className="mt-6 space-y-4">
+      <h1 className="mt-3 text-3xl tracking-tight">Does this sound right?</h1>
+      <section className="content-surface mt-6 space-y-4">
         <div>
           <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Question</h2>
           <p className="mt-1 whitespace-pre-wrap">{evaluation.prompt}</p>
@@ -42,25 +43,34 @@ export default async function WorkerEvaluationPage({ params }: { params: Promise
         <div>
           <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Response</h2>
           <p className="mt-1 whitespace-pre-wrap">{evaluation.aiResponse}</p>
+          <p className="mt-1 text-sm text-muted">Model: {evaluation.aiModel}</p>
         </div>
       </section>
       {evaluation.status === "ASSIGNED" ? (
         <div className="mt-8">
+          {!worker.lightningAddress ? (
+            <p className="mb-4 rounded-md border border-accent/20 bg-tint px-4 py-3 text-sm text-ink">
+              Add a payout address before submitting so we know where to send your earnings.{" "}
+              <Link className="font-semibold text-accent underline underline-offset-4" href="/profile">
+                Set up payouts
+              </Link>
+            </p>
+          ) : null}
           <HumanEvaluationForm evaluationId={evaluation.id} defaults={latest} />
         </div>
       ) : null}
       {evaluation.status === "UNDER_REVIEW" || evaluation.status === "WORKER_COMPLETED" ? (
-        <p className="mt-8 text-sm text-muted">Your evaluation is in review.</p>
+        <p className="mt-8 text-sm text-muted">A reviewer is checking your work. If they agree, you get paid.</p>
       ) : null}
       {evaluation.status === "COMPLETED" && latest ? (
         <section className="mt-8 space-y-3">
           <dl className="space-y-2 text-sm">
-            <div className="flex justify-between gap-4"><dt>Factually correct</dt><dd>{yesNo(latest.factuallyCorrect)}</dd></div>
-            <div className="flex justify-between gap-4"><dt>Language sounds natural</dt><dd>{yesNo(latest.languageNatural)}</dd></div>
-            <div className="flex justify-between gap-4"><dt>Understands local context</dt><dd>{yesNo(latest.understandsContext)}</dd></div>
+            <div className="flex justify-between gap-4"><dt>{checkLabels.factuallyCorrect}</dt><dd>{yesNo(latest.factuallyCorrect)}</dd></div>
+            <div className="flex justify-between gap-4"><dt>{checkLabels.languageNatural}</dt><dd>{yesNo(latest.languageNatural)}</dd></div>
+            <div className="flex justify-between gap-4"><dt>{checkLabels.understandsContext}</dt><dd>{yesNo(latest.understandsContext)}</dd></div>
           </dl>
           {latest.betterAnswer ? <p className="whitespace-pre-wrap text-sm text-muted">{latest.betterAnswer}</p> : null}
-          {payout ? <LightningPending who="Evaluator" /> : null}
+          {payout ? <LightningPending who="Evaluator" status={payout.status} amountSats={payout.amountSats} /> : null}
         </section>
       ) : null}
     </Container>

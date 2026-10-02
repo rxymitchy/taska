@@ -2,23 +2,20 @@
 
 Taska checks whether an AI response works for an African language and a local context.
 
-The shared core is finished and must keep working while each module is built:
+The shared core is finished. Money, CSV upload, and reviewer invites use the same evaluation path. Full picture for teammates: the arrow diagrams in the README (**How the app works**).
 
 ```
-Company creates evaluation → Pending → Assigned → Evaluator submits → Worker completed
-→ Under review → Reviewer approves → Approved → Completed (validated)
-→ Lightning payouts recorded as Pending
+Company credits → hold 918 sats → Pending → Assigned
+  → Evaluator submits → Worker completed → Under review
+  → Approve → Completed → spend credits → pay 500 + 400 Lightning
+  → Reject  → Assigned  → return hold
 ```
 
-Reviewer rejection sets the evaluation back to Assigned. The evaluator edits the answers and submits again.
-
-The README lists who builds what. This file explains how the three code modules connect to the core.
+Do not add a second status list. Change `EvaluationStatus` only in `app/actions/evaluations.ts`.
 
 ## Rules for every module
 
-- Do not add or rename values in `EvaluationStatus`. Change the status only in `app/actions/evaluations.ts`.
 - Each module has one entry file under `services/`. Keep its exported function name and argument shape unless the whole team agrees.
-- The placeholder in each file works today. Replace its body. Do not delete the call site.
 - A database change needs its own Prisma migration. Do not edit existing migrations.
 - Run `npx tsc --noEmit` and the demo below before opening a pull request.
 
@@ -26,24 +23,30 @@ The README lists who builds what. This file explains how the three code modules 
 
 Password for every account: `demo1234`.
 
-1. Log in as the company, `employer@taska.demo`. Open **New evaluation** and submit a Swahili, Kenya / M-Pesa response.
-2. Log in as the evaluator, `worker@taska.demo`. Open **My evaluations** and answer the three questions. Answering No to any of them makes the **Better answer** box appear, and it must be filled in. Submit.
-3. Log in as the reviewer, `admin@taska.demo`. Open **Review queue**, then approve.
-4. Log in as the company again. The evaluation shows **Validated** with the answers.
-5. The evaluator and reviewer screens show **Lightning — Pending**.
+1. Log in as the company, `employer@taska.demo`. Credits are already loaded. Open **Get an answer checked** and submit a Swahili, Kenya / M-Pesa response (or **Upload** a CSV). The list should name **Rita Mwangi**.
+2. Log in as Rita, `rita@taska.demo` (or the **Rita** button). Answer the three questions. A No makes **Better answer** required.
+3. Log in as the reviewer, `admin@taska.demo`. Open **Review queue**. **Bitcoin in the till** is the live Breez pot (0 until a company pays a real invoice). Then agree — pay the speaker. **Invite** is how new reviewers join.
+4. Log in as the company again. The evaluation shows the validated result.
+5. Rita and the reviewer screens show Lightning Sent and the sat amounts (500 and 400).
 
 `npm run db:seed` also creates one Swahili evaluation already assigned to the evaluator.
 
 ## Core files
 
-| File | What it owns |
-| --- | --- |
-| `prisma/schema.prisma` | `Evaluation`, `EvaluationSubmission`, `EvaluationPayout`, `EvaluationStatus` |
-| `app/actions/evaluations.ts` | `createEvaluation`, `submitHumanEvaluation`, `decideEvaluation`, every status change |
-| `services/assignment/index.ts` | Gives each new evaluation to the demo evaluator |
-| `app/employer/evaluations/` | Company form and result page |
-| `app/dashboard/` | Evaluator list and form |
-| `app/admin/` | Review queue and approve or reject |
+| File                           | What it owns                                                                         |
+| ------------------------------ | ------------------------------------------------------------------------------------ |
+| `prisma/schema.prisma`         | Evaluations, credits, batches, reviewer invites, `EvaluationStatus`                  |
+| `lib/pricing.ts`               | 500 / 400 / 918 sats                                                                 |
+| `lib/credits.ts`               | Hold, spend, refund, Lightning deposits                                              |
+| `app/actions/evaluations.ts`   | `createEvaluation`, `submitHumanEvaluation`, `decideEvaluation`, every status change |
+| `app/actions/upload.ts`        | CSV/JSON → many evaluations                                                          |
+| `app/actions/credits.ts`       | Company Lightning invoices                                                           |
+| `app/actions/invites.ts`       | Reviewer invite links                                                                |
+| `services/assignment/index.ts` | Picks a speaker of that language (Rita / Chinedu / Ama)                              |
+| `app/employer/`                | Company list, credits, upload, result page                                           |
+| `app/dashboard/`               | Evaluator list and form                                                              |
+| `app/admin/`                   | Review queue, till balance, invite, approve or reject                                |
+| `services/lightning/`          | Breez Spark (live) or mock. Secrets stay in environment variables                    |
 
 ---
 
@@ -53,13 +56,13 @@ Password for every account: `demo1234`.
 
 **Input:** `{ evaluationId, workerUserId, reviewerUserId }`, sent after a reviewer approves.
 
-**Processing:** pay the evaluator and the reviewer over Lightning. Store the payment hash. Retry without paying twice.
+**Processing:** pay the evaluator and reviewer Lightning addresses (LNURL-pay when live). Store the payment hash. Mock unless `BREEZ_API_KEY` and `BREEZ_MNEMONIC` are set. Company credits are spent in `lib/credits.ts` before this runs. `retryFailedPayouts` can send again without paying a Sent row twice.
 
 **Output:** each `EvaluationPayout` row moves from `PENDING` to `SENT` or `FAILED`.
 
-**Connects:** `decideEvaluation` calls this after the evaluation becomes `COMPLETED`. The existing `services/lightning` provider interface can be reused.
+**Connects:** `decideEvaluation` calls this after the evaluation becomes `COMPLETED`.
 
-A failed payment must not undo the validated evaluation. Keys stay in server environment variables. Do not hold user funds. If a real payment is not safe to ship in time, keep the mock.
+A failed payment must not undo the validated evaluation. Keys stay in server environment variables. Live Breez will not pay `@taska.demo` placeholders.
 
 ## AI model (AI/ML Developer)
 
@@ -67,13 +70,13 @@ A failed payment must not undo the validated evaluation. Keys stay in server env
 
 **Input:** `{ prompt, language, context }`
 
-**Processing:** call a model that handles the chosen language, with timeouts and error handling.
+**Processing:** call `AI_API_KEY` / `AI_BASE_URL` when set. If they are missing or the call fails, return a local demo reply (`taska-local`).
 
-**Output:** the response text, or `null` when the company should paste one.
+**Output:** `{ text, model }`.
 
-**Connects:** beside `createEvaluation`, before the evaluation is stored. The company form must keep a manual response field so an API outage does not block evaluation.
+**Connects:** `createEvaluation` and CSV upload call this when the AI response is blank. The paste field stays on the form.
 
-The AI pre-check goes in this file too: the model answers the same three questions before the evaluator does. It needs a new column or table (with the backend developer), and the company and reviewer pages show it next to the human answers (with the frontend developer).
+The optional AI pre-check uses the same three questions before the evaluator does. Its nullable scores and model are stored on `Evaluation`; company results and reviewer decisions show them beside the human answers. It is not an approval signal. See `docs/ai.md` for configuration and quality checks.
 
 Keep API keys on the server. Store which model produced a response.
 
@@ -87,6 +90,6 @@ Keep API keys on the server. Store which model produced a response.
 
 **Output:** `CompanyReport`
 
-**Connects:** `app/employer/evaluations/[id]/page.tsx`. Add fields to `CompanyReport` rather than querying from the page. CSV/JSON export should build its rows from `CompanyReport` too, so the page and the file always match.
+**Connects:** `app/employer/evaluations/[id]/page.tsx`. Add fields to `CompanyReport` rather than querying from the page. CSV/JSON **export** (not upload) should build its rows from `CompanyReport` too, so the page and the file always match.
 
 Only report as validated when the status is `COMPLETED`.

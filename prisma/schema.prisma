@@ -68,14 +68,23 @@ enum PayoutStatus {
   FAILED
 }
 
+enum CreditKind {
+  DEPOSIT
+  HOLD
+  RELEASE
+  SPEND
+}
+
 model User {
-  id              String           @id @default(cuid())
-  email           String           @unique
-  passwordHash    String
-  role            Role
-  createdAt       DateTime         @default(now())
-  workerProfile   WorkerProfile?
-  employerProfile EmployerProfile?
+  id                String           @id @default(cuid())
+  email             String           @unique
+  passwordHash      String
+  role              Role
+  lightningAddress  String?
+  createdAt         DateTime         @default(now())
+  workerProfile     WorkerProfile?
+  employerProfile   EmployerProfile?
+  passwordResets    PasswordReset[]
 }
 
 model WorkerProfile {
@@ -108,9 +117,14 @@ model EmployerProfile {
   user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   companyName        String
   companyDescription String   @default("")
+  prepaidSats        Int      @default(0)
+  heldSats           Int      @default(0)
   createdAt          DateTime @default(now())
   tasks              Task[]
   evaluations        Evaluation[]
+  batches            EvaluationBatch[]
+  creditLedger       CreditLedger[]
+  creditDeposits     CreditDeposit[]
 }
 
 model Task {
@@ -203,15 +217,35 @@ model LightningPayment {
 
 // One AI response submitted by a company for human evaluation.
 // Assignment, extra evaluators, model calls, and real Lightning stay outside this row.
+model EvaluationBatch {
+  id          String           @id @default(cuid())
+  companyId   String
+  company     EmployerProfile  @relation(fields: [companyId], references: [id])
+  fileName    String
+  rowCount    Int
+  createdAt   DateTime         @default(now())
+  evaluations Evaluation[]
+
+  @@index([companyId, createdAt])
+}
+
 model Evaluation {
   id               String             @id @default(cuid())
   companyId        String
   company          EmployerProfile    @relation(fields: [companyId], references: [id])
+  batchId          String?
+  batch            EvaluationBatch?   @relation(fields: [batchId], references: [id])
   prompt           String
   aiResponse       String
+  aiModel          String           @default("pasted")
+  aiPrecheckFactuallyCorrect Boolean?
+  aiPrecheckLanguageNatural Boolean?
+  aiPrecheckUnderstandsContext Boolean?
+  aiPrecheckModel String?
   language         String
   context          String
   status           EvaluationStatus   @default(PENDING)
+  heldSats         Int                @default(0)
   assignedWorkerId String?
   assignedWorker   WorkerProfile?     @relation("AssignedEvaluator", fields: [assignedWorkerId], references: [id])
   assignedAt       DateTime?
@@ -219,10 +253,68 @@ model Evaluation {
   completedAt      DateTime?
   submissions      EvaluationSubmission[]
   payouts          EvaluationPayout[]
+  creditEvents     CreditLedger[]
 
   @@index([companyId, createdAt])
   @@index([status])
   @@index([assignedWorkerId])
+  @@index([batchId])
+}
+
+model CreditLedger {
+  id           String          @id @default(cuid())
+  companyId    String
+  company      EmployerProfile @relation(fields: [companyId], references: [id])
+  kind         CreditKind
+  amountSats   Int
+  evaluationId String?
+  evaluation   Evaluation?     @relation(fields: [evaluationId], references: [id])
+  depositId    String?
+  deposit      CreditDeposit?  @relation(fields: [depositId], references: [id])
+  note         String          @default("")
+  createdAt    DateTime        @default(now())
+
+  @@index([companyId, createdAt])
+}
+
+model CreditDeposit {
+  id          String           @id @default(cuid())
+  companyId   String
+  company     EmployerProfile  @relation(fields: [companyId], references: [id])
+  amountSats  Int
+  invoice     String
+  paymentHash String           @unique
+  checkoutUrl String           @default("")
+  status      LightningStatus  @default(PENDING)
+  createdAt   DateTime         @default(now())
+  paidAt      DateTime?
+  ledger      CreditLedger[]
+
+  @@index([companyId, createdAt])
+}
+
+model ReviewerInvite {
+  id              String    @id @default(cuid())
+  email           String
+  tokenHash       String    @unique
+  invitedByUserId String
+  usedAt          DateTime?
+  expiresAt       DateTime
+  createdAt       DateTime  @default(now())
+
+  @@index([email])
+}
+
+model PasswordReset {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }
 
 model EvaluationSubmission {
@@ -245,7 +337,7 @@ model EvaluationSubmission {
   @@index([workerId])
 }
 
-// Placeholder until the Lightning module settles a real payment.
+// Lightning payout for an approved evaluation. Taska does not hold user funds.
 model EvaluationPayout {
   id           String       @id @default(cuid())
   evaluationId String
@@ -253,8 +345,13 @@ model EvaluationPayout {
   payeeRole    Role
   payeeUserId  String
   rail         String       @default("LIGHTNING")
+  amountSats   Int          @default(0)
+  destination  String       @default("")
+  invoice      String       @default("")
+  paymentHash  String       @default("")
   status       PayoutStatus @default(PENDING)
   createdAt    DateTime     @default(now())
+  settledAt    DateTime?
 
   @@unique([evaluationId, payeeRole])
   @@index([payeeUserId])

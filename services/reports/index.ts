@@ -1,6 +1,11 @@
 export type CompanyReport = {
   prompt: string
   aiResponse: string
+  aiModel: string
+  aiPrecheckFactuallyCorrect: boolean | null
+  aiPrecheckLanguageNatural: boolean | null
+  aiPrecheckUnderstandsContext: boolean | null
+  aiPrecheckModel: string | null
   language: string
   context: string
   factuallyCorrect: boolean | null
@@ -14,6 +19,11 @@ export type CompanyReport = {
 type ReportSource = {
   prompt: string
   aiResponse: string
+  aiModel?: string
+  aiPrecheckFactuallyCorrect?: boolean | null
+  aiPrecheckLanguageNatural?: boolean | null
+  aiPrecheckUnderstandsContext?: boolean | null
+  aiPrecheckModel?: string | null
   language: string
   context: string
   status: string
@@ -40,6 +50,11 @@ export function buildCompanyReport(evaluation: ReportSource): CompanyReport {
   return {
     prompt: evaluation.prompt,
     aiResponse: evaluation.aiResponse,
+    aiModel: evaluation.aiModel ?? "pasted",
+    aiPrecheckFactuallyCorrect: evaluation.aiPrecheckFactuallyCorrect ?? null,
+    aiPrecheckLanguageNatural: evaluation.aiPrecheckLanguageNatural ?? null,
+    aiPrecheckUnderstandsContext: evaluation.aiPrecheckUnderstandsContext ?? null,
+    aiPrecheckModel: evaluation.aiPrecheckModel ?? null,
     language: evaluation.language,
     context: evaluation.context,
     factuallyCorrect: latest?.factuallyCorrect ?? null,
