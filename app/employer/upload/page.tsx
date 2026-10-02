@@ -16,7 +16,7 @@ export default async function UploadPage() {
   const cost = companyCostPerEvaluation()
 
   return (
-    <Container className="max-w-2xl py-10">
+    <Container className="page-frame max-w-2xl!">
       <h1 className="text-3xl tracking-tight">Upload many answers</h1>
       <p className="mt-2 text-muted">
         CSV or JSON, up to {MAX_UPLOAD_ROWS} rows. Each row is one answer someone will check, and holds{" "}
@@ -25,16 +25,18 @@ export default async function UploadPage() {
           Add credit
         </Link>
       </p>
-      <div className="mt-6 rounded-lg border border-line bg-card p-4 text-sm">
+      <div className="content-surface mt-6 text-sm">
         <p className="font-medium">CSV columns</p>
         <p className="mt-1 text-muted">prompt, language, context, aiResponse (optional)</p>
-        <pre className="mt-3 overflow-x-auto text-xs text-muted">{`prompt,language,context,aiResponse
+        <pre className="mt-3 overflow-x-auto rounded-md bg-paper p-3 font-mono text-xs text-muted">{`prompt,language,context,aiResponse
 Ninaweza kutumia M-Pesa kulipa bili hii?,Swahili,Kenya / M-Pesa,`}</pre>
-        <p className="mt-3 font-medium">JSON</p>
-        <pre className="mt-1 overflow-x-auto text-xs text-muted">{`[{ "prompt": "…", "language": "Yoruba", "context": "Nigeria / bank transfer", "aiResponse": "" }]`}</pre>
+        <p className="mt-3 font-bold">JSON</p>
+        <pre className="mt-1 overflow-x-auto rounded-md bg-paper p-3 font-mono text-xs text-muted">{`[{ "prompt": "…", "language": "Yoruba", "context": "Nigeria / bank transfer", "aiResponse": "" }]`}</pre>
       </div>
       <div className="mt-8">
-        <UploadForm />
+          <div className="form-surface mt-6">
+            <UploadForm />
+          </div>
       </div>
     </Container>
   )

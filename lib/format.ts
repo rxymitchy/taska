@@ -23,7 +23,7 @@ export function initials(name: string) {
     .join("")
 }
 
-const avatarColors = ["#1b4332", "#243047", "#5c4a32", "#3d4f46", "#3f3428"]
+const avatarColors = ["#1C6B47", "#245B42", "#2D7651", "#164E37", "#3C805B"]
 
 export function avatarColor(name: string) {
   const index = [...name].reduce((sum, char) => sum + char.charCodeAt(0), 0) % avatarColors.length

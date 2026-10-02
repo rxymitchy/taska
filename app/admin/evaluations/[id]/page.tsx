@@ -30,7 +30,7 @@ export default async function ReviewEvaluationPage({
   if (!answers) redirect("/admin")
 
   return (
-    <Container className="max-w-2xl py-10">
+    <Container className="page-frame max-w-2xl!">
       <p className="text-sm text-muted">
         {evaluation.language} · {evaluation.context}
         {evaluation.assignedWorker ? ` · ${evaluation.assignedWorker.name}` : ""}
@@ -41,7 +41,7 @@ export default async function ReviewEvaluationPage({
           They need a real pay address on their profile, and so do you, before anyone gets paid.
         </p>
       ) : null}
-      <section className="mt-6 space-y-4">
+      <section className="content-surface mt-6 space-y-4">
         <div>
           <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Question</h2>
           <p className="mt-1 whitespace-pre-wrap">{evaluation.prompt}</p>

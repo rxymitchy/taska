@@ -47,7 +47,7 @@ export default async function AdminPage() {
   ])
 
   return (
-    <Container className="py-10">
+    <Container className="page-frame">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-3xl tracking-tight">Review queue</h1>
@@ -62,7 +62,7 @@ export default async function AdminPage() {
       {till.kind === "ok" ? (
         <div className="mt-6 rounded-lg border border-line bg-card px-4 py-3">
           <p className="text-xs font-medium uppercase tracking-wider text-muted">Bitcoin in the till</p>
-          <p className="mt-1 font-display text-2xl">{formatSats(till.balanceSats)}</p>
+          <p className="mt-2"><span className="inline-flex rounded-md bg-hl px-2 py-1 font-display text-2xl tabular-nums text-ink">{formatSats(till.balanceSats)}</span></p>
           <p className="mt-1 text-sm text-muted">What companies have paid in, minus what we have paid out.</p>
         </div>
       ) : till.kind === "error" ? (

@@ -30,17 +30,17 @@ export default async function EmployerTaskPage({ params }: { params: Promise<{ i
   const spent = task.rewardSats * task.completedQuantity
 
   return (
-    <Container className="py-10">
+    <Container className="page-frame">
       <p className="text-sm text-muted">{task.category}</p>
       <h1 className="mt-2 text-3xl tracking-tight">{task.title}</h1>
       <dl className="mt-6 grid gap-4 sm:grid-cols-3">
         <div className="rounded-lg border border-line bg-card p-4">
           <dt className="text-xs uppercase tracking-wider text-muted">Total task budget</dt>
-          <dd className="mt-1 text-xl">{formatSats(budget)}</dd>
+          <dd className="mt-2"><span className="inline-flex rounded-md bg-hl px-2 py-1 font-semibold tabular-nums text-ink">{formatSats(budget)}</span></dd>
         </div>
         <div className="rounded-lg border border-line bg-card p-4">
           <dt className="text-xs uppercase tracking-wider text-muted">Spent</dt>
-          <dd className="mt-1 text-xl">{formatSats(spent)}</dd>
+          <dd className="mt-2"><span className="inline-flex rounded-md bg-hl px-2 py-1 font-semibold tabular-nums text-ink">{formatSats(spent)}</span></dd>
         </div>
         <div className="rounded-lg border border-line bg-card p-4">
           <dt className="text-xs uppercase tracking-wider text-muted">Status</dt>
@@ -63,7 +63,7 @@ export default async function EmployerTaskPage({ params }: { params: Promise<{ i
           task.submissions.map((submission) => {
             const answers = submission.answers as { choice?: keyof typeof choiceLabels; reason?: string; notes?: string }
             return (
-              <li key={submission.id} className="rounded-lg border border-line bg-card p-4">
+              <li key={submission.id} className="content-surface p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-medium">{submission.worker.name}</p>
                   <StatusPill status={submission.status} />

@@ -12,13 +12,17 @@ export default async function ProfilePage() {
   if (!profile) return null
 
   return (
-    <Container className="max-w-2xl py-10">
-      <h1 className="text-3xl tracking-tight">Your profile</h1>
-      <p className="mt-2 text-sm text-muted">
-        Put where you get paid. A CV is optional — the work is the record.
-      </p>
-      <div className="mt-8">
-        <ProfileForm profile={profile} />
+    <Container className="page-frame">
+      <div className="mx-auto w-full max-w-2xl">
+        <header className="page-intro">
+          <h1 className="text-3xl tracking-tight">Your profile</h1>
+          <p className="mt-2 text-sm text-muted">
+            Put where you get paid. A CV is optional — the work is the record.
+          </p>
+        </header>
+        <div className="form-surface mt-6">
+          <ProfileForm profile={profile} />
+        </div>
       </div>
     </Container>
   )

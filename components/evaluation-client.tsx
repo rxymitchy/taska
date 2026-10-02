@@ -45,7 +45,7 @@ export function EvaluationClient({
   return (
     <form action={onSubmit} className="space-y-6">
       <input type="hidden" name="taskItemId" value={item.id} />
-      <section className="rounded-lg border border-line bg-card p-4">
+      <section className="rounded-lg border border-line bg-card p-5">
         <p className="text-xs font-medium uppercase tracking-wider text-muted">Question</p>
         <p className="mt-2 text-base leading-relaxed">{item.prompt}</p>
       </section>
@@ -59,7 +59,7 @@ export function EvaluationClient({
           {(Object.keys(choiceLabels) as Array<keyof typeof choiceLabels>).map((key) => (
             <label
               key={key}
-              className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-3 text-sm ${choice === key ? "border-accent bg-accent/5" : "border-line bg-card"}`}
+              className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-3 text-sm ${choice === key ? "border-2 border-accent bg-tint" : "border-line bg-card"}`}
             >
               <input
                 type="radio"
@@ -101,7 +101,7 @@ function ResponseCard({
     <button
       type="button"
       onClick={onSelect}
-      className={`rounded-lg border p-4 text-left ${selected ? "border-accent bg-accent/5" : "border-line bg-card"}`}
+      className={`rounded-lg p-5 text-left transition ${selected ? "border-2 border-accent bg-card shadow-[0_20px_40px_-28px_rgba(15,42,32,.4)]" : "border border-line bg-card hover:border-accent/50"}`}
     >
       <p className="text-xs font-medium uppercase tracking-wider text-muted">{title}</p>
       <p className="mt-2 text-sm leading-relaxed">{body}</p>
@@ -150,7 +150,7 @@ function ResultSequence({
       </ol>
       {approved && step >= 3 ? (
         <div className="mt-6 border-t border-line pt-6">
-          <p className="font-display text-4xl tracking-tight">+{formatSats(result.amountSats)}</p>
+          <p className="inline-flex rounded-md bg-hl px-3 py-1 font-display text-4xl tracking-tight text-ink">+{formatSats(result.amountSats)}</p>
           <p className="mt-1 text-muted">≈ {formatUsd(result.amountSats)}</p>
           <p className="mt-4 text-sm">Payment sent</p>
           <p className="text-sm text-muted">Paid via Lightning</p>

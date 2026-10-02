@@ -17,9 +17,10 @@ export function LightningPending({
   amountSats?: number
 }) {
   return (
-    <p className="rounded-md border border-line bg-card px-3 py-2 text-sm">
+    <p className="flex flex-wrap items-center gap-1.5 rounded-md border border-line bg-card px-3 py-2 text-sm">
       {who}
-      {amountSats ? ` · ${formatSats(amountSats)}` : ""} — {labels[status]}
+      {amountSats ? <><span aria-hidden="true">·</span><span className="inline-flex rounded-md bg-hl px-2 py-0.5 font-semibold tabular-nums text-ink">{formatSats(amountSats)}</span></> : ""}
+      <span>— {labels[status]}</span>
     </p>
   )
 }

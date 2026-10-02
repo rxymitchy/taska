@@ -21,7 +21,7 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
   const report = buildCompanyReport(evaluation)
 
   return (
-    <Container className="max-w-2xl py-10">
+    <Container className="page-frame max-w-2xl!">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted">
           {report.language} · {report.context}
@@ -30,7 +30,7 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
         <StatusPill status={evaluation.status} />
       </div>
       <h1 className="mt-3 text-3xl tracking-tight">Evaluation</h1>
-      <section className="mt-8 space-y-4">
+      <section className="content-surface mt-6 space-y-4">
         <div>
           <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Question</h2>
           <p className="mt-1 whitespace-pre-wrap">{report.prompt}</p>
@@ -57,7 +57,7 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
             }}
           />
           {report.betterAnswer || report.comment ? (
-            <section className="mt-4 rounded-lg border border-line bg-card p-4">
+            <section className="content-surface mt-4">
               {report.betterAnswer ? (
                 <div>
                   <h3 className="text-sm font-medium uppercase tracking-wider text-muted">Better answer</h3>

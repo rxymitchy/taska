@@ -20,7 +20,7 @@ export function AiHumanComparison({
   ] as const
 
   return (
-    <section className="mt-8 rounded-lg border border-line bg-card p-4">
+    <section className="content-surface mt-8">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-xl tracking-tight">AI and human check</h2>
         <p className="text-sm text-muted">
@@ -30,7 +30,7 @@ export function AiHumanComparison({
       <div className="mt-4 overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-line text-muted">
+            <tr className="border-b border-line text-xs font-bold uppercase text-muted">
               <th className="py-2 pr-4 font-medium">Question</th>
               <th className="px-3 py-2 font-medium">AI</th>
               <th className="px-3 py-2 font-medium">Human</th>

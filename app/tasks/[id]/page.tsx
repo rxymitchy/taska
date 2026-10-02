@@ -35,15 +35,17 @@ export default async function TaskDetailPage({
   const budget = task.rewardSats * task.quantity
 
   return (
-    <Container className="max-w-3xl py-10">
-      <p className="text-sm text-muted">{task.category}</p>
-      <h1 className="mt-2 text-4xl tracking-tight">{task.title}</h1>
-      <p className="mt-4 leading-relaxed text-muted">{task.description}</p>
+    <Container className="page-frame max-w-3xl!">
+      <header className="page-intro">
+        <p className="text-sm font-bold text-accent">{task.category}</p>
+        <h1 className="mt-2 text-4xl tracking-tight">{task.title}</h1>
+        <p className="mt-4 max-w-3xl leading-relaxed text-muted">{task.description}</p>
+      </header>
       <dl className="mt-8 grid gap-4 sm:grid-cols-2">
         <div className="rounded-lg border border-line bg-card p-4">
           <dt className="text-xs uppercase tracking-wider text-muted">Reward</dt>
-          <dd className="mt-1 text-lg font-medium">
-            {formatSats(task.rewardSats)} <span className="text-sm text-muted">≈ {formatUsd(task.rewardSats)}</span>
+          <dd className="mt-2 text-lg font-medium">
+            <span className="inline-flex rounded-md bg-hl px-2 py-1 font-semibold tabular-nums text-ink">{formatSats(task.rewardSats)}</span>{" "}<span className="text-sm text-muted">≈ {formatUsd(task.rewardSats)}</span>
           </dd>
         </div>
         <div className="rounded-lg border border-line bg-card p-4">
@@ -61,14 +63,14 @@ export default async function TaskDetailPage({
           <dd className="mt-1 text-lg font-medium">{task.language}</dd>
         </div>
       </dl>
-      <p className="mt-4 text-sm text-muted">
-        Skills: {task.requiredSkills.join(", ")} · Budget {formatSats(budget)} · <StatusPill status={task.status} />
+      <p className="mt-5 text-sm leading-relaxed text-muted">
+        Skills: {task.requiredSkills.join(", ")} · Budget <span className="inline-flex rounded-md bg-hl px-2 py-0.5 font-semibold tabular-nums text-ink">{formatSats(budget)}</span> · <StatusPill status={task.status} />
       </p>
-      <section className="mt-8">
+      <section className="content-surface mt-8">
         <h2 className="text-xl">Instructions</h2>
         <p className="mt-2 whitespace-pre-wrap leading-relaxed">{task.instructions}</p>
       </section>
-      {query.full ? <p className="mt-6 text-sm text-warn">No assignments are left on this task.</p> : null}
+      {query.full ? <p className="mt-6 rounded-md border border-line bg-paper px-3 py-2 text-sm text-muted">No assignments are left on this task.</p> : null}
       <div className="mt-8">
         {!interactive ? (
           <p className="text-sm text-muted">
