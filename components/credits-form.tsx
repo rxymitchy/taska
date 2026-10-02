@@ -6,6 +6,7 @@ import { btnPrimary, btnSecondary, inputClass, labelClass } from "@/lib/styles"
 import { formatSats } from "@/lib/money"
 
 import { CopyInvoiceButton } from "@/components/copy-invoice-button"
+import { InvoiceQr } from "@/components/invoice-qr"
 import { CREDIT_PACKS } from "@/lib/credit-packs"
 const initial: CreditActionState = { error: "" }
 
@@ -40,7 +41,10 @@ export function CreditsForm({ mock }: { mock: boolean }) {
               </a>
             </p>
           ) : null}
-          <p className="mt-2 break-all text-muted">{state.invoice}</p>
+          <div className="mt-4">
+            <InvoiceQr invoice={state.invoice} />
+          </div>
+          <p className="mt-3 break-all text-muted">{state.invoice}</p>
           <div className="mt-3">
             <CopyInvoiceButton invoice={state.invoice} />
           </div>

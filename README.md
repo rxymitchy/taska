@@ -140,7 +140,7 @@ The smallest credit pack is **1,000 sats** — enough for one check.
 
 ### Lightning (Breez SDK Spark)
 
-- Company prepaid invoices, with a copy button
+- Company prepaid invoices, with a copy button and QR code
 - Credits held when work is created, spent on approve, returned on reject
 - Payouts to the Lightning address on an evaluator or reviewer profile
 - Failed payouts can be retried without paying a Sent row twice
@@ -172,7 +172,6 @@ What works today:
 
 What's still open:
 
-- QR for Lightning invoices
 - A more compact signed-in header on small screens
 - Reviewer summary totals
 - Screenshots and the pitch deck / demo video

@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { CopyInvoiceButton } from "@/components/copy-invoice-button"
 import { ConfirmDepositButton, CreditsForm } from "@/components/credits-form"
+import { PendingInvoiceActions } from "@/components/pending-invoice-actions"
 import { Container, StatusPill } from "@/components/ui"
 import { formatSats } from "@/lib/money"
 import { companyCostPerEvaluation, evaluatorPayoutSats, reviewerPayoutSats, lightningProviderName } from "@/lib/pricing"
@@ -62,10 +63,14 @@ export default async function CreditsPage() {
                   <span className="block font-medium">{formatSats(deposit.amountSats)}</span>
                   <span className="mt-1 block"><StatusPill status={deposit.status} /></span>
                 </span>
-                <span className="flex flex-wrap items-center gap-2">
+                {deposit.status === "PENDING" ? (
+                  <PendingInvoiceActions
+                    invoice={deposit.invoice}
+                    confirm={<ConfirmDepositButton depositId={deposit.id} mock={mock} />}
+                  />
+                ) : (
                   <CopyInvoiceButton invoice={deposit.invoice} />
-                  {deposit.status === "PENDING" ? <ConfirmDepositButton depositId={deposit.id} mock={mock} /> : null}
-                </span>
+                )}
               </li>
             ))}
           </ul>
