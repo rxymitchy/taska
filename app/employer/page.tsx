@@ -6,11 +6,20 @@ import { companyCostPerEvaluation } from "@/lib/pricing"
 import { prisma } from "@/lib/prisma"
 import { btnPrimary, btnSecondary } from "@/lib/styles"
 import { requireRole } from "@/lib/session"
+import { assignOpenCompanyEvaluations } from "@/services/assignment"
 
 export const metadata: Metadata = { title: "Company" }
 
 export default async function EmployerPage() {
   const user = await requireRole(["EMPLOYER", "ADMIN"])
+  const existing = await prisma.employerProfile.findUnique({ where: { userId: user.id }, select: { id: true } })
+  if (existing) {
+    try {
+      await assignOpenCompanyEvaluations(existing.id)
+    } catch {
+      // Still show the company page if assignment is slow.
+    }
+  }
   const company = await prisma.employerProfile.findUnique({
     where: { userId: user.id },
     include: { evaluations: { orderBy: { createdAt: "desc" }, include: { assignedWorker: { select: { name: true } } } } },

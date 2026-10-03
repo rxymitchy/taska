@@ -4,6 +4,7 @@ import { AiHumanComparison } from "@/components/ai-human-comparison"
 import { Container, StatusPill } from "@/components/ui"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
+import { assignEvaluation } from "@/services/assignment"
 import { buildCompanyReport } from "@/services/reports"
 
 export const metadata: Metadata = { title: "Evaluation" }
@@ -11,6 +12,11 @@ export const metadata: Metadata = { title: "Evaluation" }
 export default async function CompanyEvaluationPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const user = await requireRole(["EMPLOYER", "ADMIN"])
+  try {
+    await assignEvaluation(id)
+  } catch {
+    // Still show the evaluation if assignment is slow.
+  }
   const evaluation = await prisma.evaluation.findUnique({
     where: { id },
     include: { company: true, submissions: true, assignedWorker: { select: { name: true } } },
@@ -71,7 +77,7 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
       ) : (
         <p className="mt-8 text-sm text-muted">
           {evaluation.status === "PENDING" && !evaluation.assignedWorkerId
-            ? "Waiting for someone who speaks this language. Your credit stays held until then."
+            ? "Waiting for someone in this country or who speaks this language. Your credit stays held until then."
             : "Someone is checking this. The result shows up here after a reviewer agrees — then they get paid."}
         </p>
       )}
