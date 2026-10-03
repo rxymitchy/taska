@@ -33,7 +33,7 @@ export function Stat({ label, value, hint }: { label: string; value: string; hin
   )
 }
 
-export function StatusPill({ status }: { status: string }) {
+export function StatusPill({ status, label }: { status: string; label?: string }) {
   const styles: Record<string, string> = {
     APPROVED: "border border-good/20 bg-tint text-good",
     COMPLETED: "border border-good/20 bg-tint text-good",
@@ -57,10 +57,10 @@ export function StatusPill({ status }: { status: string }) {
     COMPLETED: "Validated",
     REJECTED: "Rejected",
   }
-  const label = labels[status] ?? status.charAt(0) + status.slice(1).toLowerCase()
+  const text = label ?? labels[status] ?? status.charAt(0) + status.slice(1).toLowerCase()
   return (
     <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${styles[status] ?? "border border-line bg-paper text-muted"}`}>
-      {label}
+      {text}
     </span>
   )
 }

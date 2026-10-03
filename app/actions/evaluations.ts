@@ -129,6 +129,7 @@ export async function submitHumanEvaluation(_prev: { error: string }, formData: 
 
   revalidatePath("/dashboard")
   revalidatePath("/admin")
+  revalidatePath("/employer")
   revalidatePath(`/employer/evaluations/${evaluation.id}`)
   redirect(`/dashboard/evaluations/${evaluation.id}`)
 }
@@ -169,6 +170,7 @@ export async function decideEvaluation(formData: FormData) {
     await releaseEvaluationHold(evaluation.id)
     revalidatePath("/admin")
     revalidatePath("/dashboard")
+    revalidatePath("/employer")
     revalidatePath(`/employer/evaluations/${evaluation.id}`)
     redirect("/admin")
   }
@@ -194,6 +196,7 @@ export async function decideEvaluation(formData: FormData) {
 
   revalidatePath("/admin")
   revalidatePath("/dashboard")
+  revalidatePath("/employer")
   revalidatePath(`/employer/evaluations/${evaluation.id}`)
   redirect("/admin")
 }

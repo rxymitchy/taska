@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { Container, StatusPill } from "@/components/ui"
+import { CompanyStatus } from "@/components/company-status"
+import { Container } from "@/components/ui"
 import { formatSats } from "@/lib/money"
 import { companyCostPerEvaluation } from "@/lib/pricing"
 import { prisma } from "@/lib/prisma"
@@ -22,7 +23,7 @@ export default async function EmployerPage() {
   }
   const company = await prisma.employerProfile.findUnique({
     where: { userId: user.id },
-    include: { evaluations: { orderBy: { createdAt: "desc" }, include: { assignedWorker: { select: { name: true } } } } },
+    include: { evaluations: { orderBy: { createdAt: "desc" } } },
   })
   if (!company && user.role === "ADMIN") {
     return (
@@ -50,6 +51,8 @@ export default async function EmployerPage() {
             {company.prepaidSats < cost ? "Add credit to get started" : "Add credit"}
           </Link>
           <Link className={company.prepaidSats < cost ? btnSecondary : btnPrimary} href="/employer/evaluations/new">
+            Check an answer
+          </Link>
           <Link className={btnSecondary} href="/employer/upload">
             Upload
           </Link>
@@ -63,8 +66,6 @@ export default async function EmployerPage() {
               </Link>
             </>
           ) : null}
-            Check an answer
-          </Link>
         </div>
       </div>
       <dl className="grid gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-3">
@@ -108,10 +109,9 @@ export default async function EmployerPage() {
                   <span className="block truncate font-medium">{evaluation.prompt}</span>
                   <span className="text-sm text-muted">
                     {evaluation.language} · {evaluation.context}
-                    {evaluation.assignedWorker ? ` · ${evaluation.assignedWorker.name}` : " · waiting for someone"}
                   </span>
                 </span>
-                <StatusPill status={evaluation.status} />
+                <CompanyStatus status={evaluation.status} />
               </Link>
             </li>
           ))

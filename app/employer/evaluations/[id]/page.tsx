@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { AiHumanComparison } from "@/components/ai-human-comparison"
-import { Container, StatusPill } from "@/components/ui"
+import { CompanyStatus } from "@/components/company-status"
+import { Container } from "@/components/ui"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
 import { assignEvaluation } from "@/services/assignment"
@@ -31,9 +32,8 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted">
           {report.language} · {report.context}
-          {evaluation.assignedWorker ? ` · ${evaluation.assignedWorker.name}` : " · waiting for someone"}
         </p>
-        <StatusPill status={evaluation.status} />
+        <CompanyStatus status={evaluation.status} />
       </div>
       <h1 className="mt-3 text-3xl tracking-tight">Evaluation</h1>
       <section className="content-surface mt-6 space-y-4">
@@ -78,7 +78,9 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
         <p className="mt-8 text-sm text-muted">
           {evaluation.status === "PENDING" && !evaluation.assignedWorkerId
             ? "Waiting for someone in this country or who speaks this language. Your credit stays held until then."
-            : "Someone is checking this. The result shows up here after a reviewer agrees — then they get paid."}
+            : evaluation.status === "ASSIGNED"
+              ? "Someone is working on this. The status changes when they submit."
+              : "This is being checked. The result shows up here after a reviewer agrees."}
         </p>
       )}
     </Container>
