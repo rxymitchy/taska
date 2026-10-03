@@ -116,29 +116,6 @@ Approved?
 
 ---
 
-## Team
-
-### Leadership
-
-- **Florence Makaa** — Team Lead
-- **Stacy Kweto** — Project Manager
-
-### Front-end + UI/UX
-
-- **Winfred Silii** — Front-end
-- **Hellen Anyango** — Front-end + UI/UX
-
-### Back-end
-
-- **Mitchelle Ashimosi** — Back-end
-- **Hadassah Ndonyi** — Back-end
-
-### AI
-
-- **Becky Gabrielle** — AI
-
----
-
 ## Repository & Links
 
 **GitHub:**  
