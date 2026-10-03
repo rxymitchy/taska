@@ -15,6 +15,9 @@ export function InviteForm() {
         <input className={inputClass} name="email" type="email" required />
       </label>
       {state.error ? <p className="text-sm text-bad">{state.error}</p> : null}
+      {state.promoted ? (
+        <p className="text-sm">They were an evaluator. They are a reviewer now. Ask them to refresh and open Review queue.</p>
+      ) : null}
       {state.inviteUrl ? (
         <p className="break-all rounded-md border border-line bg-card px-3 py-2 text-sm">
           {state.emailed ? "Invite emailed. Link: " : "Invite created. Email did not send — copy this link: "}

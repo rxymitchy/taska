@@ -26,15 +26,25 @@ export async function hasRealReviewer() {
   return admins.some((admin) => !isDemoAccountEmail(admin.email))
 }
 
-export async function canReview(user: { email?: string | null; role: Role }) {
-  if (user.role === "ADMIN") return true
-  if (user.role === "EMPLOYER") return true
-  if (isFoundingReviewer(user.email)) return true
-  if (await hasRealReviewer()) return false
-  return user.role === "WORKER"
+export async function freshReviewRole(userId: string) {
+  return prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, email: true, role: true },
+  })
 }
 
-export async function canInviteReviewer(user: { email?: string | null; role: Role }) {
-  if (user.role === "ADMIN" || user.role === "WORKER" || user.role === "EMPLOYER") return true
-  return isFoundingReviewer(user.email)
+export async function canReview(user: { id: string; email?: string | null; role: Role }) {
+  const fresh = (await freshReviewRole(user.id)) ?? user
+  if (fresh.role === "ADMIN") return true
+  return isFoundingReviewer(fresh.email)
+}
+
+export async function canInviteReviewer(user: { id: string; email?: string | null; role: Role }) {
+  return canReview(user)
+}
+
+export async function canClaimFirstReviewer(user: { id: string; email?: string | null; role: Role }) {
+  if (await canReview(user)) return false
+  if (await hasRealReviewer()) return false
+  return user.role === "WORKER" || user.role === "EMPLOYER"
 }

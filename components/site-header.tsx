@@ -2,7 +2,7 @@ import Link from "next/link"
 import { auth, signOut } from "@/auth"
 import { AuthBtn } from "@/components/auth-btn"
 import { brand } from "@/lib/brand"
-import { canInviteReviewer, canReview } from "@/lib/reviewer-access"
+import { canClaimFirstReviewer, canInviteReviewer, canReview } from "@/lib/reviewer-access"
 
 // quiet pill links: green text, soft wash on hover, press scale.
 // On login/signup the link sits over the dark green panel on small screens, so it turns cream there.
@@ -15,7 +15,9 @@ const navLink =
 export async function SiteHeader() {
   const session = await auth()
   const role = session?.user.role
-  const showReview = session?.user ? await canReview(session.user) : false
+  const showReview = session?.user
+    ? (await canReview(session.user)) || (await canClaimFirstReviewer(session.user))
+    : false
   const showInvite = session?.user ? await canInviteReviewer(session.user) : false
 
   return (

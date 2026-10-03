@@ -41,9 +41,12 @@ export function scoreSpeaker(input: {
 export async function pickEvaluator(evaluation: { language: string; context: string }) {
   const place = countryFromContext(evaluation.context)
   const speakers = await prisma.workerProfile.findMany({
-    where: place
-      ? { OR: [{ languages: { has: evaluation.language } }, { country: place }] }
-      : { languages: { has: evaluation.language } },
+    where: {
+      user: { role: "WORKER" },
+      ...(place
+        ? { OR: [{ languages: { has: evaluation.language } }, { country: place }] }
+        : { languages: { has: evaluation.language } }),
+    },
     select: {
       id: true,
       country: true,

@@ -1,13 +1,15 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 import { newInviteToken, hashInviteToken } from "@/lib/invites"
 import { prisma } from "@/lib/prisma"
-import { requireCanInvite, requireReviewer } from "@/lib/session"
+import { canClaimFirstReviewer } from "@/lib/reviewer-access"
+import { requireCanInvite, requireReviewer, requireUser } from "@/lib/session"
 import { sendReviewerInviteEmail } from "@/lib/mail"
 import { destinationSchema } from "@/lib/validators"
 
-export type InviteState = { error: string; inviteUrl?: string; emailed?: boolean }
+export type InviteState = { error: string; inviteUrl?: string; emailed?: boolean; promoted?: boolean }
 
 export async function inviteReviewer(_prev: InviteState, formData: FormData): Promise<InviteState> {
   const user = await requireCanInvite()
@@ -20,7 +22,14 @@ export async function inviteReviewer(_prev: InviteState, formData: FormData): Pr
 
   const existing = await prisma.user.findUnique({ where: { email } })
   if (existing?.role === "ADMIN") return { error: "That person is already a reviewer." }
-  if (existing) return { error: "That email already has an account." }
+  if (existing?.role === "WORKER") {
+    await prisma.user.update({ where: { id: existing.id }, data: { role: "ADMIN" } })
+    revalidatePath("/admin")
+    revalidatePath("/admin/invite")
+    revalidatePath("/dashboard")
+    return { error: "", promoted: true }
+  }
+  if (existing) return { error: "That email already has a company account." }
 
   const open = await prisma.reviewerInvite.findFirst({
     where: { email, usedAt: null, expiresAt: { gt: new Date() } },
@@ -62,4 +71,32 @@ export async function saveReviewerLightning(_prev: { error: string }, formData: 
   revalidatePath("/admin")
   revalidatePath("/admin/invite")
   return { error: "" }
+}
+
+export async function claimFirstReviewer() {
+  const user = await requireUser()
+  if (!(await canClaimFirstReviewer(user))) redirect("/")
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { role: "ADMIN" },
+  })
+  revalidatePath("/admin")
+  revalidatePath("/admin/invite")
+  redirect("/admin")
+}
+
+export async function promoteEvaluatorToReviewer(formData: FormData) {
+  await requireReviewer()
+  const userId = String(formData.get("userId") ?? "")
+  const evaluator = await prisma.user.findFirst({
+    where: { id: userId, role: "WORKER" },
+  })
+  if (!evaluator) return
+  await prisma.user.update({
+    where: { id: evaluator.id },
+    data: { role: "ADMIN" },
+  })
+  revalidatePath("/admin")
+  revalidatePath("/admin/invite")
+  revalidatePath("/dashboard")
 }
