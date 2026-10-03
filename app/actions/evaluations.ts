@@ -5,7 +5,7 @@ import { redirect } from "next/navigation"
 import { holdCompanyCredits, releaseEvaluationHold, spendEvaluationHold } from "@/lib/credits"
 import { companyCostPerEvaluation } from "@/lib/pricing"
 import { prisma } from "@/lib/prisma"
-import { requireRole } from "@/lib/session"
+import { requireReviewer, requireRole } from "@/lib/session"
 import { aiEvaluationSchema, humanEvaluationSchema } from "@/lib/validators"
 import { assignEvaluation } from "@/services/assignment"
 import { generateAiResponse, precheckAiResponse } from "@/services/ai"
@@ -134,7 +134,7 @@ export async function submitHumanEvaluation(_prev: { error: string }, formData: 
 }
 
 export async function decideEvaluation(formData: FormData) {
-  const reviewer = await requireRole(["ADMIN"])
+  const reviewer = await requireReviewer()
   const evaluationId = String(formData.get("evaluationId") ?? "")
   const decision = String(formData.get("decision") ?? "")
   if (decision !== "approve" && decision !== "reject") redirect("/admin")

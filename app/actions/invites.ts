@@ -3,14 +3,14 @@
 import { revalidatePath } from "next/cache"
 import { newInviteToken, hashInviteToken } from "@/lib/invites"
 import { prisma } from "@/lib/prisma"
-import { requireRole } from "@/lib/session"
+import { requireCanInvite, requireReviewer } from "@/lib/session"
 import { sendReviewerInviteEmail } from "@/lib/mail"
 import { destinationSchema } from "@/lib/validators"
 
 export type InviteState = { error: string; inviteUrl?: string; emailed?: boolean }
 
 export async function inviteReviewer(_prev: InviteState, formData: FormData): Promise<InviteState> {
-  const user = await requireRole(["ADMIN"])
+  const user = await requireCanInvite()
   const email = String(formData.get("email") ?? "")
     .trim()
     .toLowerCase()
@@ -51,7 +51,7 @@ export async function inviteReviewer(_prev: InviteState, formData: FormData): Pr
 }
 
 export async function saveReviewerLightning(_prev: { error: string }, formData: FormData) {
-  const user = await requireRole(["ADMIN"])
+  const user = await requireReviewer()
   const parsed = destinationSchema.safeParse(formData.get("lightningAddress") ?? "")
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Enter a Lightning address." }
 

@@ -49,6 +49,9 @@ export default async function EmployerPage() {
           <Link className={company.prepaidSats < cost ? btnPrimary : btnSecondary} href="/employer/credits">
             {company.prepaidSats < cost ? "Add credit to get started" : "Add credit"}
           </Link>
+          <Link className={btnSecondary} href="/admin/invite">
+            Invite a reviewer
+          </Link>
           <Link className={company.prepaidSats < cost ? btnSecondary : btnPrimary} href="/employer/evaluations/new">
           <Link className={btnSecondary} href="/employer/upload">
             Upload

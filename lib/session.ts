@@ -1,6 +1,7 @@
 import type { Role } from "@prisma/client"
 import { redirect } from "next/navigation"
 import { auth } from "@/auth"
+import { canInviteReviewer, canReview } from "@/lib/reviewer-access"
 
 export async function requireUser() {
   const session = await auth()
@@ -17,5 +18,17 @@ export function homeForRole(role: Role) {
 export async function requireRole(roles: Role[]) {
   const user = await requireUser()
   if (!roles.includes(user.role)) redirect(homeForRole(user.role))
+  return user
+}
+
+export async function requireReviewer() {
+  const user = await requireUser()
+  if (!(await canReview(user))) redirect(homeForRole(user.role))
+  return user
+}
+
+export async function requireCanInvite() {
+  const user = await requireUser()
+  if (!(await canInviteReviewer(user))) redirect(homeForRole(user.role))
   return user
 }

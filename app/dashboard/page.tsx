@@ -39,7 +39,10 @@ export default async function DashboardPage() {
             Review answers, follow their status, and keep track of payouts.
           </p>
         </div>
-        <Link className={btnSecondary} href="/tasks">Browse tasks</Link>
+        <div className="flex flex-wrap gap-2">
+          <Link className={btnSecondary} href="/admin/invite">Invite a reviewer</Link>
+          <Link className={btnSecondary} href="/tasks">Browse tasks</Link>
+        </div>
       </div>
       <dl className="mt-6 grid gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-3">
         <div className="bg-card px-4 py-4">

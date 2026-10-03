@@ -16,10 +16,12 @@ async function currentDestination(role: Role, userId: string) {
     return payableLightningDestination(worker?.lightningAddress)
   }
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { lightningAddress: true } })
-  return (
+  const fromUser =
     payableLightningDestination(user?.lightningAddress) ??
     payableLightningDestination(process.env.REVIEWER_LIGHTNING_ADDRESS)
-  )
+  if (fromUser) return fromUser
+  const worker = await prisma.workerProfile.findUnique({ where: { userId } })
+  return payableLightningDestination(worker?.lightningAddress)
 }
 
 function mockFallback(role: Role) {

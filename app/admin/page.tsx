@@ -7,7 +7,7 @@ import { formatSats } from "@/lib/money"
 import { lightningProviderName } from "@/lib/pricing"
 import { prisma } from "@/lib/prisma"
 import { btnSecondary } from "@/lib/styles"
-import { requireRole } from "@/lib/session"
+import { requireReviewer } from "@/lib/session"
 import { getLightningService } from "@/services/lightning"
 
 /** Live Breez pot. Hidden when Lightning is still mock. */
@@ -26,7 +26,7 @@ export const metadata: Metadata = { title: "Review" }
 export const maxDuration = 60
 
 export default async function AdminPage() {
-  const user = await requireRole(["ADMIN"])
+  const user = await requireReviewer()
   const [queue, payouts, failedPayouts, till] = await Promise.all([
     prisma.evaluation.findMany({
       where: { status: "UNDER_REVIEW" },
@@ -90,7 +90,10 @@ export default async function AdminPage() {
       ) : null}
       <ul className="mt-8 divide-y divide-line rounded-lg border border-line bg-card">
         {queue.length === 0 ? (
-          <li className="px-4 py-4 text-sm text-muted">Nothing is waiting for review.</li>
+          <li className="px-4 py-4 text-sm text-muted">
+            Nothing is waiting for review. An evaluator has to submit a check first. Invite a reviewer from here, or
+            from the company or evaluator home.
+          </li>
         ) : (
           queue.map((evaluation) => (
             <li key={evaluation.id}>

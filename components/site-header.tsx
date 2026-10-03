@@ -2,6 +2,7 @@ import Link from "next/link"
 import { auth, signOut } from "@/auth"
 import { AuthBtn } from "@/components/auth-btn"
 import { brand } from "@/lib/brand"
+import { canInviteReviewer, canReview } from "@/lib/reviewer-access"
 
 // quiet pill links: green text, soft wash on hover, press scale.
 // On login/signup the link sits over the dark green panel on small screens, so it turns cream there.
@@ -14,6 +15,8 @@ const navLink =
 export async function SiteHeader() {
   const session = await auth()
   const role = session?.user.role
+  const showReview = session?.user ? await canReview(session.user) : false
+  const showInvite = session?.user ? await canInviteReviewer(session.user) : false
 
   return (
     <header className="sticky top-0 z-20 border-b border-[#12382b]/10 bg-[linear-gradient(90deg,rgba(230,240,230,.92),rgba(241,240,220,.92)_55%,rgba(248,230,207,.92))] backdrop-blur-md group-has-[.landing-home,.auth-page]:absolute group-has-[.landing-home,.auth-page]:inset-x-0 group-has-[.landing-home,.auth-page]:top-0 group-has-[.landing-home,.auth-page]:border-0 group-has-[.landing-home,.auth-page]:bg-none group-has-[.landing-home,.auth-page]:backdrop-blur-none">
@@ -52,12 +55,8 @@ export async function SiteHeader() {
             </>
           ) : null}
 
-          {role === "ADMIN" ? (
-            <>
-              <Link className={navLink} href="/admin">Review queue</Link>
-              <Link className={navLink} href="/admin/invite">Invite</Link>
-            </>
-          ) : null}
+          {showReview ? <Link className={navLink} href="/admin">Review queue</Link> : null}
+          {showInvite ? <Link className={navLink} href="/admin/invite">Invite reviewer</Link> : null}
 
           {session ? (
             <form

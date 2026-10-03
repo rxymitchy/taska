@@ -5,7 +5,7 @@ import { AiHumanComparison } from "@/components/ai-human-comparison"
 import { Container } from "@/components/ui"
 import { prisma } from "@/lib/prisma"
 import { btnPrimary, btnSecondary } from "@/lib/styles"
-import { requireRole } from "@/lib/session"
+import { requireReviewer } from "@/lib/session"
 
 export const metadata: Metadata = { title: "Review evaluation" }
 export const maxDuration = 60
@@ -17,7 +17,7 @@ export default async function ReviewEvaluationPage({
   params: Promise<{ id: string }>
   searchParams: Promise<{ pay?: string }>
 }) {
-  await requireRole(["ADMIN"])
+  await requireReviewer()
   const { id } = await params
   const { pay } = await searchParams
   const evaluation = await prisma.evaluation.findUnique({
