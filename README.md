@@ -159,35 +159,6 @@ In the long run, we want Taska to make it easy for AI builders to answer one sim
 
 ---
 
-## Demo
-
-**Password for every demo account:** `demo1234`
-
-| Account  | Role      | Language                 |
-| -------- | --------- | ------------------------ |
-| Rita     | Evaluator | Swahili / Kenya          |
-| Chinedu  | Evaluator | Yoruba / Hausa / Nigeria |
-| Ama      | Evaluator | Twi / Ghana              |
-| Company  | Company   | —                        |
-| Reviewer | Reviewer  | —                        |
-| Amina    | Evaluator | Swahili                  |
-
-The login page includes demo buttons when `DEMO_LOGIN=true`.
-
-### Try the main flow
-
-1. Log in as **Company** and open a Swahili evaluation.
-2. See that it has been assigned to **Rita**.
-3. Log in as **Rita** and review the response. Write a better answer if needed.
-4. Log in as **Reviewer** and approve or reject.
-5. Log back in as **Company** to see the validated result.
-
-Sample prompts in the demo: `Niaje, uko poa?` (Swahili), a Yoruba school-fee transfer, and a Twi mobile-money bill.
-
-Do not run `npm run db:seed:demo` against production unless you intend to reset the demo data.
-
----
-
 ## Getting started
 
 ### Prerequisites
@@ -245,13 +216,10 @@ EVALUATOR_PAYOUT_SATS=500
 REVIEWER_PAYOUT_SATS=400
 PLATFORM_FEE_BPS=200
 
-# Optional AI. Without a key, Taska uses a local demo reply.
+# Optional AI. Without a key, Taska uses a local fallback reply.
 # AI_API_KEY=
 # AI_BASE_URL=https://api.groq.com/openai/v1
 # AI_MODEL=openai/gpt-oss-20b
-
-DEMO_LOGIN=true
-DEMO_PASSWORD=demo1234
 ```
 
 Never commit `.env`. Never put the Breez key or mnemonic in Git, the frontend, or the database. Paste a Breez API key as one line — do not wrap it in `BEGIN CERTIFICATE` headers.
@@ -261,7 +229,7 @@ Never commit `.env`. Never put the Breez key or mnemonic in Git, the frontend, o
 ```bash
 npm run dev          # Start the app
 npm run db           # Start the local database
-npm run db:seed      # Seed demo accounts and data
+npm run db:seed      # Seed local development data
 npm run db:samples   # Add extra sample evaluations
 npm run build        # Production build
 npm run lint         # Run linting
@@ -289,7 +257,7 @@ Company  →  prepaid credits
 
 `LightningService` is what the payment code calls. Live Breez is used when `BREEZ_API_KEY` and `BREEZ_MNEMONIC` are set. Otherwise the mock provider writes `lnmock1` invoices and does not move bitcoin.
 
-Taska does not store wallet keys in the database. The till seed stays in server environment variables. A company's **Available** credit is a ledger, not a second wallet. Demo addresses such as `@taska.demo` are not paid when Lightning is live.
+Taska does not store wallet keys in the database. The till seed stays in server environment variables. A company's **Available** credit is a ledger, not a second wallet. Placeholder pay addresses are not paid when Lightning is live.
 
 The older task marketplace (`app/tasks`, `app/workers`) is still in the repository and is not linked from the current product.
 
@@ -370,7 +338,7 @@ If `BREEZ_API_KEY` or `BREEZ_MNEMONIC` is not set, Taska uses a mock provider. N
 
 ## Documentation
 
-- [`docs/team.md`](docs/team.md) — module ownership and the demo path
+- [`docs/team.md`](docs/team.md) — module ownership and how to run the product locally
 - [`docs/architecture.md`](docs/architecture.md) — request path and data model
 - [`docs/ai.md`](docs/ai.md) — generation, pre-check, and model notes
 - [CONTRIBUTING.md](CONTRIBUTING.md) — how to open a pull request
@@ -383,7 +351,7 @@ PRs welcome. Keep this path working: **company sends work → evaluator → revi
 
 1. Fork the repository
 2. Create a feature branch
-3. Run `npx tsc --noEmit` and the demo flow
+3. Run `npx tsc --noEmit` and walk the company → evaluator → reviewer path
 4. Open a pull request into `main`
 
 Do not add a custodial wallet, private keys, or a second payment rail in the core flow. New countries and languages belong in `lib/catalog.ts`.
