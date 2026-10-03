@@ -2,9 +2,11 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { CopyInvoiceButton } from "@/components/copy-invoice-button"
 import { ConfirmDepositButton, CreditsForm } from "@/components/credits-form"
+import { PendingCreditWatcher } from "@/components/pending-credit-watcher"
 import { PendingInvoiceActions } from "@/components/pending-invoice-actions"
 import { Container, StatusPill } from "@/components/ui"
 import { formatSats } from "@/lib/money"
+import { settlePaidDeposits } from "@/lib/credits"
 import { companyCostPerEvaluation, evaluatorPayoutSats, reviewerPayoutSats, lightningProviderName } from "@/lib/pricing"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
@@ -14,6 +16,14 @@ export const maxDuration = 60
 
 export default async function CreditsPage() {
   const user = await requireRole(["EMPLOYER"])
+  const existing = await prisma.employerProfile.findUnique({ where: { userId: user.id } })
+  if (!existing) return null
+  try {
+    await settlePaidDeposits(existing.id)
+  } catch {
+    // Still show the page if the till check is slow or down.
+  }
+
   const company = await prisma.employerProfile.findUnique({
     where: { userId: user.id },
     include: {
@@ -26,6 +36,7 @@ export default async function CreditsPage() {
   const cost = companyCostPerEvaluation()
   const rail = lightningProviderName()
   const mock = rail === "mock"
+  const pendingIds = company.creditDeposits.filter((row) => row.status === "PENDING").map((row) => row.id)
 
   return (
     <Container className="page-frame max-w-2xl!">
@@ -36,7 +47,7 @@ export default async function CreditsPage() {
         {formatSats(evaluatorPayoutSats())} to the person who checked it, {formatSats(reviewerPayoutSats())} to the
         reviewer). If the check is sent back, that hold comes back to you.
         {rail === "breez"
-          ? " Pay the invoice from any bitcoin wallet."
+          ? " Pay the invoice from a Lightning wallet. This page adds the credit when the payment arrives."
           : " Demo: you can mark a payment as paid to try the flow."}
       </p>
       </header>
@@ -51,6 +62,7 @@ export default async function CreditsPage() {
         </div>
       </dl>
       <div className="form-surface mt-6">
+        {rail === "breez" ? <PendingCreditWatcher depositIds={pendingIds} /> : null}
         <CreditsForm mock={mock} />
       </div>
       {company.creditDeposits.length > 0 ? (

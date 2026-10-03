@@ -1,7 +1,8 @@
 "use client"
 
-import { useActionState } from "react"
-import { createCreditInvoice, confirmCreditDeposit, type CreditActionState } from "@/app/actions/credits"
+import { useActionState, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { checkCreditDeposit, createCreditInvoice, confirmCreditDeposit, type CreditActionState } from "@/app/actions/credits"
 import { btnPrimary, btnSecondary, inputClass, labelClass } from "@/lib/styles"
 import { formatSats } from "@/lib/money"
 
@@ -11,7 +12,37 @@ import { CREDIT_PACKS } from "@/lib/credit-packs"
 const initial: CreditActionState = { error: "" }
 
 export function CreditsForm({ mock }: { mock: boolean }) {
+  const router = useRouter()
   const [state, action, pending] = useActionState(createCreditInvoice, initial)
+  const [paid, setPaid] = useState(false)
+  const [checkError, setCheckError] = useState("")
+
+  useEffect(() => {
+    setPaid(false)
+    setCheckError("")
+  }, [state.depositId])
+
+  useEffect(() => {
+    if (!state.depositId || mock || paid) return
+
+    let cancelled = false
+    async function tick() {
+      const result = await checkCreditDeposit(state.depositId!)
+      if (cancelled) return
+      if (result.error) setCheckError(result.error)
+      if (result.status === "PAID") {
+        setPaid(true)
+        router.refresh()
+      }
+    }
+
+    void tick()
+    const timer = window.setInterval(() => void tick(), 4000)
+    return () => {
+      cancelled = true
+      window.clearInterval(timer)
+    }
+  }, [mock, paid, router, state.depositId])
 
   return (
     <div className="space-y-4">
@@ -33,7 +64,7 @@ export function CreditsForm({ mock }: { mock: boolean }) {
       </form>
       {state.invoice ? (
         <div className="rounded-lg border border-line bg-card p-4 text-sm">
-          <p className="font-medium">Pay this invoice.</p>
+          <p className="font-medium">{paid ? "Payment received." : "Pay this invoice."}</p>
           {state.checkoutUrl ? (
             <p className="mt-2">
               <a className="text-accent underline" href={state.checkoutUrl} target="_blank" rel="noreferrer">
@@ -48,13 +79,19 @@ export function CreditsForm({ mock }: { mock: boolean }) {
           <div className="mt-3">
             <CopyInvoiceButton invoice={state.invoice} />
           </div>
-          {mock ? (
+          {paid ? (
+            <p className="mt-2 text-sm font-medium">Credits are on your account. You can send work now.</p>
+          ) : mock ? (
             <p className="mt-2 text-muted">
               Demo payment. You can mark it paid to try the flow.
             </p>
           ) : (
-            <p className="mt-2 text-muted">Pay from your wallet, then check payment.</p>
+            <p className="mt-2 text-muted">
+              Pay from your Lightning wallet. Taska looks for the payment and adds the credit. You can also tap Check
+              payment.
+            </p>
           )}
+          {checkError ? <p className="mt-2 text-sm text-bad">{checkError}</p> : null}
         </div>
       ) : null}
     </div>

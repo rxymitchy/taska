@@ -4,13 +4,20 @@ import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { CREDIT_PACKS } from "@/lib/credit-packs"
 import { lightningProviderName } from "@/lib/pricing"
-import { applyPaidDeposit } from "@/lib/credits"
+import { applyPaidDeposit, settlePaidDeposits } from "@/lib/credits"
 import { requireRole } from "@/lib/session"
 import { getLightningService } from "@/services/lightning"
 
 const PACKS = CREDIT_PACKS
 
-export type CreditActionState = { error: string; invoice?: string; checkoutUrl?: string }
+export type CreditActionState = {
+  error: string
+  invoice?: string
+  checkoutUrl?: string
+  depositId?: string
+}
+
+export type CreditCheckState = { status: "PENDING" | "PAID" | "FAILED"; error: string }
 
 /** Company prepay. Live Breez returns a real invoice; mock lets the company mark it paid. */
 
@@ -30,7 +37,7 @@ export async function createCreditInvoice(_prev: CreditActionState, formData: Fo
       amountSats,
       memo: `Taska credits ${company.companyName}`.slice(0, 100),
     })
-    await prisma.creditDeposit.create({
+    const deposit = await prisma.creditDeposit.create({
       data: {
         companyId: company.id,
         amountSats,
@@ -41,7 +48,7 @@ export async function createCreditInvoice(_prev: CreditActionState, formData: Fo
       },
     })
     revalidatePath("/employer/credits")
-    return { error: "", invoice: created.invoice, checkoutUrl: created.checkoutUrl }
+    return { error: "", invoice: created.invoice, checkoutUrl: created.checkoutUrl, depositId: deposit.id }
   } catch (error) {
     if (lightningProviderName() === "breez") {
       return {
@@ -55,33 +62,57 @@ export async function createCreditInvoice(_prev: CreditActionState, formData: Fo
   }
 }
 
-export async function confirmCreditDeposit(formData: FormData) {
+export async function checkCreditDeposit(depositId: string): Promise<CreditCheckState> {
   const user = await requireRole(["EMPLOYER"])
   const company = await prisma.employerProfile.findUnique({ where: { userId: user.id } })
-  if (!company) return
+  if (!company) return { status: "FAILED", error: "Company profile not found." }
 
-  const depositId = String(formData.get("depositId") ?? "")
   const deposit = await prisma.creditDeposit.findFirst({
     where: { id: depositId, companyId: company.id },
   })
-  if (!deposit || deposit.status === "PAID") {
-    revalidatePath("/employer/credits")
-    return
-  }
+  if (!deposit) return { status: "FAILED", error: "Invoice not found." }
+  if (deposit.status === "PAID") return { status: "PAID", error: "" }
+  if (deposit.status === "FAILED") return { status: "FAILED", error: "This invoice expired." }
 
-  if (lightningProviderName() === "mock") {
-    await applyPaidDeposit(deposit.paymentHash)
-    revalidatePath("/employer")
-    revalidatePath("/employer/credits")
-    revalidatePath("/employer/evaluations/new")
-    return
-  }
+  try {
+    if (lightningProviderName() === "mock") {
+      await applyPaidDeposit(deposit.paymentHash)
+      revalidatePath("/employer")
+      revalidatePath("/employer/credits")
+      revalidatePath("/employer/evaluations/new")
+      return { status: "PAID", error: "" }
+    }
 
-  const lightning = getLightningService()
-  const status = await lightning.getPaymentStatus(deposit.paymentHash)
-  if (status.status === "PAID") {
-    await applyPaidDeposit(deposit.paymentHash)
+    const lightning = getLightningService()
+    const status = await lightning.getPaymentStatus(deposit.paymentHash, deposit.invoice)
+    if (status.status === "PAID") {
+      await applyPaidDeposit(deposit.paymentHash)
+      revalidatePath("/employer")
+      revalidatePath("/employer/credits")
+      revalidatePath("/employer/evaluations/new")
+      return { status: "PAID", error: "" }
+    }
+    return { status: status.status, error: "" }
+  } catch (error) {
+    return {
+      status: "PENDING",
+      error: error instanceof Error ? error.message : "Could not check that payment. Try again.",
+    }
   }
+}
+
+export async function confirmCreditDeposit(formData: FormData) {
+  const depositId = String(formData.get("depositId") ?? "")
+  if (!depositId) return
+  await checkCreditDeposit(depositId)
+}
+
+export async function refreshCompanyCredits() {
+  const user = await requireRole(["EMPLOYER"])
+  const company = await prisma.employerProfile.findUnique({ where: { userId: user.id } })
+  if (!company) return
+  await settlePaidDeposits(company.id)
   revalidatePath("/employer")
   revalidatePath("/employer/credits")
+  revalidatePath("/employer/evaluations/new")
 }

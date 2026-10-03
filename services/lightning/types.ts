@@ -28,6 +28,6 @@ export type PaymentResult = {
 export interface LightningProvider {
   createInvoice(input: CreateInvoiceInput): Promise<Invoice>
   payInvoice(input: PayInvoiceInput): Promise<PaymentResult>
-  getPaymentStatus(paymentHash: string): Promise<PaymentResult>
+  getPaymentStatus(paymentHash: string, invoice?: string): Promise<PaymentResult>
   getBalance(): Promise<{ balanceSats: number }>
 }

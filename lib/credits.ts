@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
-import { companyCostPerEvaluation } from "@/lib/pricing"
+import { companyCostPerEvaluation, lightningProviderName } from "@/lib/pricing"
+import { getLightningService } from "@/services/lightning"
 
 export async function holdCompanyCredits(
   companyId: string,
@@ -98,4 +99,26 @@ export async function applyPaidDeposit(paymentHash: string) {
     }),
   ])
   return prisma.creditDeposit.findUnique({ where: { id: deposit.id } })
+}
+
+/** Look up pending invoices on the till and credit any that have already been paid. */
+export async function settlePaidDeposits(companyId: string) {
+  if (lightningProviderName() !== "breez") return 0
+
+  const pending = await prisma.creditDeposit.findMany({
+    where: { companyId, status: "PENDING" },
+    orderBy: { createdAt: "desc" },
+    take: 12,
+  })
+  if (pending.length === 0) return 0
+
+  const lightning = getLightningService()
+  let credited = 0
+  for (const deposit of pending) {
+    const status = await lightning.getPaymentStatus(deposit.paymentHash, deposit.invoice)
+    if (status.status !== "PAID") continue
+    await applyPaidDeposit(deposit.paymentHash)
+    credited += 1
+  }
+  return credited
 }
