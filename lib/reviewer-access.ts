@@ -42,9 +42,3 @@ export async function canReview(user: { id: string; email?: string | null; role:
 export async function canInviteReviewer(user: { id: string; email?: string | null; role: Role }) {
   return canReview(user)
 }
-
-export async function canClaimFirstReviewer(user: { id: string; email?: string | null; role: Role }) {
-  if (await canReview(user)) return false
-  if (await hasRealReviewer()) return false
-  return user.role === "WORKER" || user.role === "EMPLOYER"
-}

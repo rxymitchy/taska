@@ -1,11 +1,9 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
 import { newInviteToken, hashInviteToken } from "@/lib/invites"
 import { prisma } from "@/lib/prisma"
-import { canClaimFirstReviewer } from "@/lib/reviewer-access"
-import { requireCanInvite, requireReviewer, requireUser } from "@/lib/session"
+import { requireCanInvite, requireReviewer } from "@/lib/session"
 import { sendReviewerInviteEmail } from "@/lib/mail"
 import { destinationSchema } from "@/lib/validators"
 
@@ -71,18 +69,6 @@ export async function saveReviewerLightning(_prev: { error: string }, formData: 
   revalidatePath("/admin")
   revalidatePath("/admin/invite")
   return { error: "" }
-}
-
-export async function claimFirstReviewer() {
-  const user = await requireUser()
-  if (!(await canClaimFirstReviewer(user))) redirect("/")
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { role: "ADMIN" },
-  })
-  revalidatePath("/admin")
-  revalidatePath("/admin/invite")
-  redirect("/admin")
 }
 
 export async function promoteEvaluatorToReviewer(formData: FormData) {
