@@ -29,8 +29,8 @@ export class LightningService {
     return { ...paid, invoice }
   }
 
-  getPaymentStatus(paymentHash: string, invoice?: string) {
-    return this.provider.getPaymentStatus(paymentHash, invoice)
+  getPaymentStatus(paymentHash: string, invoice?: string, amountSats?: number) {
+    return this.provider.getPaymentStatus(paymentHash, invoice, amountSats)
   }
 
   getBalance() {

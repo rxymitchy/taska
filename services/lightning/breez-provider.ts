@@ -47,10 +47,36 @@ function invoiceOf(payment: BreezPayment | undefined) {
   return ""
 }
 
+function amountOf(payment: BreezPayment | undefined) {
+  if (!payment) return 0
+  const raw = payment as { amount?: unknown; amountSats?: unknown }
+  const value = Number(raw.amountSats ?? raw.amount ?? 0)
+  return Number.isFinite(value) ? value : 0
+}
+
 function sameInvoice(left: string, right: string) {
   const a = left.trim().toLowerCase()
   const b = right.trim().toLowerCase()
-  return Boolean(a && b && (a === b || a.includes(b) || b.includes(a)))
+  return Boolean(a && b && a === b)
+}
+
+function paymentMatches(
+  payment: BreezPayment | undefined,
+  paymentHash: string,
+  invoice?: string,
+  amountSats?: number,
+) {
+  if (!payment) return false
+  const hashHit =
+    Boolean(paymentHash) &&
+    (paymentHashOf(payment) === paymentHash || paymentId(payment) === paymentHash)
+  const invoiceHit = Boolean(invoice) && sameInvoice(invoiceOf(payment), invoice || "")
+  if (!hashHit && !invoiceHit) return false
+  if (amountSats && amountSats > 0) {
+    const paid = amountOf(payment)
+    if (paid > 0 && paid !== amountSats) return false
+  }
+  return true
 }
 
 function fromPayment(payment: BreezPayment | undefined, fallbackHash: string): PaymentResult {
@@ -58,6 +84,7 @@ function fromPayment(payment: BreezPayment | undefined, fallbackHash: string): P
     paymentHash: paymentHashOf(payment) || paymentId(payment) || fallbackHash,
     status: asPaid(payment?.status),
     feeSats: payment ? Number(payment.fees) : undefined,
+    amountSats: amountOf(payment) || undefined,
   }
 }
 
@@ -129,24 +156,17 @@ async function paymentHashFromInvoice(sdk: BreezSdk, invoice: string) {
   return createHash("sha256").update(invoice).digest("hex")
 }
 
-async function findPayment(sdk: BreezSdk, paymentHash: string, invoice?: string) {
+async function findPayment(sdk: BreezSdk, paymentHash: string, invoice?: string, amountSats?: number) {
   await sdk.syncWallet({})
   try {
     const found = await sdk.getPayment({ paymentId: paymentHash })
-    if (found.payment) return found.payment
+    if (paymentMatches(found.payment, paymentHash, invoice, amountSats)) return found.payment
   } catch {
     // Not a Breez payment id — search recent payments by hash or invoice.
   }
 
   const listed = await sdk.listPayments({ offset: 0, limit: 200 })
-  return (
-    listed.payments.find((payment) => {
-      if (payment.id === paymentHash) return true
-      if (paymentHash && paymentHashOf(payment) === paymentHash) return true
-      if (invoice && sameInvoice(invoiceOf(payment), invoice)) return true
-      return false
-    }) ?? undefined
-  )
+  return listed.payments.find((payment) => paymentMatches(payment, paymentHash, invoice, amountSats))
 }
 
 export class BreezLightningProvider implements LightningProvider {
@@ -192,9 +212,9 @@ export class BreezLightningProvider implements LightningProvider {
     return fromPayment(sent.payment, paymentHashOf(sent.payment) || sent.payment.id)
   }
 
-  async getPaymentStatus(paymentHash: string, invoice?: string): Promise<PaymentResult> {
+  async getPaymentStatus(paymentHash: string, invoice?: string, amountSats?: number): Promise<PaymentResult> {
     const sdk = await getSdk()
-    const payment = await findPayment(sdk, paymentHash, invoice)
+    const payment = await findPayment(sdk, paymentHash, invoice, amountSats)
     if (!payment) return { paymentHash, status: "PENDING" }
     return fromPayment(payment, paymentHash)
   }

@@ -22,12 +22,13 @@ export type PaymentResult = {
   paymentHash: string
   status: LightningPaymentState
   feeSats?: number
+  amountSats?: number
 }
 
 /** Swap mock for Breez in `getLightningService()`. Do not import this from the browser. */
 export interface LightningProvider {
   createInvoice(input: CreateInvoiceInput): Promise<Invoice>
   payInvoice(input: PayInvoiceInput): Promise<PaymentResult>
-  getPaymentStatus(paymentHash: string, invoice?: string): Promise<PaymentResult>
+  getPaymentStatus(paymentHash: string, invoice?: string, amountSats?: number): Promise<PaymentResult>
   getBalance(): Promise<{ balanceSats: number }>
 }

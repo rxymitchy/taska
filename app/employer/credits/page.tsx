@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { CopyInvoiceButton } from "@/components/copy-invoice-button"
+import { DownloadReceiptButton } from "@/components/download-receipt-button"
 import { ConfirmDepositButton, CreditsForm } from "@/components/credits-form"
 import { PendingCreditWatcher } from "@/components/pending-credit-watcher"
 import { PendingInvoiceActions } from "@/components/pending-invoice-actions"
@@ -81,7 +82,10 @@ export default async function CreditsPage() {
                     confirm={<ConfirmDepositButton depositId={deposit.id} mock={mock} />}
                   />
                 ) : (
-                  <CopyInvoiceButton invoice={deposit.invoice} />
+                  <span className="flex flex-wrap items-center justify-end gap-2">
+                    {deposit.status === "PAID" ? <DownloadReceiptButton depositId={deposit.id} /> : null}
+                    <CopyInvoiceButton invoice={deposit.invoice} />
+                  </span>
                 )}
               </li>
             ))}

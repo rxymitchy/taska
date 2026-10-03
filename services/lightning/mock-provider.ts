@@ -38,7 +38,7 @@ export class MockLightningProvider implements LightningProvider {
     return result
   }
 
-  async getPaymentStatus(paymentHash: string, _invoice?: string): Promise<PaymentResult> {
+  async getPaymentStatus(paymentHash: string, _invoice?: string, _amountSats?: number): Promise<PaymentResult> {
     return this.payments.get(paymentHash) ?? { paymentHash, status: "PENDING" }
   }
 

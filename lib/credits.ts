@@ -75,34 +75,91 @@ export async function spendEvaluationHold(evaluationId: string) {
 }
 
 export async function applyPaidDeposit(paymentHash: string) {
-  const deposit = await prisma.creditDeposit.findUnique({ where: { paymentHash } })
-  if (!deposit || deposit.status === "PAID") return deposit
-  if (deposit.status === "FAILED") return deposit
+  return prisma.$transaction(async (tx) => {
+    const deposit = await tx.creditDeposit.findUnique({ where: { paymentHash } })
+    if (!deposit || deposit.status === "FAILED") return deposit
 
-  await prisma.$transaction([
-    prisma.creditDeposit.update({
-      where: { id: deposit.id },
-      data: { status: "PAID", paidAt: new Date() },
-    }),
-    prisma.employerProfile.update({
+    if (deposit.status === "PENDING") {
+      const claimed = await tx.creditDeposit.updateMany({
+        where: { id: deposit.id, status: "PENDING" },
+        data: { status: "PAID", paidAt: new Date() },
+      })
+      if (claimed.count !== 1) {
+        return tx.creditDeposit.findUnique({ where: { id: deposit.id } })
+      }
+    }
+
+    const already = await tx.creditLedger.findFirst({
+      where: { depositId: deposit.id, kind: "DEPOSIT" },
+    })
+    if (already) {
+      return tx.creditDeposit.findUnique({ where: { id: deposit.id } })
+    }
+
+    try {
+      await tx.creditLedger.create({
+        data: {
+          companyId: deposit.companyId,
+          kind: "DEPOSIT",
+          amountSats: deposit.amountSats,
+          depositId: deposit.id,
+          note: "Lightning deposit",
+        },
+      })
+    } catch {
+      return tx.creditDeposit.findUnique({ where: { id: deposit.id } })
+    }
+
+    await tx.employerProfile.update({
       where: { id: deposit.companyId },
       data: { prepaidSats: { increment: deposit.amountSats } },
-    }),
-    prisma.creditLedger.create({
-      data: {
-        companyId: deposit.companyId,
-        kind: "DEPOSIT",
-        amountSats: deposit.amountSats,
-        depositId: deposit.id,
-        note: "Lightning deposit",
-      },
-    }),
-  ])
-  return prisma.creditDeposit.findUnique({ where: { id: deposit.id } })
+    })
+    return tx.creditDeposit.findUnique({ where: { id: deposit.id } })
+  })
+}
+
+/** Take back extra DEPOSIT rows if the same invoice was credited more than once. */
+export async function repairDuplicateDepositCredits(companyId: string) {
+  const rows = await prisma.creditLedger.findMany({
+    where: { companyId, kind: "DEPOSIT", depositId: { not: null } },
+    orderBy: { createdAt: "asc" },
+  })
+
+  const extras = new Map<string, typeof rows>()
+  for (const row of rows) {
+    if (!row.depositId) continue
+    const group = extras.get(row.depositId) ?? []
+    group.push(row)
+    extras.set(row.depositId, group)
+  }
+
+  let reversed = 0
+  for (const group of extras.values()) {
+    for (const extra of group.slice(1)) {
+      const took = await prisma.$transaction(async (tx) => {
+        const gone = await tx.creditLedger.deleteMany({
+          where: { id: extra.id, kind: "DEPOSIT" },
+        })
+        if (gone.count !== 1) return 0
+        const company = await tx.employerProfile.findUnique({ where: { id: extra.companyId } })
+        const take = Math.min(company?.prepaidSats ?? 0, extra.amountSats)
+        if (take > 0) {
+          await tx.employerProfile.update({
+            where: { id: extra.companyId },
+            data: { prepaidSats: { decrement: take } },
+          })
+        }
+        return 1
+      })
+      reversed += took
+    }
+  }
+  return reversed
 }
 
 /** Look up pending invoices on the till and credit any that have already been paid. */
 export async function settlePaidDeposits(companyId: string) {
+  await repairDuplicateDepositCredits(companyId)
   if (lightningProviderName() !== "breez") return 0
 
   const pending = await prisma.creditDeposit.findMany({
@@ -113,10 +170,19 @@ export async function settlePaidDeposits(companyId: string) {
   if (pending.length === 0) return 0
 
   const lightning = getLightningService()
+  const usedPayments = new Set<string>()
   let credited = 0
   for (const deposit of pending) {
-    const status = await lightning.getPaymentStatus(deposit.paymentHash, deposit.invoice)
+    const status = await lightning.getPaymentStatus(
+      deposit.paymentHash,
+      deposit.invoice,
+      deposit.amountSats,
+    )
     if (status.status !== "PAID") continue
+    if (status.amountSats && status.amountSats !== deposit.amountSats) continue
+    const paymentKey = status.paymentHash || deposit.paymentHash
+    if (usedPayments.has(paymentKey)) continue
+    usedPayments.add(paymentKey)
     await applyPaidDeposit(deposit.paymentHash)
     credited += 1
   }

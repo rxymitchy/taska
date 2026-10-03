@@ -7,6 +7,7 @@ import { btnPrimary, btnSecondary, inputClass, labelClass } from "@/lib/styles"
 import { formatSats } from "@/lib/money"
 
 import { CopyInvoiceButton } from "@/components/copy-invoice-button"
+import { DownloadReceiptButton } from "@/components/download-receipt-button"
 import { InvoiceQr } from "@/components/invoice-qr"
 import { CREDIT_PACKS } from "@/lib/credit-packs"
 const initial: CreditActionState = { error: "" }
@@ -80,7 +81,10 @@ export function CreditsForm({ mock }: { mock: boolean }) {
             <CopyInvoiceButton invoice={state.invoice} />
           </div>
           {paid ? (
-            <p className="mt-2 text-sm font-medium">Credits are on your account. You can send work now.</p>
+            <div className="mt-3 space-y-2">
+              <p className="text-sm font-medium">Credits are on your account. You can send work now.</p>
+              {state.depositId ? <DownloadReceiptButton depositId={state.depositId} /> : null}
+            </div>
           ) : mock ? (
             <p className="mt-2 text-muted">
               Demo payment. You can mark it paid to try the flow.

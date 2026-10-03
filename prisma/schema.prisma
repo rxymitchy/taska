@@ -269,7 +269,7 @@ model CreditLedger {
   amountSats   Int
   evaluationId String?
   evaluation   Evaluation?     @relation(fields: [evaluationId], references: [id])
-  depositId    String?
+  depositId    String?         @unique
   deposit      CreditDeposit?  @relation(fields: [depositId], references: [id])
   note         String          @default("")
   createdAt    DateTime        @default(now())
@@ -288,7 +288,7 @@ model CreditDeposit {
   status      LightningStatus  @default(PENDING)
   createdAt   DateTime         @default(now())
   paidAt      DateTime?
-  ledger      CreditLedger[]
+  ledger      CreditLedger?
 
   @@index([companyId, createdAt])
 }

@@ -84,8 +84,15 @@ export async function checkCreditDeposit(depositId: string): Promise<CreditCheck
     }
 
     const lightning = getLightningService()
-    const status = await lightning.getPaymentStatus(deposit.paymentHash, deposit.invoice)
+    const status = await lightning.getPaymentStatus(
+      deposit.paymentHash,
+      deposit.invoice,
+      deposit.amountSats,
+    )
     if (status.status === "PAID") {
+      if (status.amountSats && status.amountSats !== deposit.amountSats) {
+        return { status: "PENDING", error: "" }
+      }
       await applyPaidDeposit(deposit.paymentHash)
       revalidatePath("/employer")
       revalidatePath("/employer/credits")
