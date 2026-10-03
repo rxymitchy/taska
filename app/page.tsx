@@ -143,7 +143,7 @@ export default function HomePage() {
           <h2 className="mx-auto max-w-[14em] text-[clamp(24px,3.2vw,34px)] leading-none tracking-[-0.035em]">Bring local knowledge into the conversation.</h2>
           <div className="mt-[18px] flex flex-wrap justify-center gap-3">
             <Link className={btnPrimary} href="/signup">
-              Join as a speaker
+              Join as an evaluator
             </Link>
             <Link className={btnGlass} href="/signup?as=company">
               For companies
