@@ -85,6 +85,27 @@ export async function sendSignupConfirmation(input: {
   await sendMail({ to: input.to, subject, text })
 }
 
+export async function sendReviewerInviteEmail(input: { to: string; inviteUrl: string }) {
+  const text = [
+    "Hi,",
+    "",
+    "You've been invited to review work on Taska. You double-check answers — and get paid.",
+    "",
+    "Accept the invite here:",
+    input.inviteUrl,
+    "",
+    `This link is for ${input.to} and expires in 14 days.`,
+    "",
+    brand.footer,
+  ].join("\n")
+
+  return sendMail({
+    to: input.to,
+    subject: "You're invited to review on Taska",
+    text,
+  })
+}
+
 export async function sendPasswordResetEmail(input: {
   to: string
   name: string

@@ -4,9 +4,10 @@ import { revalidatePath } from "next/cache"
 import { newInviteToken, hashInviteToken } from "@/lib/invites"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
+import { sendReviewerInviteEmail } from "@/lib/mail"
 import { destinationSchema } from "@/lib/validators"
 
-export type InviteState = { error: string; inviteUrl?: string }
+export type InviteState = { error: string; inviteUrl?: string; emailed?: boolean }
 
 export async function inviteReviewer(_prev: InviteState, formData: FormData): Promise<InviteState> {
   const user = await requireRole(["ADMIN"])
@@ -39,8 +40,14 @@ export async function inviteReviewer(_prev: InviteState, formData: FormData): Pr
   })
 
   const origin = (process.env.AUTH_URL || "http://localhost:3000").replace(/\/$/, "")
+  const inviteUrl = `${origin}/signup?invite=${token}`
+  const emailed = await sendReviewerInviteEmail({ to: email, inviteUrl })
   revalidatePath("/admin/invite")
-  return { error: "", inviteUrl: `${origin}/signup?invite=${token}` }
+  return {
+    error: "",
+    inviteUrl,
+    emailed,
+  }
 }
 
 export async function saveReviewerLightning(_prev: { error: string }, formData: FormData) {

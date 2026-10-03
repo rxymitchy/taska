@@ -17,7 +17,8 @@ export function InviteForm() {
       {state.error ? <p className="text-sm text-bad">{state.error}</p> : null}
       {state.inviteUrl ? (
         <p className="break-all rounded-md border border-line bg-card px-3 py-2 text-sm">
-          Invite link (copy it now): {state.inviteUrl}
+          {state.emailed ? "Invite emailed. Link: " : "Invite created. Email did not send — copy this link: "}
+          {state.inviteUrl}
         </p>
       ) : null}
       <button className={btnPrimary} disabled={pending}>
