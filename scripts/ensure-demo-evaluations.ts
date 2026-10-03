@@ -6,8 +6,10 @@ import { PrismaClient } from "@prisma/client"
 import { hash } from "bcryptjs"
 import { demoEvaluations, speakerEmail } from "../lib/demo-evaluations"
 import { companyCostPerEvaluation } from "../lib/pricing"
+import { refuseDemoSeed } from "../lib/demo-accounts"
 
 const prisma = new PrismaClient()
+refuseDemoSeed()
 
 const speakers = [
   {

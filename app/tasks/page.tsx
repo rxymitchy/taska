@@ -40,7 +40,7 @@ export default async function TasksPage({
       <header className="page-intro">
         <h1 className="text-3xl tracking-tight">Tasks</h1>
         <p className="mt-2 max-w-2xl text-muted">
-          Small, clearly defined pieces of digital work. AI response evaluation can be completed and paid in this demo.
+          Small, clearly defined pieces of digital work. AI response evaluation can be completed and paid here.
         </p>
       </header>
       <form className="content-surface mt-6 grid gap-3 sm:grid-cols-4" method="get">

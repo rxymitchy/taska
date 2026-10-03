@@ -14,6 +14,7 @@ import { evaluationBank } from "../lib/evaluation-bank"
 import { demoEvaluations, speakerEmail } from "../lib/demo-evaluations"
 import { companyCostPerEvaluation } from "../lib/pricing"
 import { refreshWorkerStats } from "../services/stats"
+import { refuseDemoSeed } from "../lib/demo-accounts"
 
 try {
   for (const line of readFileSync(".env", "utf8").split(/\r?\n/)) {
@@ -21,7 +22,7 @@ try {
     if (match && process.env[match[1]] == null) process.env[match[1]] = match[2]
   }
 } catch {
-  // Production seed uses env vars from `vercel env run`. A local .env is optional.
+  // Local .env is optional. Demo seed is blocked on the live database.
 }
 
 const prisma = new PrismaClient()
@@ -192,6 +193,7 @@ async function recordOutcome(input: {
 }
 
 async function main() {
+  refuseDemoSeed()
   await prisma.creditLedger.deleteMany()
   await prisma.creditDeposit.deleteMany()
   await prisma.reviewerInvite.deleteMany()

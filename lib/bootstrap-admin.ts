@@ -1,4 +1,5 @@
 import { hash } from "bcryptjs"
+import { retireDemoAccounts } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 
 const BOOTSTRAP_EMAIL = "lolitia15@gmail.com"
@@ -16,6 +17,7 @@ let ensured = false
 /** Makes sure the first admin account exists so /admin is reachable. */
 export async function ensureBootstrapAdmin() {
   if (ensured) return
+  await retireDemoAccounts()
   const email = bootstrapAdminEmail()
   const password = bootstrapAdminPassword()
   if (!email || password.length < 8) return

@@ -74,7 +74,7 @@ export default async function TaskDetailPage({
       <div className="mt-8">
         {!interactive ? (
           <p className="text-sm text-muted">
-            This category is listed so you can see the kind of work Taska is for. The task you can complete in the demo is AI Response Evaluation.
+            This category is listed so you can see the kind of work Taska is for. AI Response Evaluation can be completed here.
           </p>
         ) : !session ? (
           <Link className={btnPrimary} href={`/login?callbackUrl=/tasks/${task.id}`}>

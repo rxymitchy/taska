@@ -12,6 +12,7 @@ import { findOpenInvite, hashInviteToken } from "@/lib/invites"
 import { findOpenReset, hashResetToken, newResetToken } from "@/lib/password-reset"
 import { sendPasswordResetEmail, sendSignupConfirmation } from "@/lib/mail"
 import { ensureBootstrapAdmin } from "@/lib/bootstrap-admin"
+import { isDemoAccountEmail, isDemoLoginBlocked } from "@/lib/demo-accounts"
 
 export type AuthState = { error: string; sent?: boolean }
 
@@ -38,6 +39,7 @@ export async function login(_prev: AuthState, formData: FormData): Promise<AuthS
     .trim()
     .toLowerCase()
   const password = String(formData.get("password") ?? "")
+  if (isDemoLoginBlocked(email)) return { error: "Email or password is incorrect." }
   const user = await prisma.user.findUnique({ where: { email } })
   const redirectTo = safeCallback(formData.get("callbackUrl")) ?? (user ? homeForRole(user.role) : "/dashboard")
   const result = await signInWithPassword(email, password, redirectTo)
@@ -62,35 +64,6 @@ export async function loginAdmin(_prev: AuthState, formData: FormData): Promise<
   return result ?? { error: "" }
 }
 
-export async function loginDemo(_prev: AuthState, formData: FormData): Promise<AuthState> {
-  if (process.env.DEMO_LOGIN !== "true") {
-    return { error: "Demo login is turned off." }
-  }
-  const role = String(formData.get("role") ?? "worker")
-  const speakers: Record<string, string> = {
-    rita: "rita@taska.demo",
-    chinedu: "chinedu@taska.demo",
-    ama: "ama@taska.demo",
-  }
-  let email = "worker@taska.demo"
-  if (role === "employer") email = "employer@taska.demo"
-  else if (role === "admin") email = "admin@taska.demo"
-  else if (speakers[role]) {
-    email = speakers[role]
-    const found = await prisma.user.findUnique({ where: { email } })
-    if (found?.role !== "WORKER") {
-      return { error: "That speaker is not in this database. Seed demo accounts first." }
-    }
-  } else {
-    const rita = await prisma.user.findUnique({ where: { email: "rita@taska.demo" } })
-    email = rita?.role === "WORKER" ? "rita@taska.demo" : "worker@taska.demo"
-  }
-  const password = process.env.DEMO_PASSWORD || "demo1234"
-  const redirectTo = role === "employer" ? "/employer" : role === "admin" ? "/admin" : "/dashboard"
-  const result = await signInWithPassword(email, password, redirectTo)
-  return result ?? { error: "" }
-}
-
 export async function signup(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const inviteToken = String(formData.get("invite") ?? "")
   if (inviteToken) return signupReviewer(formData)
@@ -107,6 +80,7 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
     return { error: "Check your name, email, and password (8 or more characters)." }
   }
   const email = parsed.data.email.toLowerCase()
+  if (isDemoAccountEmail(email)) return { error: "Use a real email address." }
   const limit = rateLimit(`signup:${email}`, 5, 60 * 60 * 1000)
   if (!limit.ok) return { error: "Too many attempts. Try again later." }
 
@@ -173,6 +147,7 @@ async function signupReviewer(formData: FormData): Promise<AuthState> {
   if (!invite) return { error: "This invite is invalid or has expired." }
 
   const email = parsed.data.email.toLowerCase()
+  if (isDemoAccountEmail(email)) return { error: "Use a real email address." }
   if (email !== invite.email) return { error: "Use the email this invite was sent to." }
 
   const limit = rateLimit(`signup:${email}`, 5, 60 * 60 * 1000)

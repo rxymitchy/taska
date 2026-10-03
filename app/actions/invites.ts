@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { newInviteToken, hashInviteToken } from "@/lib/invites"
 import { prisma } from "@/lib/prisma"
+import { isDemoAccountEmail } from "@/lib/demo-accounts"
 import { requireCanInvite, requireReviewer } from "@/lib/session"
 import { sendReviewerInviteEmail } from "@/lib/mail"
 import { destinationSchema } from "@/lib/validators"
@@ -20,6 +21,7 @@ export async function inviteReviewer(_prev: InviteState, formData: FormData): Pr
 
   const existing = await prisma.user.findUnique({ where: { email } })
   if (existing?.role === "ADMIN") return { error: "That person is already a reviewer." }
+  if (isDemoAccountEmail(email)) return { error: "That is a seed account. Invite a real person." }
   if (existing?.role === "WORKER") {
     await prisma.user.update({ where: { id: existing.id }, data: { role: "ADMIN" } })
     revalidatePath("/admin")
@@ -77,7 +79,7 @@ export async function promoteEvaluatorToReviewer(formData: FormData) {
   const evaluator = await prisma.user.findFirst({
     where: { id: userId, role: "WORKER" },
   })
-  if (!evaluator) return
+  if (!evaluator || isDemoAccountEmail(evaluator.email)) return
   await prisma.user.update({
     where: { id: evaluator.id },
     data: { role: "ADMIN" },

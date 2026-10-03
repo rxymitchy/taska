@@ -1,9 +1,8 @@
 import type { Role } from "@prisma/client"
+import { isDemoAccountEmail, isLiveSite } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 
-export function isDemoAccountEmail(email: string) {
-  return /@(taska\.demo|demo\.taska)$/i.test(email.trim())
-}
+export { isDemoAccountEmail }
 
 export function foundingReviewerEmails() {
   return (process.env.FOUNDING_REVIEWER_EMAILS || "")
@@ -35,6 +34,7 @@ export async function freshReviewRole(userId: string) {
 
 export async function canReview(user: { id: string; email?: string | null; role: Role }) {
   const fresh = (await freshReviewRole(user.id)) ?? user
+  if (fresh.email && isDemoAccountEmail(fresh.email) && isLiveSite()) return false
   if (fresh.role === "ADMIN") return true
   return isFoundingReviewer(fresh.email)
 }

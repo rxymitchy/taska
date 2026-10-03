@@ -1,16 +1,16 @@
 /**
- * Demo accounts only. Used on production after migrations.
- * Do not run against production unless you intend to wipe accounts.
- * Password DEMO_PASSWORD or demo1234.
+ * Local demo accounts only. Refuses to run against the live database.
  */
 import { PrismaClient } from "@prisma/client"
 import { hash } from "bcryptjs"
 import { demoEvaluations, speakerEmail } from "../lib/demo-evaluations"
 import { companyCostPerEvaluation } from "../lib/pricing"
+import { refuseDemoSeed } from "../lib/demo-accounts"
 
 const prisma = new PrismaClient()
 
 async function main() {
+  refuseDemoSeed()
   const hold = companyCostPerEvaluation()
   const held = hold * demoEvaluations.length
   const password = process.env.DEMO_PASSWORD || "demo1234"

@@ -13,7 +13,11 @@ export default async function InvitePage() {
   const [me, evaluators] = await Promise.all([
     prisma.user.findUnique({ where: { id: user.id }, select: { lightningAddress: true } }),
     prisma.user.findMany({
-      where: { role: "WORKER", workerProfile: { isNot: null } },
+      where: {
+        role: "WORKER",
+        workerProfile: { isNot: null },
+        NOT: [{ email: { endsWith: "@taska.demo" } }, { email: { endsWith: "@demo.taska" } }],
+      },
       orderBy: { createdAt: "desc" },
       take: 40,
       select: {

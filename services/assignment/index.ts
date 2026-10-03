@@ -1,15 +1,11 @@
 import { countries } from "@/lib/catalog"
-import { usesLiveLightning } from "@/lib/payout-destination"
+import { isDemoAccountEmail, retireDemoAccounts } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 
 const OPEN_STATUSES = ["ASSIGNED", "WORKER_COMPLETED", "UNDER_REVIEW"] as const
 
 export function isDemoEvaluatorEmail(email: string) {
-  return /@(taska\.demo|demo\.taska)$/i.test(email.trim())
-}
-
-function allowDemoEvaluators() {
-  return !usesLiveLightning() && !process.env.VERCEL
+  return isDemoAccountEmail(email)
 }
 
 export function countryFromContext(context: string) {
@@ -59,8 +55,7 @@ export async function pickEvaluator(evaluation: { language: string; context: str
     },
   })
 
-  const real = speakers.filter((speaker) => !isDemoEvaluatorEmail(speaker.user.email))
-  const pool = allowDemoEvaluators() && real.length === 0 ? speakers : real
+  const pool = speakers.filter((speaker) => !isDemoEvaluatorEmail(speaker.user.email))
   if (pool.length === 0) return null
 
   const ranked = pool
@@ -118,6 +113,7 @@ export async function assignEvaluation(evaluationId: string) {
 }
 
 export async function assignOpenCompanyEvaluations(companyId: string) {
+  await retireDemoAccounts()
   const open = await prisma.evaluation.findMany({
     where: { companyId, status: { in: ["PENDING", "ASSIGNED"] } },
     orderBy: { createdAt: "desc" },
