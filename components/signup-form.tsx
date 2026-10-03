@@ -1,12 +1,13 @@
 "use client"
 
-import { useActionState, useState, type ReactNode } from "react"
+import { startTransition, useActionState, useState, type FormEvent, type ReactNode } from "react"
 import { signup, type AuthState } from "@/app/actions/auth"
+import { AuthBtn } from "@/components/auth-btn"
 import { countries } from "@/lib/catalog"
 
 const initial: AuthState = { error: "" }
 
-const D = "font-[family-name:var(--landing-display)]"
+const D = "font-(family-name:--landing-display)"
 const labelCls = "block text-[13px] font-semibold text-[#12382b]"
 const hintCls = "block text-[12px] text-[#3d5a49]"
 const inputCls =
@@ -24,6 +25,8 @@ const icon = {
   strokeLinejoin: "round" as const,
   "aria-hidden": true,
 }
+
+type Role = "WORKER" | "EMPLOYER"
 
 function Field({ id, label, hint, children }: { id: string; label: string; hint?: string; children: ReactNode }) {
   return (
@@ -45,7 +48,7 @@ function RoleOption({
   onChange,
   children,
 }: {
-  value: "WORKER" | "EMPLOYER"
+  value: Role
   label: string
   tone: "evaluator" | "company"
   checked: boolean
@@ -100,12 +103,20 @@ export function SignupForm({
   asCompany?: boolean
 }) {
   const [state, action, pending] = useActionState(signup, initial)
-  const [role, setRole] = useState<"WORKER" | "EMPLOYER">(asCompany ? "EMPLOYER" : "WORKER")
+  const [role, setRole] = useState<Role>(asCompany ? "EMPLOYER" : "WORKER")
   const [show, setShow] = useState(false)
   const invited = Boolean(inviteToken)
 
+  // Submitting through startTransition (instead of action={action}) stops React 19
+  // from clearing everything the person typed when the server returns an error.
+  function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const data = new FormData(e.currentTarget)
+    startTransition(() => action(data))
+  }
+
   return (
-    <form action={action} className="space-y-5">
+    <form onSubmit={onSubmit} className="space-y-5">
       {invited ? (
         <>
           <input type="hidden" name="invite" value={inviteToken} />
@@ -196,7 +207,7 @@ export function SignupForm({
             onClick={() => setShow((s) => !s)}
             aria-pressed={show}
             aria-label={show ? "Hide password" : "Show password"}
-            className="absolute right-2 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-[#3d5a49] transition hover:bg-[#12382b]/[0.08] hover:text-[#12382b] active:scale-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2f6b53]"
+            className="absolute right-2 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-[#3d5a49] transition hover:bg-[#12382b]/8 hover:text-[#12382b] active:scale-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2f6b53]"
           >
             {show ? (
               <svg {...icon} className="size-5">
@@ -218,38 +229,9 @@ export function SignupForm({
         </p>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="group relative inline-flex w-full items-center justify-center overflow-hidden rounded-full border border-[#c8732a]/40 bg-[linear-gradient(135deg,#f6c9a0,#f0ac6e_45%,#e0883a)] px-7 py-3.5 text-[15px] font-semibold text-[#12382b] shadow-[0_14px_30px_-14px_rgba(224,136,58,.95)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_40px_-14px_rgba(224,136,58,1)] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2f6b53]"
-      >
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 -translate-x-full bg-[linear-gradient(110deg,transparent,rgba(255,238,214,.6),transparent)] transition-transform duration-700 group-hover:translate-x-full motion-reduce:hidden"
-        />
-        <span className="relative z-10 inline-flex items-center">
-          {pending ? (
-            <>
-              <svg viewBox="0 0 24 24" className="mr-2.5 size-4 animate-spin motion-reduce:animate-none" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true">
-                <path d="M12 3a9 9 0 1 0 9 9" />
-              </svg>
-              Signing you up…
-            </>
-          ) : (
-            <>
-              Sign me up
-              <span
-                aria-hidden="true"
-                className="grid h-6 w-0 place-items-center overflow-hidden rounded-full bg-[#12382b] text-[#f6c9a0] opacity-0 transition-all duration-300 ease-out group-hover:ml-3 group-hover:w-6 group-hover:opacity-100 group-focus-visible:ml-3 group-focus-visible:w-6 group-focus-visible:opacity-100"
-              >
-                <svg viewBox="0 0 16 16" className="size-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 8h10M9 4l4 4-4 4" />
-                </svg>
-              </span>
-            </>
-          )}
-        </span>
-      </button>
+      <AuthBtn type="submit" variant="primary" block pending={pending} pendingLabel="Signing you up…">
+        Sign me up
+      </AuthBtn>
     </form>
   )
 }
