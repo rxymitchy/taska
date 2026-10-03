@@ -102,21 +102,92 @@ function ScrollBar() {
   )
 }
 
-type Variant = "primary" | "outline"
+type Variant = "primary" | "secondary"
 
+/*
+  Button colour code
+  primary    soft orange  = for speakers (Sign me up, Join as a speaker)
+  secondary  deep green   = for companies
+*/
 const btnBase =
-  "landing-btn relative inline-flex items-center justify-center overflow-hidden rounded-full px-7 py-3.5 text-[15px] font-semibold transition duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2f6b53]"
+  "group relative inline-flex items-center justify-center overflow-hidden rounded-full px-7 py-3.5 text-[15px] font-semibold transition-[box-shadow,background-color,transform] duration-300 ease-out active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2f6b53]"
 
-const btnVariants: Record<Variant, string> = {
-  primary:
-    "bg-[linear-gradient(135deg,#f0ac6e,#e8964f)] text-[#12382b] shadow-[0_12px_28px_-14px_rgba(232,150,79,.9)] hover:shadow-[0_18px_34px_-14px_rgba(232,150,79,1)]",
-  outline: "border border-[#12382b]/25 bg-white/60 text-[#12382b] hover:border-[#12382b] hover:bg-white",
+const btnVariants: Record<Variant, { surface: string; chip: string; glow: string }> = {
+  primary: {
+    surface:
+      "bg-[linear-gradient(135deg,#f6c9a0,#f0ac6e_45%,#e8964f)] text-[#12382b] shadow-[0_14px_30px_-14px_rgba(232,150,79,.95)] hover:shadow-[0_22px_40px_-14px_rgba(232,150,79,1)]",
+    chip: "bg-[#12382b] text-[#f6c9a0]",
+    glow: "rgba(255,255,255,.55)",
+  },
+  secondary: {
+    surface:
+      "bg-[linear-gradient(135deg,#1c4a3a,#12382b)] text-white shadow-[0_14px_30px_-14px_rgba(18,56,43,.9)] hover:bg-[#1c4a3a] hover:shadow-[0_22px_40px_-14px_rgba(18,56,43,1)]",
+    chip: "bg-[#f0ac6e] text-[#12382b]",
+    glow: "rgba(143,184,163,.45)",
+  },
 }
 
 function Btn({ href, variant, children }: { href: string; variant: Variant; children: ReactNode }) {
+  const ref = useRef<HTMLAnchorElement>(null)
+  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([])
+  const v = btnVariants[variant]
+
+  const reduced = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+
   return (
-    <Link href={href} className={`${btnBase} ${btnVariants[variant]}`}>
-      <span className="relative z-10">{children}</span>
+    <Link
+      ref={ref}
+      href={href}
+      className={`${btnBase} ${v.surface}`}
+      style={{ transition: "transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .3s, background-color .3s" }}
+      onPointerMove={(e) => {
+        const el = ref.current
+        if (!el || e.pointerType !== "mouse" || reduced()) return
+        const r = el.getBoundingClientRect()
+        const x = e.clientX - r.left
+        const y = e.clientY - r.top
+        el.style.setProperty("--bx", `${x}px`)
+        el.style.setProperty("--by", `${y}px`)
+        // the button leans a little toward the cursor
+        el.style.transform = `translate(${((x / r.width - 0.5) * 8).toFixed(1)}px, ${((y / r.height - 0.5) * 6 - 2).toFixed(1)}px)`
+      }}
+      onPointerLeave={() => {
+        if (ref.current) ref.current.style.transform = ""
+      }}
+      onPointerDown={(e) => {
+        const el = ref.current
+        if (!el || reduced()) return
+        const r = el.getBoundingClientRect()
+        const id = Date.now() + Math.random()
+        setRipples((rs) => [...rs, { id, x: e.clientX - r.left, y: e.clientY - r.top }])
+        setTimeout(() => setRipples((rs) => rs.filter((q) => q.id !== id)), 650)
+      }}
+    >
+      {/* light that follows the cursor inside the button */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{ background: `radial-gradient(110px circle at var(--bx, 50%) var(--by, 50%), ${v.glow}, transparent 70%)` }}
+      />
+      {ripples.map((r) => (
+        <span
+          key={r.id}
+          aria-hidden="true"
+          className="landing-ripple pointer-events-none absolute size-16 rounded-full bg-white/60"
+          style={{ left: r.x - 32, top: r.y - 32 }}
+        />
+      ))}
+      <span className="relative z-10 inline-flex items-center">
+        {children}
+        <span
+          aria-hidden="true"
+          className={`grid h-6 w-0 place-items-center overflow-hidden rounded-full opacity-0 transition-all duration-300 ease-out group-hover:ml-3 group-hover:w-6 group-hover:opacity-100 group-focus-visible:ml-3 group-focus-visible:w-6 group-focus-visible:opacity-100 ${v.chip}`}
+        >
+          <svg viewBox="0 0 16 16" className="size-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 8h10M9 4l4 4-4 4" />
+          </svg>
+        </span>
+      </span>
     </Link>
   )
 }
@@ -184,13 +255,13 @@ export default function HomePage() {
         .landing-progress { transform-origin: left; animation: landing-fill 4.2s linear forwards }
         .landing-orbit { animation: landing-orbit 40s linear infinite }
         .landing-bob { animation: landing-bob 6s ease-in-out infinite }
-        .landing-btn::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,.45) 50%, transparent 62%); transform: translateX(-120%); transition: transform .7s ease }
-        .landing-btn:hover::after { transform: translateX(120%) }
+        @keyframes landing-ripple { from { transform: scale(0); opacity: .55 } to { transform: scale(6); opacity: 0 } }
+        .landing-ripple { animation: landing-ripple .65s ease-out forwards }
         @media (prefers-reduced-motion: reduce) {
           .landing-rise { opacity: 1; animation: none }
           .landing-progress { animation: none; transform: scaleX(1) }
           .landing-orbit, .landing-bob { animation: none }
-          .landing-btn::after { display: none }
+          .landing-ripple { display: none }
         }
       `}</style>
 
@@ -236,7 +307,7 @@ export default function HomePage() {
               <Btn href="/signup" variant="primary">
                 Sign me up
               </Btn>
-              <Btn href="/signup?as=company" variant="outline">
+              <Btn href="/signup?as=company" variant="secondary">
                 For companies
               </Btn>
             </div>
@@ -496,9 +567,9 @@ export default function HomePage() {
             </h2>
             <div className="mt-10 flex flex-wrap justify-center gap-3">
               <Btn href="/signup" variant="primary">
-                Join as an evaluator
+                Join as a speaker
               </Btn>
-              <Btn href="/signup?as=company" variant="outline">
+              <Btn href="/signup?as=company" variant="secondary">
                 For companies
               </Btn>
             </div>
