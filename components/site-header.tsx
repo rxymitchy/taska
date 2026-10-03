@@ -64,12 +64,14 @@ export async function SiteHeader() {
             </form>
           ) : (
             <>
-              <Link className={`${navLink} group-has-[.landing-home,.auth-page]:max-[899px]:hidden`} href="/login">
+              <Link className={`${navLink} group-has-[.landing-home,.auth-page]:max-[899px]:hidden group-has-[.admin-auth]:hidden`} href="/login">
                 Log in
               </Link>
-              <AuthBtn href="/signup" variant="primary" size="sm">
-                {brand.cta}
-              </AuthBtn>
+              <span className="group-has-[.admin-auth]:hidden">
+                <AuthBtn href="/signup" variant="primary" size="sm">
+                  {brand.cta}
+                </AuthBtn>
+              </span>
             </>
           )}
         </nav>

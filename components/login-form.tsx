@@ -7,6 +7,8 @@ import { AuthBtn } from "@/components/auth-btn"
 
 const initial: AuthState = { error: "" }
 
+type LoginAction = (prev: AuthState, formData: FormData) => Promise<AuthState>
+
 const labelCls = "text-[13px] font-semibold text-[#12382b]"
 
 const inputCls =
@@ -14,8 +16,18 @@ const inputCls =
   "placeholder:text-[#3d5a49]/55 transition duration-200 hover:border-[#2f6b53]/40 " +
   "focus:border-[#2f6b53] focus:outline-none focus:ring-4 focus:ring-[#2f6b53]/20"
 
-export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
-  const [state, action, pending] = useActionState(login, initial)
+export function LoginForm({
+  callbackUrl,
+  action: loginAction = login,
+  emailId = "login-email",
+  passwordId = "login-password",
+}: {
+  callbackUrl?: string
+  action?: LoginAction
+  emailId?: string
+  passwordId?: string
+}) {
+  const [state, action, pending] = useActionState(loginAction, initial)
   const [show, setShow] = useState(false)
 
   // Submitting through startTransition (instead of action={action}) stops React 19
@@ -31,15 +43,15 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
       {callbackUrl ? <input type="hidden" name="callbackUrl" value={callbackUrl} /> : null}
 
       <div className="space-y-1.5">
-        <label htmlFor="login-email" className={`block ${labelCls}`}>
+        <label htmlFor={emailId} className={`block ${labelCls}`}>
           Email
         </label>
-        <input id="login-email" className={inputCls} name="email" type="email" autoComplete="email" placeholder="you@example.com" required />
+        <input id={emailId} className={inputCls} name="email" type="email" autoComplete="email" placeholder="you@example.com" required />
       </div>
 
       <div className="space-y-1.5">
         <div className="flex items-center justify-between gap-3">
-          <label htmlFor="login-password" className={labelCls}>
+          <label htmlFor={passwordId} className={labelCls}>
             Password
           </label>
           <Link
@@ -51,7 +63,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
         </div>
         <div className="relative">
           <input
-            id="login-password"
+            id={passwordId}
             className={`${inputCls} pr-12`}
             name="password"
             type={show ? "text" : "password"}

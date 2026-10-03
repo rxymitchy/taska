@@ -15,18 +15,20 @@ export function AuthShell({
   prompt,
   cta,
   compact = false,
+  className = "",
   children,
 }: {
   title: string
   blurb?: string
-  prompt: string
-  cta: ReactNode
+  prompt?: string
+  cta?: ReactNode
   compact?: boolean
+  className?: string
   children: ReactNode
 }) {
   return (
     <Container
-      className={`auth-page login-layout max-w-none! px-0! py-0 ${display.variable} ${body.variable} font-(family-name:--landing-body) text-[#12382b] antialiased`}
+      className={`auth-page login-layout max-w-none! px-0! py-0 ${display.variable} ${body.variable} font-(family-name:--landing-body) text-[#12382b] antialiased ${className}`}
     >
       <style>{`
         @keyframes auth-rise { from { opacity: 0; transform: translateY(22px) } to { opacity: 1; transform: none } }
@@ -89,10 +91,12 @@ export function AuthShell({
                 {blurb}
               </p>
             ) : null}
-            <div className="auth-rise mt-6 flex flex-wrap items-center gap-3" style={{ animationDelay: "360ms" }}>
-              <span className="text-[14px] text-[#f7f3e8]/65">{prompt}</span>
-              {cta}
-            </div>
+            {prompt || cta ? (
+              <div className="auth-rise mt-6 flex flex-wrap items-center gap-3" style={{ animationDelay: "360ms" }}>
+                {prompt ? <span className="text-[14px] text-[#f7f3e8]/65">{prompt}</span> : null}
+                {cta}
+              </div>
+            ) : null}
           </div>
         </AuthHero>
 

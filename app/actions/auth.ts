@@ -1,15 +1,17 @@
 "use server"
 
-import { hash } from "bcryptjs"
+import { compare, hash } from "bcryptjs"
 import { AuthError } from "next-auth"
 import { signIn } from "@/auth"
 import { prisma } from "@/lib/prisma"
+import { canReview } from "@/lib/reviewer-access"
 import { homeForRole } from "@/lib/session"
 import { rateLimit } from "@/lib/rate-limit"
 import { signupSchema, inviteSignupSchema, forgotPasswordSchema, resetPasswordSchema } from "@/lib/validators"
 import { findOpenInvite, hashInviteToken } from "@/lib/invites"
 import { findOpenReset, hashResetToken, newResetToken } from "@/lib/password-reset"
 import { sendPasswordResetEmail, sendSignupConfirmation } from "@/lib/mail"
+import { ensureBootstrapAdmin } from "@/lib/bootstrap-admin"
 
 export type AuthState = { error: string; sent?: boolean }
 
@@ -38,6 +40,24 @@ export async function login(_prev: AuthState, formData: FormData): Promise<AuthS
   const password = String(formData.get("password") ?? "")
   const user = await prisma.user.findUnique({ where: { email } })
   const redirectTo = safeCallback(formData.get("callbackUrl")) ?? (user ? homeForRole(user.role) : "/dashboard")
+  const result = await signInWithPassword(email, password, redirectTo)
+  return result ?? { error: "" }
+}
+
+export async function loginAdmin(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  await ensureBootstrapAdmin()
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase()
+  const password = String(formData.get("password") ?? "")
+  const user = await prisma.user.findUnique({ where: { email } })
+  if (!user) return { error: "Email or password is incorrect." }
+  const valid = await compare(password, user.passwordHash)
+  if (!valid || !(await canReview(user))) {
+    return { error: "Email or password is incorrect." }
+  }
+  const callback = safeCallback(formData.get("callbackUrl"))
+  const redirectTo = callback?.startsWith("/admin") ? callback : "/admin"
   const result = await signInWithPassword(email, password, redirectTo)
   return result ?? { error: "" }
 }
