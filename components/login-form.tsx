@@ -1,8 +1,9 @@
 "use client"
 
 import Link from "next/link"
-import { useActionState, useState } from "react"
+import { startTransition, useActionState, useState, type FormEvent } from "react"
 import { login, type AuthState } from "@/app/actions/auth"
+import { AuthBtn } from "@/components/auth-btn"
 
 const initial: AuthState = { error: "" }
 
@@ -17,23 +18,23 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
   const [state, action, pending] = useActionState(login, initial)
   const [show, setShow] = useState(false)
 
+  // Submitting through startTransition (instead of action={action}) stops React 19
+  // from wiping the email and password fields when the server returns an error.
+  function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const data = new FormData(e.currentTarget)
+    startTransition(() => action(data))
+  }
+
   return (
-    <form action={action} className="space-y-5">
+    <form onSubmit={onSubmit} className="space-y-5">
       {callbackUrl ? <input type="hidden" name="callbackUrl" value={callbackUrl} /> : null}
 
       <div className="space-y-1.5">
         <label htmlFor="login-email" className={`block ${labelCls}`}>
           Email
         </label>
-        <input
-          id="login-email"
-          className={inputCls}
-          name="email"
-          type="email"
-          autoComplete="email"
-          placeholder="you@example.com"
-          required
-        />
+        <input id="login-email" className={inputCls} name="email" type="email" autoComplete="email" placeholder="you@example.com" required />
       </div>
 
       <div className="space-y-1.5">
@@ -62,7 +63,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
             onClick={() => setShow((s) => !s)}
             aria-pressed={show}
             aria-label={show ? "Hide password" : "Show password"}
-            className="absolute right-2 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-[#3d5a49] transition hover:bg-[#12382b]/[0.08] hover:text-[#12382b] active:scale-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2f6b53]"
+            className="absolute right-2 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-[#3d5a49] transition hover:bg-[#12382b]/8 hover:text-[#12382b] active:scale-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2f6b53]"
           >
             {show ? (
               <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -84,38 +85,9 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
         </p>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="group relative inline-flex w-full items-center justify-center overflow-hidden rounded-full border border-[#8fb8a3]/35 bg-[linear-gradient(135deg,#2f6b53,#12382b)] px-7 py-3.5 text-[15px] font-semibold text-[#f7f3e8] shadow-[0_14px_30px_-14px_rgba(18,56,43,.95)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_40px_-14px_rgba(18,56,43,1)] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2f6b53]"
-      >
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 -translate-x-full bg-[linear-gradient(110deg,transparent,rgba(240,172,110,.35),transparent)] transition-transform duration-700 group-hover:translate-x-full motion-reduce:hidden"
-        />
-        <span className="relative z-10 inline-flex items-center">
-          {pending ? (
-            <>
-              <svg viewBox="0 0 24 24" className="mr-2.5 size-4 animate-spin motion-reduce:animate-none" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true">
-                <path d="M12 3a9 9 0 1 0 9 9" />
-              </svg>
-              Signing in…
-            </>
-          ) : (
-            <>
-              Log in
-              <span
-                aria-hidden="true"
-                className="grid h-6 w-0 place-items-center overflow-hidden rounded-full bg-[#f0ac6e] text-[#12382b] opacity-0 transition-all duration-300 ease-out group-hover:ml-3 group-hover:w-6 group-hover:opacity-100 group-focus-visible:ml-3 group-focus-visible:w-6 group-focus-visible:opacity-100"
-              >
-                <svg viewBox="0 0 16 16" className="size-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 8h10M9 4l4 4-4 4" />
-                </svg>
-              </span>
-            </>
-          )}
-        </span>
-      </button>
+      <AuthBtn type="submit" variant="secondary" block pending={pending} pendingLabel="Signing in…">
+        Log in
+      </AuthBtn>
     </form>
   )
 }
