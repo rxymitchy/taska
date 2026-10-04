@@ -109,6 +109,9 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
   const existing = await prisma.user.findUnique({ where: { email } })
   if (existing) return { error: "An account with that email already exists." }
 
+  if (parsed.data.role !== "WORKER" && parsed.data.role !== "EMPLOYER") {
+    return { error: "Choose evaluator or company." }
+  }
   if (parsed.data.role === "WORKER" && !parsed.data.country) {
     return { error: "Choose a country." }
   }

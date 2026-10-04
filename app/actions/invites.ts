@@ -63,8 +63,7 @@ export async function inviteReviewer(_prev: InviteState, formData: FormData): Pr
   })
 
   const origin = (process.env.AUTH_URL || "http://localhost:3000").replace(/\/$/, "")
-  const inviteUrl =
-    kind === "reviewer" ? `${origin}/reviewer?invite=${token}` : `${origin}/signup?invite=${token}`
+  const inviteUrl = `${origin}/reviewer?invite=${token}`
   const emailed = await sendReviewerInviteEmail({ to: email, inviteUrl })
   revalidatePath("/admin/invite")
   return {
