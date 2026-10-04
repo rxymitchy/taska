@@ -188,7 +188,7 @@ function CardCredits() {
         >
           {CREDIT_PACKS.map((row) => (
             <option key={row} value={String(row)}>
-              {formatUsd(row)} credit · pay {formatUsd(cardListPriceSats(row))}
+              {row.toLocaleString("en-US")} credit · pay {formatUsd(cardListPriceSats(row))}
             </option>
           ))}
         </select>
