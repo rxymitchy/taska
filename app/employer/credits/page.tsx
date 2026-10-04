@@ -46,10 +46,11 @@ export default async function CreditsPage() {
       <p className="mt-2 text-muted">
         Pay once, then send answers to check. Each agreed check costs {formatSats(cost)} (
         {formatSats(evaluatorPayoutSats())} to the person who checked it, {formatSats(reviewerPayoutSats())} to the
-        reviewer). If the check is sent back, that hold comes back to you.
+        reviewer). If the check is sent back, that hold comes back to you. Pay by card at full price, or by Bitcoin for
+        10% off.
         {rail === "breez"
-          ? " Pay the invoice from a Lightning wallet. This page adds the credit when the payment arrives."
-          : " Demo: you can mark a payment as paid to try the flow."}
+          ? " A Lightning invoice adds the credit when the payment arrives."
+          : " Demo: you can mark a Bitcoin payment as paid to try the flow."}
       </p>
       </header>
       <dl className="mt-6 grid gap-3 sm:grid-cols-2">

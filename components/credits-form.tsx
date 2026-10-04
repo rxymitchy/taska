@@ -4,7 +4,7 @@ import { useActionState, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { checkCreditDeposit, createCreditInvoice, confirmCreditDeposit, type CreditActionState } from "@/app/actions/credits"
 import { btnPrimary, btnSecondary, inputClass, labelClass } from "@/lib/styles"
-import { formatSats } from "@/lib/money"
+import { formatSats, formatUsd } from "@/lib/money"
 
 import { CopyInvoiceButton } from "@/components/copy-invoice-button"
 import { DownloadReceiptButton } from "@/components/download-receipt-button"
@@ -12,7 +12,72 @@ import { InvoiceQr } from "@/components/invoice-qr"
 import { CREDIT_PACKS } from "@/lib/credit-packs"
 const initial: CreditActionState = { error: "" }
 
+function cardListPriceSats(pack: number) {
+  return Math.round(pack / 0.9)
+}
+
 export function CreditsForm({ mock }: { mock: boolean }) {
+  const [method, setMethod] = useState<"lightning" | "card">("lightning")
+
+  return (
+    <div className="space-y-5">
+      <fieldset className="space-y-2">
+        <legend className={labelClass}>How you pay</legend>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <PayMethod
+            checked={method === "lightning"}
+            onSelect={() => setMethod("lightning")}
+            title="Bitcoin"
+            badge="10% off"
+            hint="Lightning. Works now."
+          />
+          <PayMethod
+            checked={method === "card"}
+            onSelect={() => setMethod("card")}
+            title="Card"
+            hint="Visa, Mastercard, or similar."
+          />
+        </div>
+      </fieldset>
+      {method === "lightning" ? <LightningCredits mock={mock} /> : <CardCredits />}
+    </div>
+  )
+}
+
+function PayMethod({
+  checked,
+  onSelect,
+  title,
+  badge,
+  hint,
+}: {
+  checked: boolean
+  onSelect: () => void
+  title: string
+  badge?: string
+  hint: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={checked}
+      className={`rounded-2xl border px-4 py-3 text-left transition ${
+        checked ? "border-2 border-accent bg-tint" : "border-line bg-card hover:border-accent/50"
+      }`}
+    >
+      <span className="flex items-center justify-between gap-2">
+        <span className="font-semibold">{title}</span>
+        {badge ? (
+          <span className="rounded-full bg-hl px-2 py-0.5 text-xs font-semibold text-ink">{badge}</span>
+        ) : null}
+      </span>
+      <span className="mt-1 block text-sm text-muted">{hint}</span>
+    </button>
+  )
+}
+
+function LightningCredits({ mock }: { mock: boolean }) {
   const router = useRouter()
   const [state, action, pending] = useActionState(createCreditInvoice, initial)
   const [paid, setPaid] = useState(false)
@@ -47,13 +112,14 @@ export function CreditsForm({ mock }: { mock: boolean }) {
 
   return (
     <div className="space-y-4">
+      <p className="text-sm text-muted">Pay with Bitcoin and keep the 10% off. Same credit, lower price.</p>
       <form action={action} className="space-y-4">
         <label className="space-y-1.5">
           <span className={labelClass}>Credit pack</span>
           <select className={inputClass} name="amountSats" defaultValue="1000">
             {CREDIT_PACKS.map((pack) => (
               <option key={pack} value={String(pack)}>
-                {formatSats(pack)}
+                {formatSats(pack)} · Bitcoin price
               </option>
             ))}
           </select>
@@ -86,9 +152,7 @@ export function CreditsForm({ mock }: { mock: boolean }) {
               {state.depositId ? <DownloadReceiptButton depositId={state.depositId} /> : null}
             </div>
           ) : mock ? (
-            <p className="mt-2 text-muted">
-              Demo payment. You can mark it paid to try the flow.
-            </p>
+            <p className="mt-2 text-muted">Demo payment. You can mark it paid to try the flow.</p>
           ) : (
             <p className="mt-2 text-muted">
               Pay from your Lightning wallet. Taska looks for the payment and adds the credit. You can also tap Check
@@ -98,6 +162,70 @@ export function CreditsForm({ mock }: { mock: boolean }) {
           {checkError ? <p className="mt-2 text-sm text-bad">{checkError}</p> : null}
         </div>
       ) : null}
+    </div>
+  )
+}
+
+function CardCredits() {
+  const [pack, setPack] = useState(1000)
+  const [message, setMessage] = useState("")
+  const listPrice = cardListPriceSats(pack)
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted">
+        Card is the full price. Bitcoin is 10% off — {formatSats(pack)} instead of {formatSats(listPrice)} (
+        {formatUsd(listPrice)}) for this pack.
+      </p>
+      <label className="space-y-1.5">
+        <span className={labelClass}>Credit pack</span>
+        <select
+          className={inputClass}
+          value={String(pack)}
+          onChange={(event) => {
+            setPack(Number(event.target.value))
+            setMessage("")
+          }}
+        >
+          {CREDIT_PACKS.map((row) => (
+            <option key={row} value={String(row)}>
+              {formatSats(row)} credit · card {formatSats(cardListPriceSats(row))}
+            </option>
+          ))}
+        </select>
+      </label>
+      <form
+        className="space-y-4"
+        onSubmit={(event) => {
+          event.preventDefault()
+          setMessage(
+            "Card checkout is listed so companies can pay normally. It is not live yet, so no charge and no credit. Switch to Bitcoin to pay now and keep the 10% off.",
+          )
+        }}
+      >
+        <label className="space-y-1.5">
+          <span className={labelClass}>Name on card</span>
+          <input className={inputClass} autoComplete="cc-name" placeholder="Name on the card" />
+        </label>
+        <label className="space-y-1.5">
+          <span className={labelClass}>Card number</span>
+          <input className={inputClass} inputMode="numeric" autoComplete="cc-number" placeholder="ACCT-000015" />
+        </label>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="space-y-1.5">
+            <span className={labelClass}>Expiry</span>
+            <input className={inputClass} autoComplete="cc-exp" placeholder="MM / YY" />
+          </label>
+          <label className="space-y-1.5">
+            <span className={labelClass}>CVC</span>
+            <input className={inputClass} inputMode="numeric" autoComplete="cc-csc" placeholder="123" />
+          </label>
+        </div>
+        {message ? <p className="text-sm text-muted">{message}</p> : null}
+        <button className={btnPrimary} type="submit">
+          Pay {formatUsd(listPrice)} by card
+        </button>
+      </form>
     </div>
   )
 }

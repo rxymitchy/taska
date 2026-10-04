@@ -559,7 +559,9 @@ export default function HomePage() {
                     Lightning
                   </span>
                 </h3>
-                <p className="mt-3 text-[16px] leading-[1.5] text-[#f7f3e8]/80">Paid in seconds, no bank.</p>
+                <p className="mt-3 text-[16px] leading-[1.5] text-[#f7f3e8]/80">
+                  Paid in seconds, no bank. Companies can pay by card too — Bitcoin is 10% off.
+                </p>
               </div>
             </article>
 
