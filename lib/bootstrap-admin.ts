@@ -26,12 +26,12 @@ export async function ensureBootstrapAdmin() {
   const passwordHash = await hash(password, 10)
   if (!existing) {
     await prisma.user.create({
-      data: { email, passwordHash, role: "ADMIN" },
+      data: { email, passwordHash, role: "ADMIN", isAdmin: true, isReviewer: true },
     })
   } else {
     await prisma.user.update({
       where: { id: existing.id },
-      data: { role: "ADMIN", passwordHash },
+      data: { role: "ADMIN", isAdmin: true, isReviewer: true, passwordHash },
     })
   }
   ensured = true

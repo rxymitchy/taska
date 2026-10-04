@@ -4,32 +4,45 @@ import { revalidatePath } from "next/cache"
 import { newInviteToken, hashInviteToken } from "@/lib/invites"
 import { prisma } from "@/lib/prisma"
 import { isDemoAccountEmail } from "@/lib/demo-accounts"
-import { requireCanInvite, requireReviewer } from "@/lib/session"
+import { requireAdmin, requireReviewer } from "@/lib/session"
 import { sendReviewerInviteEmail } from "@/lib/mail"
+import { parseStaffKind, staffFlags } from "@/lib/staff"
 import { destinationSchema } from "@/lib/validators"
 
 export type InviteState = { error: string; inviteUrl?: string; emailed?: boolean; promoted?: boolean }
 
 export async function inviteReviewer(_prev: InviteState, formData: FormData): Promise<InviteState> {
-  const user = await requireCanInvite()
+  const user = await requireAdmin()
   const email = String(formData.get("email") ?? "")
     .trim()
     .toLowerCase()
+  const kind = parseStaffKind(formData.get("staffKind"))
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 160) {
     return { error: "Enter a valid email." }
   }
 
   const existing = await prisma.user.findUnique({ where: { email } })
-  if (existing?.role === "ADMIN") return { error: "That person is already a reviewer." }
   if (isDemoAccountEmail(email)) return { error: "That is a seed account. Invite a real person." }
-  if (existing?.role === "WORKER") {
-    await prisma.user.update({ where: { id: existing.id }, data: { role: "ADMIN" } })
+  if (existing?.isAdmin && existing.isReviewer && kind === "both") {
+    return { error: "That person already has both roles." }
+  }
+  if (existing) {
+    const flags = staffFlags(kind)
+    const keepAccount = existing.role === "WORKER" || existing.role === "EMPLOYER"
+    await prisma.user.update({
+      where: { id: existing.id },
+      data: {
+        isAdmin: flags.isAdmin || existing.isAdmin,
+        isReviewer: flags.isReviewer || existing.isReviewer,
+        role: keepAccount && existing.role === "EMPLOYER" ? "EMPLOYER" : flags.isAdmin ? "ADMIN" : flags.isReviewer && existing.role === "WORKER" ? "REVIEWER" : existing.role,
+      },
+    })
     revalidatePath("/admin")
     revalidatePath("/admin/invite")
+    revalidatePath("/admin/people")
     revalidatePath("/dashboard")
     return { error: "", promoted: true }
   }
-  if (existing) return { error: "That email already has a company account." }
 
   const open = await prisma.reviewerInvite.findFirst({
     where: { email, usedAt: null, expiresAt: { gt: new Date() } },
@@ -44,6 +57,7 @@ export async function inviteReviewer(_prev: InviteState, formData: FormData): Pr
       email,
       tokenHash: hashInviteToken(token),
       invitedByUserId: user.id,
+      staffKind: kind,
       expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
     },
   })
@@ -74,17 +88,24 @@ export async function saveReviewerLightning(_prev: { error: string }, formData: 
 }
 
 export async function promoteEvaluatorToReviewer(formData: FormData) {
-  await requireReviewer()
+  await requireAdmin()
   const userId = String(formData.get("userId") ?? "")
+  const kind = parseStaffKind(formData.get("staffKind"))
   const evaluator = await prisma.user.findFirst({
     where: { id: userId, role: "WORKER" },
   })
   if (!evaluator || isDemoAccountEmail(evaluator.email)) return
+  const flags = staffFlags(kind)
   await prisma.user.update({
     where: { id: evaluator.id },
-    data: { role: "ADMIN" },
+    data: {
+      role: flags.isAdmin ? "ADMIN" : "REVIEWER",
+      isAdmin: flags.isAdmin,
+      isReviewer: flags.isReviewer,
+    },
   })
   revalidatePath("/admin")
   revalidatePath("/admin/invite")
+  revalidatePath("/admin/people")
   revalidatePath("/dashboard")
 }

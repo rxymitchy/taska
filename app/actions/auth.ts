@@ -5,7 +5,7 @@ import { AuthError } from "next-auth"
 import { signIn } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { canReview } from "@/lib/reviewer-access"
-import { homeForRole } from "@/lib/session"
+import { homeForUser, parseStaffKind, staffFlags } from "@/lib/staff"
 import { rateLimit } from "@/lib/rate-limit"
 import { signupSchema, inviteSignupSchema, forgotPasswordSchema, resetPasswordSchema } from "@/lib/validators"
 import { findOpenInvite, hashInviteToken } from "@/lib/invites"
@@ -41,7 +41,7 @@ export async function login(_prev: AuthState, formData: FormData): Promise<AuthS
   const password = String(formData.get("password") ?? "")
   if (isDemoLoginBlocked(email)) return { error: "Email or password is incorrect." }
   const user = await prisma.user.findUnique({ where: { email } })
-  const redirectTo = safeCallback(formData.get("callbackUrl")) ?? (user ? homeForRole(user.role) : "/dashboard")
+  const redirectTo = safeCallback(formData.get("callbackUrl")) ?? (user ? homeForUser(user) : "/dashboard")
   const result = await signInWithPassword(email, password, redirectTo)
   return result ?? { error: "" }
 }
@@ -127,7 +127,7 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
     name: parsed.data.name,
     role: user.role,
   })
-  const result = await signInWithPassword(email, parsed.data.password, homeForRole(user.role))
+  const result = await signInWithPassword(email, parsed.data.password, homeForUser(user))
   return result ?? { error: "" }
 }
 
@@ -157,11 +157,14 @@ async function signupReviewer(formData: FormData): Promise<AuthState> {
   if (existing) return { error: "An account with that email already exists." }
 
   const passwordHash = await hash(parsed.data.password, 10)
+  const flags = staffFlags(parseStaffKind(invite.staffKind))
   const user = await prisma.user.create({
     data: {
       email,
       passwordHash,
-      role: "ADMIN",
+      role: flags.role,
+      isAdmin: flags.isAdmin,
+      isReviewer: flags.isReviewer,
       lightningAddress: parsed.data.lightningAddress || null,
     },
   })
@@ -175,7 +178,7 @@ async function signupReviewer(formData: FormData): Promise<AuthState> {
     name: parsed.data.name,
     role: user.role,
   })
-  const result = await signInWithPassword(email, parsed.data.password, homeForRole(user.role))
+  const result = await signInWithPassword(email, parsed.data.password, homeForUser(user))
   return result ?? { error: "" }
 }
 
@@ -241,6 +244,6 @@ export async function resetPassword(_prev: AuthState, formData: FormData): Promi
     }),
   ])
 
-  const result = await signInWithPassword(reset.user.email, parsed.data.password, homeForRole(reset.user.role))
+  const result = await signInWithPassword(reset.user.email, parsed.data.password, homeForUser(reset.user))
   return result ?? { error: "" }
 }

@@ -1,15 +1,16 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { promoteEvaluatorToReviewer } from "@/app/actions/invites"
 import { InviteForm, ReviewerLightningForm } from "@/components/invite-form"
 import { Container } from "@/components/ui"
 import { prisma } from "@/lib/prisma"
 import { btnSecondary } from "@/lib/styles"
-import { requireCanInvite } from "@/lib/session"
+import { requireAdmin } from "@/lib/session"
 
 export const metadata: Metadata = { title: "Invite reviewers" }
 
 export default async function InvitePage() {
-  const user = await requireCanInvite()
+  const user = await requireAdmin()
   const [me, evaluators] = await Promise.all([
     prisma.user.findUnique({ where: { id: user.id }, select: { lightningAddress: true } }),
     prisma.user.findMany({
@@ -30,9 +31,13 @@ export default async function InvitePage() {
 
   return (
     <Container className="page-frame max-w-2xl!">
-      <h1 className="text-3xl tracking-tight">Choose reviewers</h1>
+      <h1 className="text-3xl tracking-tight">Invite staff</h1>
       <p className="mt-2 text-muted">
-        Only an admin picks reviewers. Invite someone new, or promote an evaluator who already has an account.
+        Invite a reviewer, an admin, or both.{" "}
+        <Link className="text-accent underline" href="/admin/people">
+          Fix roles on People
+        </Link>
+        .
       </p>
       <div className="form-surface mt-8">
         <InviteForm />
@@ -56,10 +61,13 @@ export default async function InvitePage() {
                       : ""}
                   </span>
                 </span>
-                <form action={promoteEvaluatorToReviewer}>
+                <form action={promoteEvaluatorToReviewer} className="flex flex-wrap gap-2">
                   <input type="hidden" name="userId" value={evaluator.id} />
-                  <button className={btnSecondary} type="submit">
-                    Promote
+                  <button className={btnSecondary} name="staffKind" value="reviewer">
+                    Reviewer
+                  </button>
+                  <button className={btnSecondary} name="staffKind" value="both">
+                    Both
                   </button>
                 </form>
               </li>

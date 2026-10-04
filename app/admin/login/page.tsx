@@ -27,8 +27,8 @@ export default async function AdminLoginPage({
   return (
     <AuthShell
       className="admin-auth"
-      title="Admin"
-      blurb="Sign in to review work and choose reviewers."
+      title="Staff"
+      blurb="Reviewers see their assigned checks. Admins can also help companies and evaluators."
     >
       <LoginForm
         action={loginAdmin}

@@ -16,6 +16,8 @@ export const authConfig = {
     jwt({ token, user }) {
       if (user) {
         token.role = user.role
+        token.isAdmin = user.isAdmin
+        token.isReviewer = user.isReviewer
       }
       return token
     },
@@ -23,6 +25,8 @@ export const authConfig = {
       if (session.user) {
         session.user.id = token.sub ?? ""
         session.user.role = token.role as Role
+        session.user.isAdmin = Boolean(token.isAdmin || token.role === "ADMIN")
+        session.user.isReviewer = Boolean(token.isReviewer || token.role === "REVIEWER" || token.role === "ADMIN")
       }
       return session
     },

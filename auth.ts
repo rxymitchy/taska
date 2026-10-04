@@ -42,7 +42,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!user) return null
         const valid = await compare(password, user.passwordHash)
         if (!valid) return null
-        return { id: user.id, email: user.email, role: user.role }
+        return {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          isAdmin: user.isAdmin || user.role === "ADMIN",
+          isReviewer: user.isReviewer || user.role === "REVIEWER" || user.role === "ADMIN",
+        }
       },
     }),
   ],

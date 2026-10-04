@@ -56,7 +56,7 @@ function signupCopy(name: string, role: Role) {
   const body =
     role === "EMPLOYER"
       ? "Your company account is ready. You can send answers for people to check."
-      : role === "ADMIN"
+      : role === "ADMIN" || role === "REVIEWER"
         ? "Your reviewer account is ready. You double-check the work — and get paid."
         : "Your account is ready. You check answers in your language — and get paid."
 

@@ -1,5 +1,6 @@
 import type { Role } from "@prisma/client"
-import { isDemoAccountEmail, isLiveSite } from "@/lib/demo-accounts"
+import { isDemoAccountEmail } from "@/lib/demo-accounts"
+import { canAdmin, canReview as staffCanReview } from "@/lib/staff"
 import { prisma } from "@/lib/prisma"
 
 export { isDemoAccountEmail }
@@ -16,29 +17,44 @@ export function isFoundingReviewer(email: string | null | undefined) {
   return foundingReviewerEmails().includes(email.trim().toLowerCase())
 }
 
-/** A reviewer who signed up for real — not the seed admin@taska.demo account. */
 export async function hasRealReviewer() {
-  const admins = await prisma.user.findMany({
-    where: { role: "ADMIN" },
+  const staff = await prisma.user.findMany({
+    where: { OR: [{ isReviewer: true }, { role: { in: ["ADMIN", "REVIEWER"] } }] },
     select: { email: true },
   })
-  return admins.some((admin) => !isDemoAccountEmail(admin.email))
+  return staff.some((row) => !isDemoAccountEmail(row.email))
+}
+
+export async function freshStaffUser(userId: string) {
+  return prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, email: true, role: true, isAdmin: true, isReviewer: true },
+  })
 }
 
 export async function freshReviewRole(userId: string) {
-  return prisma.user.findUnique({
-    where: { id: userId },
-    select: { id: true, email: true, role: true },
-  })
+  return freshStaffUser(userId)
 }
 
-export async function canReview(user: { id: string; email?: string | null; role: Role }) {
-  const fresh = (await freshReviewRole(user.id)) ?? user
-  if (fresh.email && isDemoAccountEmail(fresh.email) && isLiveSite()) return false
-  if (fresh.role === "ADMIN") return true
-  return isFoundingReviewer(fresh.email)
+export async function canReview(user: {
+  id: string
+  email?: string | null
+  role: Role
+  isAdmin?: boolean
+  isReviewer?: boolean
+}) {
+  const fresh = (await freshStaffUser(user.id)) ?? user
+  if (isFoundingReviewer(fresh.email)) return true
+  return staffCanReview(fresh)
 }
 
-export async function canInviteReviewer(user: { id: string; email?: string | null; role: Role }) {
-  return canReview(user)
+export async function canInviteReviewer(user: {
+  id: string
+  email?: string | null
+  role: Role
+  isAdmin?: boolean
+  isReviewer?: boolean
+}) {
+  const fresh = (await freshStaffUser(user.id)) ?? user
+  return canAdmin(fresh)
 }

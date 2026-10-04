@@ -5,9 +5,10 @@ import { redirect } from "next/navigation"
 import { holdCompanyCredits, releaseEvaluationHold, spendEvaluationHold } from "@/lib/credits"
 import { companyCostPerEvaluation } from "@/lib/pricing"
 import { prisma } from "@/lib/prisma"
+import { canAdmin } from "@/lib/staff"
 import { requireReviewer, requireRole } from "@/lib/session"
 import { aiEvaluationSchema, humanEvaluationSchema } from "@/lib/validators"
-import { assignEvaluation } from "@/services/assignment"
+import { assignEvaluation, assignReviewer } from "@/services/assignment"
 import { generateAiResponse, precheckAiResponse } from "@/services/ai"
 import { payoutDestinationsReady, recordPendingLightningPayouts } from "@/services/settlement"
 import { payableLightningDestination, usesLiveLightning } from "@/lib/payout-destination"
@@ -126,6 +127,7 @@ export async function submitHumanEvaluation(_prev: { error: string }, formData: 
     where: { id: evaluation.id },
     data: { status: "UNDER_REVIEW" },
   })
+  await assignReviewer(evaluation.id)
 
   revalidatePath("/dashboard")
   revalidatePath("/admin")
@@ -147,6 +149,9 @@ export async function decideEvaluation(formData: FormData) {
   if (!evaluation || evaluation.status !== "UNDER_REVIEW" || !evaluation.assignedWorker || !evaluation.submissions[0]) {
     redirect("/admin")
   }
+  if (!canAdmin(reviewer) && evaluation.reviewerUserId && evaluation.reviewerUserId !== reviewer.id) {
+    redirect("/admin")
+  }
 
   const submission = evaluation.submissions[0]
   if (decision === "approve") {
@@ -165,7 +170,7 @@ export async function decideEvaluation(formData: FormData) {
     })
     await prisma.evaluation.update({
       where: { id: evaluation.id },
-      data: { status: "ASSIGNED" },
+      data: { status: "ASSIGNED", reviewerUserId: null, reviewerAssignedAt: null },
     })
     await releaseEvaluationHold(evaluation.id)
     revalidatePath("/admin")

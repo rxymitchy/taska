@@ -5,6 +5,7 @@ import { AiHumanComparison } from "@/components/ai-human-comparison"
 import { Container } from "@/components/ui"
 import { prisma } from "@/lib/prisma"
 import { btnPrimary, btnSecondary } from "@/lib/styles"
+import { canAdmin } from "@/lib/staff"
 import { requireReviewer } from "@/lib/session"
 
 export const metadata: Metadata = { title: "Review evaluation" }
@@ -17,7 +18,7 @@ export default async function ReviewEvaluationPage({
   params: Promise<{ id: string }>
   searchParams: Promise<{ pay?: string }>
 }) {
-  await requireReviewer()
+  const user = await requireReviewer()
   const { id } = await params
   const { pay } = await searchParams
   const evaluation = await prisma.evaluation.findUnique({
@@ -26,6 +27,9 @@ export default async function ReviewEvaluationPage({
   })
   if (!evaluation) notFound()
   if (evaluation.status !== "UNDER_REVIEW") redirect("/admin")
+  if (!canAdmin(user) && evaluation.reviewerUserId && evaluation.reviewerUserId !== user.id) {
+    redirect("/admin")
+  }
   const answers = evaluation.submissions[0]
   if (!answers) redirect("/admin")
 

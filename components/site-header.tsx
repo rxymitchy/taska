@@ -13,6 +13,8 @@ const navLink =
 export async function SiteHeader() {
   const session = await auth()
   const role = session?.user.role
+  const isAdmin = Boolean(session?.user.isAdmin || role === "ADMIN")
+  const isReviewer = Boolean(session?.user.isReviewer || role === "REVIEWER" || isAdmin)
 
   return (
     <header className="sticky top-0 z-20 border-b border-[#12382b]/10 bg-[linear-gradient(90deg,rgba(230,240,230,.92),rgba(241,240,220,.92)_55%,rgba(248,230,207,.92))] backdrop-blur-md group-has-[.landing-home,.auth-page]:absolute group-has-[.landing-home,.auth-page]:inset-x-0 group-has-[.landing-home,.auth-page]:top-0 group-has-[.landing-home,.auth-page]:border-0 group-has-[.landing-home,.auth-page]:bg-none group-has-[.landing-home,.auth-page]:backdrop-blur-none">
@@ -48,6 +50,15 @@ export async function SiteHeader() {
               <Link className={navLink} href="/employer/credits">Add credit</Link>
               <Link className={navLink} href="/employer/upload">Upload</Link>
               <Link className={navLink} href="/employer/evaluations/new">Check an answer</Link>
+            </>
+          ) : null}
+
+          {isReviewer ? <Link className={navLink} href="/admin">Reviews</Link> : null}
+          {isAdmin ? (
+            <>
+              <Link className={navLink} href="/admin/people">People</Link>
+              <Link className={navLink} href="/admin/companies">Companies</Link>
+              <Link className={navLink} href="/admin/evaluators">Evaluators</Link>
             </>
           ) : null}
 

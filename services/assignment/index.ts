@@ -38,7 +38,7 @@ export async function pickEvaluator(evaluation: { language: string; context: str
   const place = countryFromContext(evaluation.context)
   const speakers = await prisma.workerProfile.findMany({
     where: {
-      user: { role: "WORKER" },
+      user: { role: "WORKER", isAdmin: false, isReviewer: false },
       ...(place
         ? { OR: [{ languages: { has: evaluation.language } }, { country: place }] }
         : { languages: { has: evaluation.language } }),
@@ -72,6 +72,41 @@ export async function pickEvaluator(evaluation: { language: string; context: str
     .sort((a, b) => b.score - a.score)
 
   return ranked[0]?.id ?? null
+}
+
+export async function pickReviewer() {
+  const reviewers = await prisma.user.findMany({
+    where: {
+      OR: [{ isReviewer: true }, { role: { in: ["REVIEWER", "ADMIN"] } }],
+    },
+    select: {
+      id: true,
+      email: true,
+      reviewedEvaluations: {
+        where: { status: "UNDER_REVIEW" },
+        select: { id: true },
+      },
+    },
+  })
+  const pool = reviewers.filter((row) => !isDemoEvaluatorEmail(row.email))
+  if (pool.length === 0) return null
+  return [...pool].sort((a, b) => a.reviewedEvaluations.length - b.reviewedEvaluations.length)[0]?.id ?? null
+}
+
+export async function assignReviewer(evaluationId: string) {
+  const evaluation = await prisma.evaluation.findUnique({
+    where: { id: evaluationId },
+    select: { id: true, status: true, reviewerUserId: true },
+  })
+  if (!evaluation || evaluation.status !== "UNDER_REVIEW") return evaluation
+  if (evaluation.reviewerUserId) return evaluation
+  const reviewerUserId = await pickReviewer()
+  if (!reviewerUserId) return evaluation
+  await prisma.evaluation.update({
+    where: { id: evaluation.id },
+    data: { reviewerUserId, reviewerAssignedAt: new Date() },
+  })
+  return prisma.evaluation.findUnique({ where: { id: evaluation.id } })
 }
 
 export async function assignEvaluation(evaluationId: string) {
