@@ -1,9 +1,8 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { ReviewControls } from "@/components/review-controls"
-import { Container, StatusPill } from "@/components/ui"
+import { Container, SatsAmount, StatusPill } from "@/components/ui"
 import { formatWhen } from "@/lib/format"
-import { formatSats } from "@/lib/money"
 import { prisma } from "@/lib/prisma"
 import { choiceLabels } from "@/lib/styles"
 import { requireRole } from "@/lib/session"
@@ -36,11 +35,11 @@ export default async function EmployerTaskPage({ params }: { params: Promise<{ i
       <dl className="mt-6 grid gap-4 sm:grid-cols-3">
         <div className="rounded-lg border border-line bg-card p-4">
           <dt className="text-xs uppercase tracking-wider text-muted">Total task budget</dt>
-          <dd className="mt-2"><span className="inline-flex rounded-md bg-hl px-2 py-1 font-semibold tabular-nums text-ink">{formatSats(budget)}</span></dd>
+          <dd className="mt-2"><SatsAmount sats={budget} /></dd>
         </div>
         <div className="rounded-lg border border-line bg-card p-4">
           <dt className="text-xs uppercase tracking-wider text-muted">Spent</dt>
-          <dd className="mt-2"><span className="inline-flex rounded-md bg-hl px-2 py-1 font-semibold tabular-nums text-ink">{formatSats(spent)}</span></dd>
+          <dd className="mt-2"><SatsAmount sats={spent} /></dd>
         </div>
         <div className="rounded-lg border border-line bg-card p-4">
           <dt className="text-xs uppercase tracking-wider text-muted">Status</dt>

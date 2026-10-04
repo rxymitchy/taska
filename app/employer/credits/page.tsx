@@ -5,7 +5,7 @@ import { DownloadReceiptButton } from "@/components/download-receipt-button"
 import { ConfirmDepositButton, CreditsForm } from "@/components/credits-form"
 import { PendingCreditWatcher } from "@/components/pending-credit-watcher"
 import { PendingInvoiceActions } from "@/components/pending-invoice-actions"
-import { Container, StatusPill } from "@/components/ui"
+import { Container, SatsAmount, StatusPill } from "@/components/ui"
 import { formatSats } from "@/lib/money"
 import { settlePaidDeposits } from "@/lib/credits"
 import { companyCostPerEvaluation, evaluatorPayoutSats, reviewerPayoutSats, lightningProviderName } from "@/lib/pricing"
@@ -56,11 +56,11 @@ export default async function CreditsPage() {
       <dl className="mt-6 grid gap-3 sm:grid-cols-2">
         <div className="rounded-lg border border-line bg-card px-4 py-3">
           <dt className="text-xs font-medium uppercase tracking-wider text-muted">Available</dt>
-          <dd className="mt-1"><span className="inline-flex rounded-md bg-hl px-2 py-1 font-display text-2xl text-ink">{formatSats(company.prepaidSats)}</span></dd>
+          <dd className="mt-1"><SatsAmount sats={company.prepaidSats} /></dd>
         </div>
         <div className="rounded-lg border border-line bg-card px-4 py-3">
           <dt className="text-xs font-medium uppercase tracking-wider text-muted">Held for open work</dt>
-          <dd className="mt-1"><span className="inline-flex rounded-md bg-hl px-2 py-1 font-display text-2xl text-ink">{formatSats(company.heldSats)}</span></dd>
+          <dd className="mt-1"><SatsAmount sats={company.heldSats} /></dd>
         </div>
       </dl>
       <div className="form-surface mt-6">
@@ -74,7 +74,7 @@ export default async function CreditsPage() {
             {company.creditDeposits.map((deposit) => (
               <li key={deposit.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
                 <span>
-                  <span className="block font-medium">{formatSats(deposit.amountSats)}</span>
+                  <SatsAmount sats={deposit.amountSats} size="sm" />
                   <span className="mt-1 block"><StatusPill status={deposit.status} /></span>
                 </span>
                 {deposit.status === "PENDING" ? (
@@ -100,7 +100,7 @@ export default async function CreditsPage() {
             {company.creditLedger.map((row) => (
               <li key={row.id} className="py-3">
                 <span>{row.kind} · </span>
-                <span className="inline-flex rounded-md bg-hl px-2 py-0.5 font-semibold tabular-nums text-ink">{formatSats(row.amountSats)}</span>
+                <SatsAmount sats={row.amountSats} size="sm" />
                 {row.note ? ` · ${row.note}` : ""}
               </li>
             ))}

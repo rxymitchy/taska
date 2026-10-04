@@ -2,9 +2,9 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { startTask } from "@/app/actions/tasks"
-import { Container, StatusPill } from "@/components/ui"
+import { Container, SatsAmount, StatusPill } from "@/components/ui"
 import { auth } from "@/auth"
-import { formatSats, formatUsd } from "@/lib/money"
+import { formatSats } from "@/lib/money"
 import { prisma } from "@/lib/prisma"
 import { btnPrimary } from "@/lib/styles"
 
@@ -45,7 +45,7 @@ export default async function TaskDetailPage({
         <div className="rounded-lg border border-line bg-card p-4">
           <dt className="text-xs uppercase tracking-wider text-muted">Reward</dt>
           <dd className="mt-2 text-lg font-medium">
-            <span className="inline-flex rounded-md bg-hl px-2 py-1 font-semibold tabular-nums text-ink">{formatSats(task.rewardSats)}</span>{" "}<span className="text-sm text-muted">≈ {formatUsd(task.rewardSats)}</span>
+            <SatsAmount sats={task.rewardSats} />
           </dd>
         </div>
         <div className="rounded-lg border border-line bg-card p-4">

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { formatSats, formatUsd } from "@/lib/money"
+import { SatsAmount } from "@/components/ui"
 import { btnSecondary } from "@/lib/styles"
 
 export function TaskCard({
@@ -32,8 +32,7 @@ export function TaskCard({
         ) : null}
       </div>
       <p className="mt-4 text-sm">
-        <span className="inline-flex rounded-md bg-hl px-2 py-0.5 font-semibold text-ink">{formatSats(task.rewardSats)}</span>
-        <span className="text-muted"> ≈ {formatUsd(task.rewardSats)}</span>
+        <SatsAmount sats={task.rewardSats} size="sm" />
       </p>
       <p className="mt-1 text-sm text-muted">~{task.estimatedMinutes} min</p>
       <p className="mt-4 text-sm">{available} tasks available</p>

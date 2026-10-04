@@ -1,8 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { retryFailedPayouts } from "@/app/actions/payouts"
-import { Container } from "@/components/ui"
-import { formatSats } from "@/lib/money"
+import { Container, SatsAmount } from "@/components/ui"
 import { lightningProviderName } from "@/lib/pricing"
 import { notDemoCompanyWhere } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
@@ -54,9 +53,7 @@ export default async function AdminPage() {
         <div className="mt-6 rounded-lg border border-line bg-card px-4 py-3">
           <p className="text-xs font-medium uppercase tracking-wider text-muted">Bitcoin in the till</p>
           <p className="mt-2">
-            <span className="inline-flex rounded-md bg-hl px-2 py-1 font-display text-2xl tabular-nums text-ink">
-              {formatSats(till.balanceSats)}
-            </span>
+            <SatsAmount sats={till.balanceSats} />
           </p>
           <p className="mt-1 text-sm text-muted">What companies have paid in, minus what we have paid out.</p>
         </div>

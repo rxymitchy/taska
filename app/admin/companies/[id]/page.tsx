@@ -2,8 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { CompanyStatus } from "@/components/company-status"
-import { Container } from "@/components/ui"
-import { formatSats } from "@/lib/money"
+import { Container, SatsAmount } from "@/components/ui"
 import { isDemoAccountEmail } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 import { requireAdmin } from "@/lib/session"
@@ -30,9 +29,17 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
         </Link>
       </p>
       <h1 className="mt-2 text-3xl tracking-tight">{company.companyName}</h1>
-      <p className="mt-2 text-muted">
-        {company.user.email} · available {formatSats(company.prepaidSats)} · held {formatSats(company.heldSats)}
-      </p>
+      <p className="mt-2 text-muted">{company.user.email}</p>
+      <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div className="rounded-lg border border-line bg-card px-4 py-3">
+          <dt className="text-xs font-medium uppercase tracking-wider text-muted">Available</dt>
+          <dd className="mt-1"><SatsAmount sats={company.prepaidSats} /></dd>
+        </div>
+        <div className="rounded-lg border border-line bg-card px-4 py-3">
+          <dt className="text-xs font-medium uppercase tracking-wider text-muted">Held</dt>
+          <dd className="mt-1"><SatsAmount sats={company.heldSats} /></dd>
+        </div>
+      </dl>
       <ul className="mt-8 divide-y divide-line rounded-lg border border-line bg-card">
         {company.evaluations.length === 0 ? (
           <li className="px-4 py-4 text-sm text-muted">No evaluations yet.</li>

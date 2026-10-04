@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from "react"
 import Link from "next/link"
 import { submitEvaluation, type SubmitState } from "@/app/actions/tasks"
 import { choiceLabels } from "@/lib/styles"
-import { formatSats, formatUsd } from "@/lib/money"
+import { SatsAmount } from "@/components/ui"
 import { btnPrimary, inputClass } from "@/lib/styles"
 
 type Item = {
@@ -150,8 +150,7 @@ function ResultSequence({
       </ol>
       {approved && step >= 3 ? (
         <div className="mt-6 border-t border-line pt-6">
-          <p className="inline-flex rounded-md bg-hl px-3 py-1 font-display text-4xl tracking-tight text-ink">+{formatSats(result.amountSats)}</p>
-          <p className="mt-1 text-muted">≈ {formatUsd(result.amountSats)}</p>
+          <SatsAmount sats={result.amountSats} prefix="+" />
           <p className="mt-4 text-sm">Payment sent</p>
           <p className="text-sm text-muted">Paid via Lightning</p>
           {result.paymentHash ? (

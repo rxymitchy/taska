@@ -1,4 +1,29 @@
 import { avatarColor, initials } from "@/lib/format"
+import { formatSats, formatUsd } from "@/lib/money"
+
+export function SatsAmount({
+  sats,
+  size = "lg",
+  prefix = "",
+}: {
+  sats: number
+  size?: "lg" | "sm"
+  prefix?: string
+}) {
+  return (
+    <span className="inline-flex flex-col">
+      <span
+        className={`inline-flex w-fit rounded-md bg-hl px-2 font-semibold tabular-nums text-ink ${
+          size === "lg" ? "py-1 font-display text-2xl" : "py-0.5 text-sm"
+        }`}
+      >
+        {prefix}
+        {formatSats(sats)}
+      </span>
+      <span className={`mt-1 font-semibold text-good ${size === "lg" ? "text-sm" : "text-xs"}`}>{formatUsd(sats)}</span>
+    </span>
+  )
+}
 
 export function Avatar({ name, size = "md" }: { name: string; size?: "md" | "lg" }) {
   const dimension = size === "lg" ? "size-16 text-lg" : "size-11 text-sm"

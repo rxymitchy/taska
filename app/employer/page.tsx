@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { CompanyStatus } from "@/components/company-status"
-import { Container } from "@/components/ui"
+import { Container, SatsAmount } from "@/components/ui"
 import { formatSats } from "@/lib/money"
 import { companyCostPerEvaluation } from "@/lib/pricing"
 import { prisma } from "@/lib/prisma"
@@ -71,15 +71,15 @@ export default async function EmployerPage() {
       <dl className="grid gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-3">
         <div className="lagoon-dark-panel px-4 py-4 text-white">
           <dt className="text-xs font-bold uppercase text-white/75">Available credit</dt>
-          <dd className="mt-2"><span className="inline-flex rounded-md bg-hl px-2 py-1 font-display text-2xl tabular-nums text-ink">{formatSats(company.prepaidSats)}</span></dd>
+          <dd className="mt-2"><SatsAmount sats={company.prepaidSats} /></dd>
         </div>
         <div className="bg-card px-4 py-4">
           <dt className="text-xs font-medium uppercase text-muted">Held for open work</dt>
-          <dd className="mt-2"><span className="inline-flex rounded-md bg-hl px-2 py-1 font-display text-2xl tabular-nums text-ink">{formatSats(company.heldSats)}</span></dd>
+          <dd className="mt-2"><SatsAmount sats={company.heldSats} /></dd>
         </div>
         <div className="bg-card px-4 py-4">
           <dt className="text-xs font-medium uppercase text-muted">Cost per evaluation</dt>
-          <dd className="mt-2"><span className="inline-flex rounded-md bg-hl px-2 py-1 font-display text-2xl tabular-nums text-ink">{formatSats(cost)}</span></dd>
+          <dd className="mt-2"><SatsAmount sats={cost} /></dd>
         </div>
       </dl>
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_17rem]">
