@@ -70,7 +70,7 @@ function RoleOption({
     <label className="group block cursor-pointer">
       <input type="radio" name="role" value={value} checked={checked} onChange={onChange} className="peer sr-only" />
       <span
-        className={`relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-2xl border p-4 transition duration-300 hover:-translate-y-1 active:scale-[0.97] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-[#2f6b53] ${look}`}
+        className={`relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-2xl border p-4 transition duration-300 hover:-translate-y-1 active:scale-[0.97] peer-focus-visible:outline peer-focus-visible:outline-offset-4 peer-focus-visible:outline-[#2f6b53] ${look}`}
       >
         <span className="flex items-start justify-between">
           <span className="grid size-10 place-items-center rounded-full bg-[#12382b]/10 transition duration-300 group-hover:rotate-6 group-hover:scale-110">
@@ -126,7 +126,7 @@ export function SignupForm({
         </>
       ) : (
         <fieldset className="space-y-2.5">
-          <legend className={`${labelCls} mb-2.5`}>I am a</legend>
+          <legend className={`${labelCls} mb-2.5`}>I’m signing up as</legend>
           <div className="grid grid-cols-2 gap-3">
             <RoleOption value="WORKER" label="Evaluator" tone="evaluator" checked={role === "WORKER"} onChange={() => setRole("WORKER")}>
               <svg {...icon} className="size-5">
@@ -207,7 +207,7 @@ export function SignupForm({
             onClick={() => setShow((s) => !s)}
             aria-pressed={show}
             aria-label={show ? "Hide password" : "Show password"}
-            className="absolute right-2 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-[#3d5a49] transition hover:bg-[#12382b]/8 hover:text-[#12382b] active:scale-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2f6b53]"
+            className="absolute right-2 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-[#3d5a49] transition hover:bg-[#12382b]/8 hover:text-[#12382b] active:scale-90 focus-visible:outline focus-visible:outline-[#2f6b53]"
           >
             {show ? (
               <svg {...icon} className="size-5">

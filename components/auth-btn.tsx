@@ -77,7 +77,7 @@ export function AuthBtn({
   const v = variants[variant]
   const off = disabled || pending
 
-  const className = `group relative inline-flex items-center justify-center overflow-hidden rounded-full border font-semibold transition duration-300 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2f6b53] ${sizes[size]} ${block ? "w-full" : ""} ${v.surface}`
+  const className = `group relative inline-flex cursor-pointer items-center justify-center overflow-hidden rounded-full border font-semibold transition duration-300 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-70 focus-visible:outline focus-visible:outline-offset-4 focus-visible:outline-[#2f6b53] ${sizes[size]} ${block ? "w-full" : ""} ${v.surface}`
 
   const onMove = (e: PointerEvent<HTMLElement>) => {
     const el = e.currentTarget

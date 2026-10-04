@@ -44,7 +44,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
           </label>
           <Link
             href="/forgot-password"
-            className="rounded text-[13px] font-semibold text-[#2f6b53] underline-offset-4 transition-colors hover:text-[#12382b] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2f6b53]"
+            className="rounded text-[13px] font-semibold text-[#2f6b53] underline-offset-4 transition-colors hover:text-[#12382b] hover:underline focus-visible:outline focus-visible:outline-offset-4 focus-visible:outline-[#2f6b53]"
           >
             Forgot password?
           </Link>
@@ -63,7 +63,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
             onClick={() => setShow((s) => !s)}
             aria-pressed={show}
             aria-label={show ? "Hide password" : "Show password"}
-            className="absolute right-2 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-[#3d5a49] transition hover:bg-[#12382b]/8 hover:text-[#12382b] active:scale-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2f6b53]"
+            className="absolute right-2 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-[#3d5a49] transition hover:bg-[#12382b]/8 hover:text-[#12382b] active:scale-90 focus-visible:outline focus-visible:outline-[#2f6b53]"
           >
             {show ? (
               <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

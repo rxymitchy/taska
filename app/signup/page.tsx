@@ -28,7 +28,7 @@ export default async function SignupPage({
       compact
       title={title}
       blurb={blurb}
-      prompt="Already here?"
+      prompt="Already have an account?"
       cta={
         <AuthBtn href="/login" variant="secondary" size="sm">
           Log in
