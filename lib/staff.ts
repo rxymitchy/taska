@@ -33,9 +33,9 @@ export function parseStaffKind(value: FormDataEntryValue | null): StaffKind {
 }
 
 export function homeForUser(user: StaffUser) {
+  if (canAdmin(user)) return "/admin"
+  if (canReview(user)) return "/reviewer"
   if (user.role === "EMPLOYER") return "/employer"
-  if (user.role === "WORKER") return "/dashboard"
-  if (canAdmin(user) || canReview(user)) return "/admin"
   return "/dashboard"
 }
 

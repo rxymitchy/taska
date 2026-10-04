@@ -12,7 +12,8 @@ export async function requireUser(loginPath = "/login") {
 
 export function homeForRole(role: Role) {
   if (role === "EMPLOYER") return "/employer"
-  if (role === "ADMIN" || role === "REVIEWER") return "/admin"
+  if (role === "ADMIN") return "/admin"
+  if (role === "REVIEWER") return "/reviewer"
   return "/dashboard"
 }
 
@@ -23,7 +24,7 @@ export async function requireRole(roles: Role[]) {
 }
 
 export async function requireReviewer() {
-  const user = await requireUser("/admin/login")
+  const user = await requireUser("/reviewer")
   if (!(await canReview(user))) redirect(homeForUser(user))
   return user
 }

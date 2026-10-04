@@ -5,7 +5,7 @@ import { redirect } from "next/navigation"
 import { holdCompanyCredits, releaseEvaluationHold, spendEvaluationHold } from "@/lib/credits"
 import { companyCostPerEvaluation } from "@/lib/pricing"
 import { prisma } from "@/lib/prisma"
-import { canAdmin } from "@/lib/staff"
+import { canAdmin, homeForUser } from "@/lib/staff"
 import { requireReviewer, requireRole } from "@/lib/session"
 import { aiEvaluationSchema, humanEvaluationSchema } from "@/lib/validators"
 import { assignEvaluation, assignReviewer } from "@/services/assignment"
@@ -131,6 +131,7 @@ export async function submitHumanEvaluation(_prev: { error: string }, formData: 
 
   revalidatePath("/dashboard")
   revalidatePath("/admin")
+  revalidatePath("/reviewer")
   revalidatePath("/employer")
   revalidatePath(`/employer/evaluations/${evaluation.id}`)
   redirect(`/dashboard/evaluations/${evaluation.id}`)
@@ -138,19 +139,20 @@ export async function submitHumanEvaluation(_prev: { error: string }, formData: 
 
 export async function decideEvaluation(formData: FormData) {
   const reviewer = await requireReviewer()
+  const home = homeForUser(reviewer)
   const evaluationId = String(formData.get("evaluationId") ?? "")
   const decision = String(formData.get("decision") ?? "")
-  if (decision !== "approve" && decision !== "reject") redirect("/admin")
+  if (decision !== "approve" && decision !== "reject") redirect(home)
 
   const evaluation = await prisma.evaluation.findUnique({
     where: { id: evaluationId },
     include: { assignedWorker: true, submissions: { orderBy: { submittedAt: "desc" }, take: 1 } },
   })
   if (!evaluation || evaluation.status !== "UNDER_REVIEW" || !evaluation.assignedWorker || !evaluation.submissions[0]) {
-    redirect("/admin")
+    redirect(home)
   }
   if (!canAdmin(reviewer) && evaluation.reviewerUserId && evaluation.reviewerUserId !== reviewer.id) {
-    redirect("/admin")
+    redirect(home)
   }
 
   const submission = evaluation.submissions[0]
@@ -160,7 +162,8 @@ export async function decideEvaluation(formData: FormData) {
       reviewerUserId: reviewer.id,
     })
     if (!ready.ok) {
-      redirect(`/admin/evaluations/${evaluation.id}?pay=need-address`)
+      const base = canAdmin(reviewer) ? "/admin" : "/reviewer"
+      redirect(`${base}/evaluations/${evaluation.id}?pay=need-address`)
     }
   }
   if (decision === "reject") {
@@ -174,10 +177,11 @@ export async function decideEvaluation(formData: FormData) {
     })
     await releaseEvaluationHold(evaluation.id)
     revalidatePath("/admin")
+    revalidatePath("/reviewer")
     revalidatePath("/dashboard")
     revalidatePath("/employer")
     revalidatePath(`/employer/evaluations/${evaluation.id}`)
-    redirect("/admin")
+    redirect(home)
   }
 
   await prisma.evaluationSubmission.update({
@@ -200,8 +204,9 @@ export async function decideEvaluation(formData: FormData) {
   })
 
   revalidatePath("/admin")
+  revalidatePath("/reviewer")
   revalidatePath("/dashboard")
   revalidatePath("/employer")
   revalidatePath(`/employer/evaluations/${evaluation.id}`)
-  redirect("/admin")
+  redirect(home)
 }

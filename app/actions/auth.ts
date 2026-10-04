@@ -5,7 +5,7 @@ import { AuthError } from "next-auth"
 import { signIn } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { canReview } from "@/lib/reviewer-access"
-import { homeForUser, parseStaffKind, staffFlags } from "@/lib/staff"
+import { canAdmin, homeForUser, parseStaffKind, staffFlags } from "@/lib/staff"
 import { rateLimit } from "@/lib/rate-limit"
 import { signupSchema, inviteSignupSchema, forgotPasswordSchema, resetPasswordSchema } from "@/lib/validators"
 import { findOpenInvite, hashInviteToken } from "@/lib/invites"
@@ -55,11 +55,29 @@ export async function loginAdmin(_prev: AuthState, formData: FormData): Promise<
   const user = await prisma.user.findUnique({ where: { email } })
   if (!user) return { error: "Email or password is incorrect." }
   const valid = await compare(password, user.passwordHash)
-  if (!valid || !(await canReview(user))) {
+  if (!valid || !canAdmin(user)) {
     return { error: "Email or password is incorrect." }
   }
   const callback = safeCallback(formData.get("callbackUrl"))
   const redirectTo = callback?.startsWith("/admin") ? callback : "/admin"
+  const result = await signInWithPassword(email, password, redirectTo)
+  return result ?? { error: "" }
+}
+
+export async function loginReviewer(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase()
+  const password = String(formData.get("password") ?? "")
+  const user = await prisma.user.findUnique({ where: { email } })
+  if (!user) return { error: "Email or password is incorrect." }
+  const valid = await compare(password, user.passwordHash)
+  if (!valid || !(await canReview(user))) {
+    return { error: "Email or password is incorrect." }
+  }
+  const callback = safeCallback(formData.get("callbackUrl"))
+  const home = homeForUser(user)
+  const redirectTo = callback?.startsWith("/reviewer") || callback?.startsWith("/admin") ? callback : home
   const result = await signInWithPassword(email, password, redirectTo)
   return result ?? { error: "" }
 }

@@ -63,7 +63,8 @@ export async function inviteReviewer(_prev: InviteState, formData: FormData): Pr
   })
 
   const origin = (process.env.AUTH_URL || "http://localhost:3000").replace(/\/$/, "")
-  const inviteUrl = `${origin}/signup?invite=${token}`
+  const inviteUrl =
+    kind === "reviewer" ? `${origin}/reviewer?invite=${token}` : `${origin}/signup?invite=${token}`
   const emailed = await sendReviewerInviteEmail({ to: email, inviteUrl })
   revalidatePath("/admin/invite")
   return {
@@ -84,6 +85,7 @@ export async function saveReviewerLightning(_prev: { error: string }, formData: 
   })
   revalidatePath("/admin")
   revalidatePath("/admin/invite")
+  revalidatePath("/reviewer")
   return { error: "" }
 }
 

@@ -4,7 +4,7 @@ import { loginAdmin } from "@/app/actions/auth"
 import { LoginForm } from "@/components/login-form"
 import { AuthShell } from "@/components/auth-shell"
 import { auth } from "@/auth"
-import { canReview } from "@/lib/reviewer-access"
+import { canAdmin, canReview } from "@/lib/staff"
 
 export const metadata: Metadata = { title: "Admin" }
 
@@ -14,9 +14,8 @@ export default async function AdminLoginPage({
   searchParams: Promise<{ callbackUrl?: string }>
 }) {
   const session = await auth()
-  if (session?.user && (await canReview(session.user))) {
-    redirect("/admin")
-  }
+  if (session?.user && canAdmin(session.user)) redirect("/admin")
+  if (session?.user && canReview(session.user)) redirect("/reviewer")
 
   const params = await searchParams
   const callbackUrl =
@@ -25,11 +24,7 @@ export default async function AdminLoginPage({
       : "/admin"
 
   return (
-    <AuthShell
-      className="admin-auth"
-      title="Staff"
-      blurb="Reviewers see their assigned checks. Admins can also help companies and evaluators."
-    >
+    <AuthShell className="admin-auth" title="Admin" blurb="Sign in to manage people and help with reviews.">
       <LoginForm
         action={loginAdmin}
         callbackUrl={callbackUrl}

@@ -7,10 +7,8 @@ import { Container, StatusPill } from "@/components/ui"
 import { formatSats } from "@/lib/money"
 import { lightningProviderName } from "@/lib/pricing"
 import { prisma } from "@/lib/prisma"
-import { freshStaffUser } from "@/lib/reviewer-access"
-import { canAdmin } from "@/lib/staff"
 import { btnSecondary } from "@/lib/styles"
-import { requireReviewer } from "@/lib/session"
+import { requireAdmin } from "@/lib/session"
 import { assignReviewer } from "@/services/assignment"
 import { getLightningService } from "@/services/lightning"
 
@@ -29,23 +27,17 @@ export const metadata: Metadata = { title: "Review" }
 export const maxDuration = 60
 
 export default async function AdminPage() {
-  const user = await requireReviewer()
-  const fresh = (await freshStaffUser(user.id)) ?? user
-  const admin = canAdmin(fresh)
-  if (admin) {
-    const unassigned = await prisma.evaluation.findMany({
-      where: { status: "UNDER_REVIEW", reviewerUserId: null },
-      select: { id: true },
-      take: 20,
-    })
-    for (const row of unassigned) await assignReviewer(row.id)
-  }
+  const user = await requireAdmin()
+  const unassigned = await prisma.evaluation.findMany({
+    where: { status: "UNDER_REVIEW", reviewerUserId: null },
+    select: { id: true },
+    take: 20,
+  })
+  for (const row of unassigned) await assignReviewer(row.id)
 
   const [queue, payouts, failedPayouts, till, me] = await Promise.all([
     prisma.evaluation.findMany({
-      where: admin
-        ? { status: "UNDER_REVIEW" }
-        : { status: "UNDER_REVIEW", reviewerUserId: user.id },
+      where: { status: "UNDER_REVIEW" },
       orderBy: { createdAt: "asc" },
       include: { company: true },
     }),
@@ -54,14 +46,12 @@ export default async function AdminPage() {
       orderBy: { createdAt: "desc" },
       take: 5,
     }),
-    admin
-      ? prisma.evaluationPayout.findMany({
-          where: { status: "FAILED" },
-          orderBy: { createdAt: "desc" },
-          take: 20,
-        })
-      : Promise.resolve([]),
-    admin ? readTillSats() : Promise.resolve({ kind: "off" as const }),
+    prisma.evaluationPayout.findMany({
+      where: { status: "FAILED" },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    }),
+    readTillSats(),
     prisma.user.findUnique({ where: { id: user.id }, select: { lightningAddress: true } }),
   ])
 
@@ -69,18 +59,14 @@ export default async function AdminPage() {
     <Container className="page-frame">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-3xl tracking-tight">{admin ? "Review queue" : "Your reviews"}</h1>
+          <h1 className="text-3xl tracking-tight">Review queue</h1>
           <p className="mt-2 text-muted">
-            {admin
-              ? "If you agree, they get paid. If you don’t, it comes back and nobody is charged."
-              : "These checks were assigned to you. Add where you get paid, then review."}
+            If you agree, they get paid. If you don’t, it comes back and nobody is charged.
           </p>
         </div>
-        {admin ? (
-          <Link className="text-sm font-semibold text-accent underline" href="/admin/people">
-            People and roles
-          </Link>
-        ) : null}
+        <Link className="text-sm font-semibold text-accent underline" href="/admin/people">
+          People and roles
+        </Link>
       </div>
       <section className="form-surface mt-6 max-w-xl">
         <h2 className="text-lg">Where you get paid</h2>
@@ -121,9 +107,7 @@ export default async function AdminPage() {
       <ul className="mt-8 divide-y divide-line rounded-lg border border-line bg-card">
         {queue.length === 0 ? (
           <li className="px-4 py-4 text-sm text-muted">
-            {admin
-              ? "Nothing is waiting for review. An evaluator has to submit a check first."
-              : "No reviews are assigned to you yet."}
+            Nothing is waiting for review. An evaluator has to submit a check first.
           </li>
         ) : (
           queue.map((evaluation) => (

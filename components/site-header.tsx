@@ -53,7 +53,11 @@ export async function SiteHeader() {
             </>
           ) : null}
 
-          {isReviewer ? <Link className={navLink} href="/admin">Reviews</Link> : null}
+          {isReviewer ? (
+            <Link className={navLink} href={isAdmin ? "/admin" : "/reviewer"}>
+              Reviews
+            </Link>
+          ) : null}
           {isAdmin ? (
             <>
               <Link className={navLink} href="/admin/people">People</Link>
