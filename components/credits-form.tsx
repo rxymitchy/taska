@@ -174,8 +174,7 @@ function CardCredits() {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted">
-        Card is the full price. Bitcoin is 10% off — {formatSats(pack)} instead of {formatSats(listPrice)} (
-        {formatUsd(listPrice)}) for this pack.
+        Card is the full price. Bitcoin is 10% off — {formatUsd(pack)} instead of {formatUsd(listPrice)} for this pack.
       </p>
       <label className="space-y-1.5">
         <span className={labelClass}>Credit pack</span>
@@ -189,7 +188,7 @@ function CardCredits() {
         >
           {CREDIT_PACKS.map((row) => (
             <option key={row} value={String(row)}>
-              {formatSats(row)} credit · card {formatSats(cardListPriceSats(row))}
+              {formatUsd(row)} credit · pay {formatUsd(cardListPriceSats(row))}
             </option>
           ))}
         </select>
