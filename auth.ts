@@ -47,7 +47,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email: user.email,
           role: user.role,
           isAdmin: user.isAdmin || user.role === "ADMIN",
-          isReviewer: user.isReviewer || user.role === "REVIEWER" || user.role === "ADMIN",
+          isReviewer: user.isReviewer || user.role === "REVIEWER",
         }
       },
     }),

@@ -1,11 +1,6 @@
-import type { Metadata } from "next"
-import { notFound, redirect } from "next/navigation"
-import { ReviewEvaluationView } from "@/components/review-evaluation-view"
-import { prisma } from "@/lib/prisma"
+import { redirect } from "next/navigation"
+import { canReview } from "@/lib/staff"
 import { requireAdmin } from "@/lib/session"
-
-export const metadata: Metadata = { title: "Review evaluation" }
-export const maxDuration = 60
 
 export default async function AdminEvaluationPage({
   params,
@@ -14,17 +9,9 @@ export default async function AdminEvaluationPage({
   params: Promise<{ id: string }>
   searchParams: Promise<{ pay?: string }>
 }) {
-  await requireAdmin()
+  const user = await requireAdmin()
+  if (!canReview(user)) redirect("/admin")
   const { id } = await params
   const { pay } = await searchParams
-  const evaluation = await prisma.evaluation.findUnique({
-    where: { id },
-    include: { submissions: { orderBy: { submittedAt: "desc" }, take: 1 }, assignedWorker: true },
-  })
-  if (!evaluation) notFound()
-  if (evaluation.status !== "UNDER_REVIEW") redirect("/admin")
-  const answers = evaluation.submissions[0]
-  if (!answers) redirect("/admin")
-
-  return <ReviewEvaluationView evaluation={evaluation} answers={answers} pay={pay} />
+  redirect(pay ? `/reviewer/evaluations/${id}?pay=${encodeURIComponent(pay)}` : `/reviewer/evaluations/${id}`)
 }

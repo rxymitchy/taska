@@ -77,7 +77,7 @@ export async function pickEvaluator(evaluation: { language: string; context: str
 export async function pickReviewer() {
   const reviewers = await prisma.user.findMany({
     where: {
-      OR: [{ isReviewer: true }, { role: { in: ["REVIEWER", "ADMIN"] } }],
+      OR: [{ isReviewer: true }, { role: "REVIEWER" }],
     },
     select: {
       id: true,

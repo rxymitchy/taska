@@ -18,7 +18,7 @@ export function canAdmin(user: StaffUser) {
 
 export function canReview(user: StaffUser) {
   if (user.email && isDemoAccountEmail(user.email) && isLiveSite()) return false
-  return Boolean(user.isReviewer || user.role === "REVIEWER" || user.role === "ADMIN")
+  return Boolean(user.isReviewer || user.role === "REVIEWER")
 }
 
 export function staffFlags(kind: StaffKind) {
@@ -33,8 +33,8 @@ export function parseStaffKind(value: FormDataEntryValue | null): StaffKind {
 }
 
 export function homeForUser(user: StaffUser) {
-  if (canAdmin(user)) return "/admin"
   if (canReview(user)) return "/reviewer"
+  if (canAdmin(user)) return "/admin"
   if (user.role === "EMPLOYER") return "/employer"
   return "/dashboard"
 }

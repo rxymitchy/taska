@@ -162,8 +162,7 @@ export async function decideEvaluation(formData: FormData) {
       reviewerUserId: reviewer.id,
     })
     if (!ready.ok) {
-      const base = canAdmin(reviewer) ? "/admin" : "/reviewer"
-      redirect(`${base}/evaluations/${evaluation.id}?pay=need-address`)
+      redirect(`/reviewer/evaluations/${evaluation.id}?pay=need-address`)
     }
   }
   if (decision === "reject") {

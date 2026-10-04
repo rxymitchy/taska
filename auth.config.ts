@@ -26,7 +26,7 @@ export const authConfig = {
         session.user.id = token.sub ?? ""
         session.user.role = token.role as Role
         session.user.isAdmin = Boolean(token.isAdmin || token.role === "ADMIN")
-        session.user.isReviewer = Boolean(token.isReviewer || token.role === "REVIEWER" || token.role === "ADMIN")
+        session.user.isReviewer = Boolean(token.isReviewer || token.role === "REVIEWER")
       }
       return session
     },

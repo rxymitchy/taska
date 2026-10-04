@@ -24,7 +24,7 @@ export default async function AdminLoginPage({
       : "/admin"
 
   return (
-    <AuthShell className="admin-auth" title="Admin" blurb="Sign in to manage people and help with reviews.">
+    <AuthShell className="admin-auth" title="Admin" blurb="Sign in to manage people, payouts, and the till.">
       <LoginForm
         action={loginAdmin}
         callbackUrl={callbackUrl}

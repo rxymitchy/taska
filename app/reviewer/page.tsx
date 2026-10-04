@@ -13,8 +13,10 @@ import { findOpenInvite } from "@/lib/invites"
 import { prisma } from "@/lib/prisma"
 import { canAdmin, canReview, homeForUser } from "@/lib/staff"
 import { requireReviewer } from "@/lib/session"
+import { assignReviewer } from "@/services/assignment"
 
 export const metadata: Metadata = { title: "Reviewer" }
+export const maxDuration = 60
 
 export default async function ReviewerPage({
   searchParams,
@@ -25,8 +27,8 @@ export default async function ReviewerPage({
   const params = await searchParams
 
   if (session?.user) {
-    if (canAdmin(session.user)) redirect("/admin")
     if (canReview(session.user)) return <ReviewerQueue />
+    if (canAdmin(session.user)) redirect("/admin")
     redirect(homeForUser(session.user))
   }
 
@@ -72,9 +74,19 @@ export default async function ReviewerPage({
 
 async function ReviewerQueue() {
   const user = await requireReviewer()
+  const adminReviewer = canAdmin(user)
+  const unassigned = await prisma.evaluation.findMany({
+    where: { status: "UNDER_REVIEW", reviewerUserId: null },
+    select: { id: true },
+    take: 20,
+  })
+  for (const row of unassigned) await assignReviewer(row.id)
+
   const [queue, payouts, me] = await Promise.all([
     prisma.evaluation.findMany({
-      where: { status: "UNDER_REVIEW", reviewerUserId: user.id },
+      where: adminReviewer
+        ? { status: "UNDER_REVIEW" }
+        : { status: "UNDER_REVIEW", reviewerUserId: user.id },
       orderBy: { createdAt: "asc" },
       include: { company: true },
     }),
@@ -88,8 +100,12 @@ async function ReviewerQueue() {
 
   return (
     <Container className="page-frame">
-      <h1 className="text-3xl tracking-tight">Your reviews</h1>
-      <p className="mt-2 text-muted">These checks were assigned to you. Add where you get paid, then review.</p>
+      <h1 className="text-3xl tracking-tight">{adminReviewer ? "Review queue" : "Your reviews"}</h1>
+      <p className="mt-2 text-muted">
+        {adminReviewer
+          ? "If you agree, they get paid. If you don’t, it comes back and nobody is charged."
+          : "These checks were assigned to you. Add where you get paid, then review."}
+      </p>
       <section className="form-surface mt-6 max-w-xl">
         <h2 className="text-lg">Where you get paid</h2>
         <p className="mt-1 text-sm text-muted">Approved reviews pay this wallet.</p>
@@ -106,7 +122,11 @@ async function ReviewerQueue() {
       ) : null}
       <ul className="mt-8 divide-y divide-line rounded-lg border border-line bg-card">
         {queue.length === 0 ? (
-          <li className="px-4 py-4 text-sm text-muted">No reviews are assigned to you yet.</li>
+          <li className="px-4 py-4 text-sm text-muted">
+            {adminReviewer
+              ? "Nothing is waiting for review. An evaluator has to submit a check first."
+              : "No reviews are assigned to you yet."}
+          </li>
         ) : (
           queue.map((evaluation) => (
             <li key={evaluation.id}>

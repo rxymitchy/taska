@@ -16,7 +16,6 @@ export default async function ReviewerEvaluationPage({
   searchParams: Promise<{ pay?: string }>
 }) {
   const user = await requireReviewer()
-  if (canAdmin(user)) redirect("/admin")
   const { id } = await params
   const { pay } = await searchParams
   const evaluation = await prisma.evaluation.findUnique({
@@ -25,7 +24,9 @@ export default async function ReviewerEvaluationPage({
   })
   if (!evaluation) notFound()
   if (evaluation.status !== "UNDER_REVIEW") redirect("/reviewer")
-  if (evaluation.reviewerUserId && evaluation.reviewerUserId !== user.id) redirect("/reviewer")
+  if (!canAdmin(user) && evaluation.reviewerUserId && evaluation.reviewerUserId !== user.id) {
+    redirect("/reviewer")
+  }
   const answers = evaluation.submissions[0]
   if (!answers) redirect("/reviewer")
 

@@ -19,7 +19,7 @@ export function isFoundingReviewer(email: string | null | undefined) {
 
 export async function hasRealReviewer() {
   const staff = await prisma.user.findMany({
-    where: { OR: [{ isReviewer: true }, { role: { in: ["ADMIN", "REVIEWER"] } }] },
+    where: { OR: [{ isReviewer: true }, { role: "REVIEWER" }] },
     select: { email: true },
   })
   return staff.some((row) => !isDemoAccountEmail(row.email))
