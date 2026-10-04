@@ -6,6 +6,7 @@ import { signIn } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { canReview } from "@/lib/reviewer-access"
 import { canAdmin, homeForUser, parseStaffKind, staffFlags } from "@/lib/staff"
+import { setStaffSide } from "@/lib/staff-side"
 import { rateLimit } from "@/lib/rate-limit"
 import { signupSchema, inviteSignupSchema, forgotPasswordSchema, resetPasswordSchema } from "@/lib/validators"
 import { findOpenInvite, hashInviteToken } from "@/lib/invites"
@@ -42,6 +43,8 @@ export async function login(_prev: AuthState, formData: FormData): Promise<AuthS
   if (isDemoLoginBlocked(email)) return { error: "Email or password is incorrect." }
   const user = await prisma.user.findUnique({ where: { email } })
   const redirectTo = safeCallback(formData.get("callbackUrl")) ?? (user ? homeForUser(user) : "/dashboard")
+  if (redirectTo.startsWith("/admin")) await setStaffSide("admin")
+  else if (redirectTo.startsWith("/reviewer")) await setStaffSide("reviewer")
   const result = await signInWithPassword(email, password, redirectTo)
   return result ?? { error: "" }
 }
@@ -60,6 +63,7 @@ export async function loginAdmin(_prev: AuthState, formData: FormData): Promise<
   }
   const callback = safeCallback(formData.get("callbackUrl"))
   const redirectTo = callback?.startsWith("/admin") ? callback : "/admin"
+  await setStaffSide("admin")
   const result = await signInWithPassword(email, password, redirectTo)
   return result ?? { error: "" }
 }
@@ -76,8 +80,8 @@ export async function loginReviewer(_prev: AuthState, formData: FormData): Promi
     return { error: "Email or password is incorrect." }
   }
   const callback = safeCallback(formData.get("callbackUrl"))
-  const home = homeForUser(user)
-  const redirectTo = callback?.startsWith("/reviewer") || callback?.startsWith("/admin") ? callback : home
+  const redirectTo = callback?.startsWith("/reviewer") ? callback : "/reviewer"
+  await setStaffSide("reviewer")
   const result = await signInWithPassword(email, password, redirectTo)
   return result ?? { error: "" }
 }
@@ -196,7 +200,10 @@ async function signupReviewer(formData: FormData): Promise<AuthState> {
     name: parsed.data.name,
     role: user.role,
   })
-  const result = await signInWithPassword(email, parsed.data.password, homeForUser(user))
+  const home = flags.isReviewer && !flags.isAdmin ? "/reviewer" : homeForUser(user)
+  if (home.startsWith("/admin")) await setStaffSide("admin")
+  else if (home.startsWith("/reviewer")) await setStaffSide("reviewer")
+  const result = await signInWithPassword(email, parsed.data.password, home)
   return result ?? { error: "" }
 }
 
@@ -262,6 +269,9 @@ export async function resetPassword(_prev: AuthState, formData: FormData): Promi
     }),
   ])
 
-  const result = await signInWithPassword(reset.user.email, parsed.data.password, homeForUser(reset.user))
+  const home = homeForUser(reset.user)
+  if (home.startsWith("/admin")) await setStaffSide("admin")
+  else if (home.startsWith("/reviewer")) await setStaffSide("reviewer")
+  const result = await signInWithPassword(reset.user.email, parsed.data.password, home)
   return result ?? { error: "" }
 }

@@ -6,7 +6,6 @@ import { formatSats } from "@/lib/money"
 import { lightningProviderName } from "@/lib/pricing"
 import { notDemoCompanyWhere } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
-import { canReview } from "@/lib/staff"
 import { btnSecondary } from "@/lib/styles"
 import { requireAdmin } from "@/lib/session"
 import { getLightningService } from "@/services/lightning"
@@ -26,7 +25,7 @@ export const metadata: Metadata = { title: "Admin" }
 export const maxDuration = 60
 
 export default async function AdminPage() {
-  const user = await requireAdmin()
+  await requireAdmin()
   const [failedPayouts, till] = await Promise.all([
     prisma.evaluationPayout.findMany({
       where: { status: "FAILED", evaluation: { company: notDemoCompanyWhere() } },
@@ -39,13 +38,8 @@ export default async function AdminPage() {
   return (
     <Container className="page-frame">
       <h1 className="text-3xl tracking-tight">Admin</h1>
-      <p className="mt-2 text-muted">People, payouts, and the till. Reviews live on the reviewer page.</p>
+      <p className="mt-2 text-muted">People, payouts, and the till.</p>
       <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold">
-        {canReview(user) ? (
-          <Link className="text-accent underline" href="/reviewer">
-            Reviews
-          </Link>
-        ) : null}
         <Link className="text-accent underline" href="/admin/people">
           People and roles
         </Link>

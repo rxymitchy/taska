@@ -1,7 +1,9 @@
 import Link from "next/link"
 import { auth, signOut } from "@/auth"
 import { AuthBtn } from "@/components/auth-btn"
+import { StaffNav } from "@/components/staff-nav"
 import { brand } from "@/lib/brand"
+import { clearStaffSide, getStaffSide } from "@/lib/staff-side"
 // quiet pill links: green text, soft wash on hover, press scale.
 // On login/signup the link sits over the dark green panel on small screens, so it turns cream there.
 const navLink =
@@ -15,6 +17,7 @@ export async function SiteHeader() {
   const role = session?.user.role
   const isAdmin = Boolean(session?.user.isAdmin || role === "ADMIN")
   const isReviewer = Boolean(session?.user.isReviewer || role === "REVIEWER")
+  const side = session ? await getStaffSide() : null
 
   return (
     <header className="sticky top-0 z-20 border-b border-[#12382b]/10 bg-[linear-gradient(90deg,rgba(230,240,230,.92),rgba(241,240,220,.92)_55%,rgba(248,230,207,.92))] backdrop-blur-md group-has-[.landing-home,.auth-page]:absolute group-has-[.landing-home,.auth-page]:inset-x-0 group-has-[.landing-home,.auth-page]:top-0 group-has-[.landing-home,.auth-page]:border-0 group-has-[.landing-home,.auth-page]:bg-none group-has-[.landing-home,.auth-page]:backdrop-blur-none">
@@ -53,20 +56,13 @@ export async function SiteHeader() {
             </>
           ) : null}
 
-          {isReviewer ? <Link className={navLink} href="/reviewer">Reviews</Link> : null}
-          {isAdmin ? (
-            <>
-              <Link className={navLink} href="/admin">Admin</Link>
-              <Link className={navLink} href="/admin/people">People</Link>
-              <Link className={navLink} href="/admin/companies">Companies</Link>
-              <Link className={navLink} href="/admin/evaluators">Evaluators</Link>
-            </>
-          ) : null}
+          <StaffNav isAdmin={isAdmin} isReviewer={isReviewer} side={side} navLink={navLink} />
 
           {session ? (
             <form
               action={async () => {
                 "use server"
+                await clearStaffSide()
                 await signOut({ redirectTo: "/" })
               }}
             >
