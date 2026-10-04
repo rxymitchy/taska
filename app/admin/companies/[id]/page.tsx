@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { CompanyStatus } from "@/components/company-status"
 import { Container } from "@/components/ui"
 import { formatSats } from "@/lib/money"
+import { isDemoAccountEmail } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 import { requireAdmin } from "@/lib/session"
 
@@ -19,7 +20,7 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
       evaluations: { orderBy: { createdAt: "desc" }, take: 40 },
     },
   })
-  if (!company) notFound()
+  if (!company || isDemoAccountEmail(company.user.email)) notFound()
 
   return (
     <Container className="page-frame max-w-3xl!">

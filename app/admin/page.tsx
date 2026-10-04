@@ -4,6 +4,7 @@ import { retryFailedPayouts } from "@/app/actions/payouts"
 import { Container } from "@/components/ui"
 import { formatSats } from "@/lib/money"
 import { lightningProviderName } from "@/lib/pricing"
+import { notDemoCompanyWhere } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 import { canReview } from "@/lib/staff"
 import { btnSecondary } from "@/lib/styles"
@@ -28,7 +29,7 @@ export default async function AdminPage() {
   const user = await requireAdmin()
   const [failedPayouts, till] = await Promise.all([
     prisma.evaluationPayout.findMany({
-      where: { status: "FAILED" },
+      where: { status: "FAILED", evaluation: { company: notDemoCompanyWhere() } },
       orderBy: { createdAt: "desc" },
       take: 20,
     }),

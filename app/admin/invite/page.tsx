@@ -3,6 +3,7 @@ import Link from "next/link"
 import { promoteEvaluatorToReviewer } from "@/app/actions/invites"
 import { InviteForm, ReviewerLightningForm } from "@/components/invite-form"
 import { Container } from "@/components/ui"
+import { notDemoEmailWhere } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 import { btnSecondary } from "@/lib/styles"
 import { requireAdmin } from "@/lib/session"
@@ -17,7 +18,7 @@ export default async function InvitePage() {
       where: {
         role: "WORKER",
         workerProfile: { isNot: null },
-        NOT: [{ email: { endsWith: "@taska.demo" } }, { email: { endsWith: "@demo.taska" } }],
+        ...notDemoEmailWhere(),
       },
       orderBy: { createdAt: "desc" },
       take: 40,

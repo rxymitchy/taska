@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Container } from "@/components/ui"
-import { isDemoAccountEmail } from "@/lib/demo-accounts"
+import { notDemoEmailWhere } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 import { requireAdmin } from "@/lib/session"
 
@@ -9,16 +9,15 @@ export const metadata: Metadata = { title: "Evaluators" }
 
 export default async function AdminEvaluatorsPage() {
   await requireAdmin()
-  const evaluators = (
-    await prisma.workerProfile.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 50,
-      include: {
-        user: { select: { email: true, role: true, isReviewer: true } },
-        _count: { select: { assignedEvaluations: true } },
-      },
-    })
-  ).filter((row) => !isDemoAccountEmail(row.user.email) && row.user.role === "WORKER")
+  const evaluators = await prisma.workerProfile.findMany({
+    where: { user: { role: "WORKER", ...notDemoEmailWhere() } },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+    include: {
+      user: { select: { email: true, role: true, isReviewer: true } },
+      _count: { select: { assignedEvaluations: true } },
+    },
+  })
 
   return (
     <Container className="page-frame max-w-3xl!">

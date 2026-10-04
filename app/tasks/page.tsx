@@ -4,6 +4,7 @@ import type { Prisma } from "@prisma/client"
 import { TaskCard } from "@/components/task-card"
 import { Container } from "@/components/ui"
 import { categories, languages } from "@/lib/catalog"
+import { notDemoCompanyWhere } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 import { btnSecondary, inputClass, labelClass } from "@/lib/styles"
 
@@ -17,6 +18,7 @@ export default async function TasksPage({
   const params = await searchParams
   const where: Prisma.TaskWhereInput = {
     status: "FUNDED",
+    employer: notDemoCompanyWhere(),
   }
   if (params.category && categories.includes(params.category as (typeof categories)[number])) {
     where.category = params.category

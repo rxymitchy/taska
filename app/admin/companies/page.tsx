@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Container, StatusPill } from "@/components/ui"
+import { notDemoCompanyWhere } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 import { requireAdmin } from "@/lib/session"
 
@@ -9,6 +10,7 @@ export const metadata: Metadata = { title: "Companies" }
 export default async function AdminCompaniesPage() {
   await requireAdmin()
   const companies = await prisma.employerProfile.findMany({
+    where: notDemoCompanyWhere(),
     orderBy: { createdAt: "desc" },
     take: 50,
     include: {

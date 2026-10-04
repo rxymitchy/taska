@@ -10,7 +10,7 @@ function siteUrl() {
 }
 
 async function sendMail(input: { to: string; subject: string; text: string }) {
-  if (input.to.endsWith("@taska.demo")) return false
+  if (/@(taska\.demo|demo\.taska)$/i.test(input.to)) return false
 
   const key = envValue("RESEND", "API", "KEY")
   const from = envValue("EMAIL", "FROM") || "Taska <onboarding@resend.dev>"

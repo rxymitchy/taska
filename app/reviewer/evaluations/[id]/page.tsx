@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
 import { ReviewEvaluationView } from "@/components/review-evaluation-view"
+import { isDemoAccountEmail } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 import { canAdmin } from "@/lib/staff"
 import { requireReviewer } from "@/lib/session"
@@ -20,9 +21,13 @@ export default async function ReviewerEvaluationPage({
   const { pay } = await searchParams
   const evaluation = await prisma.evaluation.findUnique({
     where: { id },
-    include: { submissions: { orderBy: { submittedAt: "desc" }, take: 1 }, assignedWorker: true },
+    include: {
+      submissions: { orderBy: { submittedAt: "desc" }, take: 1 },
+      assignedWorker: true,
+      company: { select: { user: { select: { email: true } } } },
+    },
   })
-  if (!evaluation) notFound()
+  if (!evaluation || isDemoAccountEmail(evaluation.company.user.email)) notFound()
   if (evaluation.status !== "UNDER_REVIEW") redirect("/reviewer")
   if (!canAdmin(user) && evaluation.reviewerUserId && evaluation.reviewerUserId !== user.id) {
     redirect("/reviewer")

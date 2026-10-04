@@ -3,6 +3,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { CompanyStatus } from "@/components/company-status"
 import { Container } from "@/components/ui"
+import { isDemoAccountEmail } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 import { requireAdmin } from "@/lib/session"
 
@@ -18,7 +19,7 @@ export default async function AdminEvaluatorPage({ params }: { params: Promise<{
       assignedEvaluations: { orderBy: { createdAt: "desc" }, take: 40 },
     },
   })
-  if (!evaluator) notFound()
+  if (!evaluator || isDemoAccountEmail(evaluator.user.email)) notFound()
 
   return (
     <Container className="page-frame max-w-3xl!">

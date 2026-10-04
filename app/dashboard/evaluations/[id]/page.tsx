@@ -5,6 +5,7 @@ import { HumanEvaluationForm } from "@/components/human-evaluation-form"
 import { LightningPending } from "@/components/lightning-pending"
 import { Container, StatusPill } from "@/components/ui"
 import { checkLabels, yesNo } from "@/lib/evaluation-copy"
+import { isDemoAccountEmail } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
 
@@ -18,9 +19,13 @@ export default async function WorkerEvaluationPage({ params }: { params: Promise
 
   const evaluation = await prisma.evaluation.findUnique({
     where: { id },
-    include: { submissions: { where: { workerId: worker.id }, orderBy: { submittedAt: "desc" }, take: 1 } },
+    include: {
+      submissions: { where: { workerId: worker.id }, orderBy: { submittedAt: "desc" }, take: 1 },
+      company: { select: { user: { select: { email: true } } } },
+    },
   })
   if (!evaluation || evaluation.assignedWorkerId !== worker.id) notFound()
+  if (isDemoAccountEmail(evaluation.company.user.email)) notFound()
   const latest = evaluation.submissions[0]
   const payout = await prisma.evaluationPayout.findFirst({
     where: { evaluationId: evaluation.id, payeeUserId: user.id },

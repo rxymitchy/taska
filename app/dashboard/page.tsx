@@ -3,6 +3,7 @@ import Link from "next/link"
 import { LightningPending } from "@/components/lightning-pending"
 import { Container, StatusPill } from "@/components/ui"
 import { btnSecondary } from "@/lib/styles"
+import { notDemoCompanyWhere } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
 
@@ -15,7 +16,7 @@ export default async function DashboardPage() {
 
   const [evaluations, payouts] = await Promise.all([
     prisma.evaluation.findMany({
-      where: { assignedWorkerId: worker.id },
+      where: { assignedWorkerId: worker.id, company: notDemoCompanyWhere() },
       orderBy: { createdAt: "desc" },
     }),
     prisma.evaluationPayout.findMany({

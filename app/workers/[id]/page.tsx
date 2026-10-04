@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { Avatar, Container, StatusPill } from "@/components/ui"
 import { formatDay, formatWhen } from "@/lib/format"
 import { portraitFor } from "@/lib/portraits"
+import { isDemoAccountEmail } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 
 export async function generateMetadata({
@@ -21,6 +22,7 @@ export default async function WorkerPage({ params }: { params: Promise<{ id: str
   const worker = await prisma.workerProfile.findUnique({
     where: { id },
     include: {
+      user: { select: { email: true } },
       submissions: {
         where: { status: "APPROVED" },
         orderBy: { reviewedAt: "desc" },
@@ -29,7 +31,7 @@ export default async function WorkerPage({ params }: { params: Promise<{ id: str
       },
     },
   })
-  if (!worker) notFound()
+  if (!worker || isDemoAccountEmail(worker.user.email)) notFound()
   const photo = portraitFor(worker.name)
 
   return (

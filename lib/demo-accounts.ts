@@ -6,6 +6,20 @@ export function isDemoAccountEmail(email: string) {
   return /@(taska\.demo|demo\.taska)$/i.test(email.trim())
 }
 
+/** Prisma filter: real accounts only. */
+export function notDemoEmailWhere() {
+  return {
+    AND: [
+      { NOT: { email: { endsWith: "@taska.demo" } } },
+      { NOT: { email: { endsWith: "@demo.taska" } } },
+    ],
+  }
+}
+
+export function notDemoCompanyWhere() {
+  return { user: notDemoEmailWhere() }
+}
+
 const OPEN = ["PENDING", "ASSIGNED", "WORKER_COMPLETED", "UNDER_REVIEW"] as const
 
 export function isLiveSite() {
@@ -42,6 +56,23 @@ export async function retireDemoAccounts() {
     await prisma.evaluation.updateMany({
       where: { assignedWorkerId: { in: workerIds }, status: { in: [...OPEN] } },
       data: { status: "PENDING", assignedWorkerId: null, assignedAt: null },
+    })
+  }
+
+  const demoCompanies = await prisma.employerProfile.findMany({
+    where: { userId: { in: demoUsers.map((user) => user.id) } },
+    select: { id: true },
+  })
+  if (demoCompanies.length > 0) {
+    await prisma.evaluation.updateMany({
+      where: { companyId: { in: demoCompanies.map((company) => company.id) }, status: { in: [...OPEN] } },
+      data: {
+        status: "REJECTED",
+        assignedWorkerId: null,
+        assignedAt: null,
+        reviewerUserId: null,
+        reviewerAssignedAt: null,
+      },
     })
   }
 

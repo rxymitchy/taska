@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { setAccountKind, setStaffKind } from "@/app/actions/staff"
 import { Container } from "@/components/ui"
-import { isDemoAccountEmail } from "@/lib/demo-accounts"
+import { notDemoEmailWhere } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 import { staffLabel } from "@/lib/staff"
 import { btnSecondary } from "@/lib/styles"
@@ -11,12 +11,12 @@ export const metadata: Metadata = { title: "People" }
 
 export default async function PeoplePage() {
   await requireAdmin()
-  const users = await prisma.user.findMany({
+  const people = await prisma.user.findMany({
+    where: notDemoEmailWhere(),
     orderBy: { createdAt: "desc" },
     take: 80,
     include: { workerProfile: { select: { name: true, country: true } }, employerProfile: { select: { companyName: true } } },
   })
-  const people = users.filter((user) => !isDemoAccountEmail(user.email))
 
   return (
     <Container className="page-frame max-w-3xl!">

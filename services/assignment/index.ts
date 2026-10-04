@@ -96,10 +96,16 @@ export async function pickReviewer() {
 export async function assignReviewer(evaluationId: string) {
   const evaluation = await prisma.evaluation.findUnique({
     where: { id: evaluationId },
-    select: { id: true, status: true, reviewerUserId: true },
+    select: {
+      id: true,
+      status: true,
+      reviewerUserId: true,
+      company: { select: { user: { select: { email: true } } } },
+    },
   })
   if (!evaluation || evaluation.status !== "UNDER_REVIEW") return evaluation
   if (evaluation.reviewerUserId) return evaluation
+  if (isDemoAccountEmail(evaluation.company.user.email)) return evaluation
   const reviewerUserId = await pickReviewer()
   if (!reviewerUserId) return evaluation
   await prisma.evaluation.update({
@@ -115,9 +121,11 @@ export async function assignEvaluation(evaluationId: string) {
     include: {
       submissions: { select: { id: true }, take: 1 },
       assignedWorker: { select: { user: { select: { email: true } } } },
+      company: { select: { user: { select: { email: true } } } },
     },
   })
   if (!evaluation) return evaluation
+  if (isDemoAccountEmail(evaluation.company.user.email)) return evaluation
   if (evaluation.status !== "PENDING" && evaluation.status !== "ASSIGNED") return evaluation
 
   const assignedToDemo = Boolean(

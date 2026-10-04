@@ -9,6 +9,7 @@ import { AuthShell } from "@/components/auth-shell"
 import { LightningPending } from "@/components/lightning-pending"
 import { Container, StatusPill } from "@/components/ui"
 import { auth } from "@/auth"
+import { notDemoCompanyWhere } from "@/lib/demo-accounts"
 import { findOpenInvite } from "@/lib/invites"
 import { prisma } from "@/lib/prisma"
 import { canAdmin, canReview, homeForUser } from "@/lib/staff"
@@ -76,7 +77,7 @@ async function ReviewerQueue() {
   const user = await requireReviewer()
   const adminReviewer = canAdmin(user)
   const unassigned = await prisma.evaluation.findMany({
-    where: { status: "UNDER_REVIEW", reviewerUserId: null },
+    where: { status: "UNDER_REVIEW", reviewerUserId: null, company: notDemoCompanyWhere() },
     select: { id: true },
     take: 20,
   })
@@ -84,9 +85,11 @@ async function ReviewerQueue() {
 
   const [queue, payouts, me] = await Promise.all([
     prisma.evaluation.findMany({
-      where: adminReviewer
-        ? { status: "UNDER_REVIEW" }
-        : { status: "UNDER_REVIEW", reviewerUserId: user.id },
+      where: {
+        status: "UNDER_REVIEW",
+        company: notDemoCompanyWhere(),
+        ...(adminReviewer ? {} : { reviewerUserId: user.id }),
+      },
       orderBy: { createdAt: "asc" },
       include: { company: true },
     }),
