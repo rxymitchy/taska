@@ -119,7 +119,7 @@ function LightningCredits({ mock }: { mock: boolean }) {
           <select className={inputClass} name="amountSats" defaultValue="1000">
             {CREDIT_PACKS.map((pack) => (
               <option key={pack} value={String(pack)}>
-                {formatSats(pack)} · Bitcoin price
+                {pack.toLocaleString("en-US")} credit · {formatSats(pack)}
               </option>
             ))}
           </select>
