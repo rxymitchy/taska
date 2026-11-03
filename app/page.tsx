@@ -1,10 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 import { Bricolage_Grotesque, Figtree } from "next/font/google"
 import { LandingDemoCard } from "@/components/landing-demo-card"
 import { LandingDock } from "@/components/landing-dock"
+import { howPhotos, landingSamples } from "@/lib/landing-samples"
 
 /*
   Colour system: green and orange blended, no pure white anywhere.
@@ -43,9 +44,9 @@ const tones = [
 const topics = ["Greetings", "Slang", "Mobile money", "Jokes", "Paying bills", "Asking for help", "Street talk"]
 
 const questions = [
-  { title: "Does the slang land?", body: "Words and jokes change fast.", bg: "#d3e6da", line: "#2f6b53" },
-  { title: "Would someone from here say it?", body: "Not textbook. How people talk.", bg: "#e4ebcb", line: "#55864f" },
-  { title: "Does it know how things work here?", body: "Bills, money, help, the local way.", bg: "#fbdcbd", line: "#e8964f" },
+  { title: "Does the slang land?", body: "Words and jokes change fast.", photo: "/images/landing/talk.jpg", focus: "center 26%", line: "#2f6b53" },
+  { title: "Would someone from here say it?", body: "Not textbook. How people talk.", photo: "/images/landing/converse.jpg", focus: "center 28%", line: "#55864f" },
+  { title: "Does it know how things work here?", body: "Bills, money, help, the local way.", photo: "/images/landing/market-pay.jpg", focus: "center 58%", line: "#e8964f" },
 ]
 
 /* ───────── helpers ───────── */
@@ -122,17 +123,15 @@ const btnBase =
 const btnVariants: Record<Variant, { surface: string; chip: string; glow: string }> = {
   // speakers: warm orange blend, dark green text, strong enough to read on any light or dark surface
   primary: {
-    surface:
-      "border-[#c8732a]/40 bg-[linear-gradient(135deg,#f6c9a0,#f0ac6e_45%,#e0883a)] text-[#12382b] shadow-[0_14px_30px_-14px_rgba(224,136,58,.95)] hover:shadow-[0_22px_40px_-14px_rgba(224,136,58,1)]",
+    surface: "border-[#c8732a]/25 bg-[#e8964f] text-[#12382b] hover:bg-[#de8538]",
     chip: "bg-[#12382b] text-[#f6c9a0]",
-    glow: "rgba(255,238,214,.65)",
+    glow: "rgba(255,238,214,.4)",
   },
-  // companies: deep green blend, cream text
+  // companies: deep green, cream text
   secondary: {
-    surface:
-      "border-[#8fb8a3]/35 bg-[linear-gradient(135deg,#2f6b53,#12382b)] text-[#f7f3e8] shadow-[0_14px_30px_-14px_rgba(18,56,43,.95)] hover:shadow-[0_22px_40px_-14px_rgba(18,56,43,1)]",
+    surface: "border-[#12382b]/20 bg-[#12382b] text-[#f7f3e8] hover:bg-[#1c4a3a]",
     chip: "bg-[#f0ac6e] text-[#12382b]",
-    glow: "rgba(143,184,163,.5)",
+    glow: "rgba(143,184,163,.35)",
   },
 }
 
@@ -157,8 +156,6 @@ function Btn({ href, variant, children }: { href: string; variant: Variant; chil
         const y = e.clientY - r.top
         el.style.setProperty("--bx", `${x}px`)
         el.style.setProperty("--by", `${y}px`)
-        // the button leans a little toward the cursor
-        el.style.transform = `translate(${((x / r.width - 0.5) * 8).toFixed(1)}px, ${((y / r.height - 0.5) * 6 - 2).toFixed(1)}px)`
       }}
       onPointerLeave={() => {
         if (ref.current) ref.current.style.transform = ""
@@ -200,55 +197,25 @@ function Btn({ href, variant, children }: { href: string; variant: Variant; chil
   )
 }
 
-function StepIcon({ i, color, className = "" }: { i: number; color: string; className?: string }) {
-  const p = {
-    className,
-    style: { color } as CSSProperties,
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 1.6,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-    "aria-hidden": true,
-  }
-  if (i === 0)
-    return (
-      <svg {...p}>
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-      </svg>
-    )
-  if (i === 1)
-    return (
-      <svg {...p}>
-        <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
-      </svg>
-    )
-  if (i === 2)
-    return (
-      <svg {...p}>
-        <circle cx="12" cy="12" r="10" />
-        <path d="M9 12l2 2 4-4" />
-      </svg>
-    )
-  return (
-    <svg {...p}>
-      <path d="M13 2 3 14h9l-1 8 10-12h-9z" />
-    </svg>
-  )
-}
-
 /* ───────── page ───────── */
 
 export default function HomePage() {
   const [active, setActive] = useState(0)
   const [hold, setHold] = useState(false)
+  const [voice, setVoice] = useState(0)
+  const [holdVoice, setHoldVoice] = useState(false)
   const [picked, setPicked] = useState<string[]>(["Greetings", "Mobile money", "Paying bills"])
   const [flowRef, flowInView] = useInView<HTMLDivElement>(0.35)
   const [payRef, payInView] = useInView<HTMLDivElement>(0.3)
-  const tiltRef = useRef<HTMLDivElement>(null)
 
   const toggleTopic = (t: string) => setPicked((p) => (p.includes(t) ? p.filter((x) => x !== t) : [...p, t]))
+  const sample = landingSamples[voice]
+
+  useEffect(() => {
+    if (holdVoice) return
+    const timer = window.setInterval(() => setVoice((index) => (index + 1) % landingSamples.length), 7000)
+    return () => window.clearInterval(timer)
+  }, [holdVoice])
 
   const paused = hold || !flowInView
   const tone = tones[active]
@@ -261,18 +228,13 @@ export default function HomePage() {
       <style>{`
         @keyframes landing-rise { from { opacity: 0; transform: translateY(24px) } to { opacity: 1; transform: none } }
         @keyframes landing-fill { from { transform: scaleX(0) } to { transform: scaleX(1) } }
-        @keyframes landing-orbit { to { transform: rotate(360deg) } }
-        @keyframes landing-bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
         @keyframes landing-ripple { from { transform: scale(0); opacity: .55 } to { transform: scale(6); opacity: 0 } }
         .landing-rise { opacity: 0; animation: landing-rise .9s cubic-bezier(.2,.7,.2,1) forwards }
         .landing-progress { transform-origin: left; animation: landing-fill 4.2s linear forwards }
-        .landing-orbit { animation: landing-orbit 40s linear infinite }
-        .landing-bob { animation: landing-bob 6s ease-in-out infinite }
         .landing-ripple { animation: landing-ripple .65s ease-out forwards }
         @media (prefers-reduced-motion: reduce) {
           .landing-rise { opacity: 1; animation: none }
           .landing-progress { animation: none; transform: scaleX(1) }
-          .landing-orbit, .landing-bob { animation: none }
           .landing-ripple { display: none }
         }
       `}</style>
@@ -282,15 +244,8 @@ export default function HomePage() {
       {/* ───────── HERO: green melting into orange ───────── */}
       <section
         id="top"
-        onMouseMove={(e) => {
-          const r = e.currentTarget.getBoundingClientRect()
-          e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`)
-          e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`)
-        }}
-        style={{ ["--mx"]: "70%", ["--my"]: "30%" } as CSSProperties}
         className="relative isolate overflow-hidden rounded-b-[44px] bg-[linear-gradient(120deg,#d3e6da_0%,#e6ecd0_45%,#f8d5ad_100%)]"
       >
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10" style={{ background: "radial-gradient(520px circle at var(--mx) var(--my), rgba(240,172,110,.32), transparent 70%)" }} />
         <div aria-hidden="true" className="pointer-events-none absolute -right-40 -top-40 -z-10 size-[620px] rounded-full bg-[radial-gradient(circle,rgba(232,150,79,.35),transparent_68%)]" />
         <div aria-hidden="true" className="pointer-events-none absolute -left-52 bottom-[-220px] -z-10 size-[560px] rounded-full bg-[radial-gradient(circle,rgba(47,107,83,.28),transparent_68%)]" />
         <div
@@ -299,8 +254,8 @@ export default function HomePage() {
           style={{ backgroundImage: "radial-gradient(rgba(18,56,43,.16) 1px, transparent 1px)", backgroundSize: "26px 26px" }}
         />
 
-        <div className="mx-auto grid w-full max-w-[1120px] items-center gap-16 px-5 pb-24 pt-28 min-[900px]:grid-cols-[1.1fr_0.9fr] min-[900px]:gap-14 min-[900px]:pb-32 min-[900px]:pt-40">
-          <div>
+        <div className="mx-auto grid w-full max-w-[1120px] items-center gap-8 px-5 pb-16 pt-24 min-[900px]:grid-cols-[1.05fr_0.95fr] min-[900px]:gap-14 min-[900px]:pb-32 min-[900px]:pt-40">
+          <div className="order-2 min-[900px]:order-1">
             <h1 className={`${D} max-w-2xl text-[clamp(42px,6.4vw,82px)] font-bold leading-[0.98] tracking-[-0.045em] text-[#12382b]`}>
               <span className="landing-rise block" style={{ animationDelay: "80ms" }}>
                 Make AI sound
@@ -323,25 +278,54 @@ export default function HomePage() {
                 For companies
               </Btn>
             </div>
+            <div className="landing-rise mt-8 flex items-center gap-3" style={{ animationDelay: "640ms" }}>
+              <div className="flex -space-x-2">
+                {landingSamples.map((person, index) => (
+                  <button
+                    key={person.place}
+                    type="button"
+                    aria-pressed={index === voice}
+                    aria-label={`${person.language} in ${person.place}`}
+                    onClick={() => {
+                      setVoice(index)
+                      setHoldVoice(true)
+                    }}
+                    className={`relative size-11 overflow-hidden rounded-full border-2 transition ${
+                      index === voice ? "z-10 border-[#12382b]" : "border-[#f7f3e8] opacity-80 hover:opacity-100"
+                    }`}
+                  >
+                    <img src={person.photo} alt="" className="size-full object-cover" style={{ objectPosition: person.focus }} />
+                  </button>
+                ))}
+              </div>
+              <p className="max-w-[16rem] text-[14px] leading-snug text-[#3d5a49]">
+                {sample.language} in {sample.place} — tap a face, then fix what AI got wrong.
+              </p>
+            </div>
           </div>
 
-          <div className="landing-rise relative w-full min-[900px]:justify-self-end" style={{ animationDelay: "640ms" }}>
-            <div aria-hidden="true" className="absolute inset-0 -z-10 translate-x-4 translate-y-5 rotate-[3deg] rounded-[32px] border border-[#e8964f]/40 bg-[#f6c9a0]" />
-            <div
-              ref={tiltRef}
-              onPointerMove={(e) => {
-                if (e.pointerType !== "mouse" || !tiltRef.current) return
-                const r = tiltRef.current.getBoundingClientRect()
-                const x = (e.clientX - r.left) / r.width - 0.5
-                const y = (e.clientY - r.top) / r.height - 0.5
-                tiltRef.current.style.transform = `perspective(1000px) rotateX(${(-y * 6).toFixed(2)}deg) rotateY(${(x * 8).toFixed(2)}deg)`
-              }}
-              onPointerLeave={() => {
-                if (tiltRef.current) tiltRef.current.style.transform = ""
-              }}
-              className="rounded-[28px] bg-[linear-gradient(160deg,#1c4a3a,#12382b)] p-3 shadow-[0_44px_80px_-36px_rgba(18,56,43,.7)] transition-transform duration-200 ease-out will-change-transform"
-            >
-              <LandingDemoCard />
+          <div
+            className="relative order-1 w-full min-[900px]:order-2 min-[900px]:justify-self-end"
+            onMouseEnter={() => setHoldVoice(true)}
+            onMouseLeave={() => setHoldVoice(false)}
+          >
+            <div className="overflow-hidden rounded-[28px] bg-[#12382b]">
+              <div className="relative h-[320px] min-[900px]:h-[420px]">
+                {landingSamples.map((person, index) => (
+                  <img
+                    key={person.place}
+                    src={person.photo}
+                    alt=""
+                    className={`absolute inset-0 size-full object-cover transition-opacity duration-700 ${
+                      index === voice ? "opacity-100" : "opacity-0"
+                    }`}
+                    style={{ objectPosition: person.focus }}
+                  />
+                ))}
+              </div>
+              <div className="p-3">
+                <LandingDemoCard key={sample.language} sample={sample} />
+              </div>
             </div>
           </div>
         </div>
@@ -364,40 +348,23 @@ export default function HomePage() {
           >
             {/* visual that follows the active step and shifts colour with it */}
             <Reveal className="min-[900px]:h-full">
-              <div className="relative grid min-h-[300px] place-items-center overflow-hidden rounded-[32px] border border-[#12382b]/10 min-[900px]:h-full min-[900px]:min-h-[460px]">
-                {tones.map((t, i) => (
-                  <div
-                    key={i}
-                    aria-hidden="true"
-                    className="absolute inset-0 transition-opacity duration-700"
-                    style={{ background: t.wash, opacity: i === active ? 1 : 0 }}
-                  />
-                ))}
-                <svg aria-hidden="true" viewBox="0 0 400 400" className="absolute inset-0 size-full">
-                  <g fill="none" stroke="#12382b" strokeOpacity=".16">
-                    <circle cx="200" cy="200" r="190" strokeDasharray="2 9" />
-                    <circle cx="200" cy="200" r="140" />
-                    <circle cx="200" cy="200" r="92" strokeDasharray="30 12" />
-                  </g>
-                </svg>
-                <div aria-hidden="true" className="landing-orbit absolute inset-0">
-                  <span
-                    className="absolute left-1/2 top-[5%] size-3.5 -translate-x-1/2 rounded-full transition-colors duration-700"
-                    style={{ background: tone.solid, boxShadow: `0 0 0 6px ${tone.solid}33` }}
-                  />
-                </div>
-
-                <div className="landing-bob relative grid size-40 place-items-center rounded-full bg-[linear-gradient(160deg,#1c4a3a,#12382b)] shadow-[0_34px_60px_-26px_rgba(18,56,43,.7)] min-[900px]:size-48">
-                  {steps.map((_, i) => (
-                    <StepIcon
-                      key={i}
-                      i={i}
-                      color={tones[i].icon}
-                      className={`absolute size-16 transition-all duration-500 ease-out min-[900px]:size-[72px] ${
-                        i === active ? "scale-100 opacity-100" : "scale-75 opacity-0"
+              <div className="overflow-hidden rounded-[32px] bg-[#12382b] min-[900px]:h-full">
+                <div className="relative h-[240px] min-[900px]:h-[320px]">
+                  {howPhotos.map((photo, i) => (
+                    <img
+                      key={photo}
+                      src={photo}
+                      alt=""
+                      className={`absolute inset-0 size-full object-cover transition-opacity duration-700 ${
+                        i === active ? "opacity-100" : "opacity-0"
                       }`}
+                      style={{ objectPosition: i === 0 ? "center 28%" : i === 3 ? "center 40%" : "center 18%" }}
                     />
                   ))}
+                </div>
+                <div className="p-5">
+                  <p className={`${D} text-[22px] font-bold text-[#f7f3e8]`}>{steps[active].title}</p>
+                  <p className="mt-1 text-[15px] text-[#f7f3e8]/80">{steps[active].body}</p>
                 </div>
               </div>
             </Reveal>
@@ -503,13 +470,20 @@ export default function HomePage() {
           <div className="mt-14 grid gap-4 min-[900px]:mt-20 min-[900px]:grid-cols-3">
             {questions.map((q, i) => (
               <Reveal key={q.title} delay={i * 100}>
-                <article
-                  style={{ background: q.bg }}
-                  className="group h-full rounded-3xl border border-[#12382b]/10 p-7 transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_28px_50px_-28px_rgba(18,56,43,.55)]"
-                >
-                  <span aria-hidden="true" className="block h-1 w-8 rounded-full transition-all duration-500 group-hover:w-14" style={{ background: q.line }} />
-                  <h3 className={`${D} mt-6 text-[22px] font-bold leading-[1.12] tracking-[-0.02em] text-[#12382b]`}>{q.title}</h3>
-                  <p className="mt-2.5 text-[15px] leading-[1.5] text-[#2f4d3d]">{q.body}</p>
+                <article className="group overflow-hidden rounded-3xl border border-[#12382b]/10 bg-[#f7f3e8] transition duration-300 hover:-translate-y-1.5">
+                  <div className="relative aspect-[3/4] overflow-hidden">
+                    <img
+                      src={q.photo}
+                      alt=""
+                      className="size-full object-cover transition duration-500 group-hover:scale-[1.04]"
+                      style={{ objectPosition: q.focus }}
+                    />
+                  </div>
+                  <div className="p-6">
+                    <span aria-hidden="true" className="mb-4 block h-1 w-8 rounded-full" style={{ background: q.line }} />
+                    <h3 className={`${D} text-[22px] font-bold leading-[1.12] tracking-[-0.02em] text-[#12382b]`}>{q.title}</h3>
+                    <p className="mt-2.5 text-[15px] leading-[1.5] text-[#2f4d3d]">{q.body}</p>
+                  </div>
                 </article>
               </Reveal>
             ))}
@@ -585,13 +559,22 @@ export default function HomePage() {
       <section id="join" className="px-5 pb-16 min-[900px]:pb-24">
         <Reveal>
           <div className="relative isolate mx-auto w-full max-w-[1120px] overflow-hidden rounded-[36px] border border-[#12382b]/10 bg-[linear-gradient(135deg,#bcd8c8,#e6ecd0_45%,#f6c9a0)] px-6 py-20 text-center min-[900px]:py-28">
-            <svg aria-hidden="true" viewBox="0 0 600 600" className="landing-orbit pointer-events-none absolute left-1/2 top-1/2 -z-10 size-[760px] -translate-x-1/2 -translate-y-1/2 opacity-[0.2]">
-              <g fill="none" stroke="#12382b">
-                <circle cx="300" cy="300" r="290" strokeDasharray="2 10" />
-                <circle cx="300" cy="300" r="230" />
-                <circle cx="300" cy="300" r="170" strokeDasharray="40 14" />
-              </g>
-            </svg>
+            <div className="mb-8 flex justify-center -space-x-3">
+              {[
+                { photo: "/images/landing/kenya.jpg", focus: "center 18%" },
+                { photo: "/images/landing/nigeria.jpg", focus: "center 14%" },
+                { photo: "/images/landing/ghana.jpg", focus: "center 52%" },
+                { photo: "/images/landing/review.jpg", focus: "center 16%" },
+              ].map(({ photo, focus }) => (
+                <img
+                  key={photo}
+                  src={photo}
+                  alt=""
+                  className="size-14 rounded-full border-[3px] border-[#f7f3e8] object-cover min-[900px]:size-16"
+                  style={{ objectPosition: focus }}
+                />
+              ))}
+            </div>
             <h2 className={`${D} mx-auto max-w-[14em] text-[clamp(32px,5vw,58px)] font-bold leading-[1.02] tracking-[-0.04em] text-[#12382b]`}>
               Bring local knowledge into the conversation.
             </h2>

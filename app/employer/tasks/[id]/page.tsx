@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { ReviewControls } from "@/components/review-controls"
-import { Container, SatsAmount, StatusPill } from "@/components/ui"
+import { Container, PageHeader, SatsAmount, StatCard, StatusPill } from "@/components/ui"
 import { formatWhen } from "@/lib/format"
 import { prisma } from "@/lib/prisma"
 import { choiceLabels } from "@/lib/styles"
@@ -31,25 +31,22 @@ export default async function EmployerTaskPage({ params }: { params: Promise<{ i
   return (
     <Container className="page-frame">
       <p className="text-sm text-muted">{task.category}</p>
-      <h1 className="mt-2 text-3xl tracking-tight">{task.title}</h1>
-      <dl className="mt-6 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-line bg-card p-4">
-          <dt className="text-xs uppercase tracking-wider text-muted">Total task budget</dt>
-          <dd className="mt-2"><SatsAmount sats={budget} /></dd>
-        </div>
-        <div className="rounded-lg border border-line bg-card p-4">
-          <dt className="text-xs uppercase tracking-wider text-muted">Spent</dt>
-          <dd className="mt-2"><SatsAmount sats={spent} /></dd>
-        </div>
-        <div className="rounded-lg border border-line bg-card p-4">
-          <dt className="text-xs uppercase tracking-wider text-muted">Status</dt>
-          <dd className="mt-1 flex items-center gap-2 text-xl">
+      <PageHeader title={task.title} />
+      <dl className="mt-8 grid gap-4 sm:grid-cols-3">
+        <StatCard label="Total task budget">
+          <SatsAmount sats={budget} />
+        </StatCard>
+        <StatCard label="Spent">
+          <SatsAmount sats={spent} />
+        </StatCard>
+        <StatCard label="Status">
+          <div className="flex flex-wrap items-center gap-2">
             <StatusPill status={task.status} />
-            <span className="text-base">
+            <span className="text-sm text-muted">
               {task.completedQuantity} / {task.quantity}
             </span>
-          </dd>
-        </div>
+          </div>
+        </StatCard>
       </dl>
       <p className="mt-4 text-sm text-muted">
         Funded means the budget is recorded. Taska does not custody the sats. Approval sends a Lightning payment to the worker.

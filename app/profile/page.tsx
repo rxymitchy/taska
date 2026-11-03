@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { ProfileForm } from "@/components/profile-form"
-import { Container } from "@/components/ui"
+import { Container, PageHeader } from "@/components/ui"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
 
@@ -14,13 +14,11 @@ export default async function ProfilePage() {
   return (
     <Container className="page-frame">
       <div className="mx-auto w-full max-w-2xl">
-        <header className="page-intro">
-          <h1 className="text-3xl tracking-tight">Your profile</h1>
-          <p className="mt-2 text-sm text-muted">
-            Put where you get paid. A CV is optional — the work is the record.
-          </p>
-        </header>
-        <div className="form-surface mt-6">
+        <PageHeader
+          title="Your profile"
+          description="Put where you get paid. A CV is optional — the work is the record."
+        />
+        <div className="form-surface mt-10">
           <ProfileForm profile={profile} />
         </div>
       </div>

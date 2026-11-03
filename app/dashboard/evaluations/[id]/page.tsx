@@ -33,7 +33,7 @@ export default async function WorkerEvaluationPage({ params }: { params: Promise
 
   return (
     <Container className="page-frame max-w-2xl!">
-      <div className="page-intro flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted">
           {evaluation.language} · {evaluation.context}
         </p>
@@ -42,11 +42,11 @@ export default async function WorkerEvaluationPage({ params }: { params: Promise
       <h1 className="mt-3 text-3xl tracking-tight">Does this sound right?</h1>
       <section className="content-surface mt-6 space-y-4">
         <div>
-          <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Question</h2>
+          <h2 className="text-[13px] text-muted">Question</h2>
           <p className="mt-1 whitespace-pre-wrap">{evaluation.prompt}</p>
         </div>
         <div>
-          <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Response</h2>
+          <h2 className="text-[13px] text-muted">Response</h2>
           <p className="mt-1 whitespace-pre-wrap">{evaluation.aiResponse}</p>
           <p className="mt-1 text-sm text-muted">Model: {evaluation.aiModel}</p>
         </div>

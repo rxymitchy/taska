@@ -7,7 +7,7 @@ import { ReviewerLightningForm } from "@/components/invite-form"
 import { SignupForm } from "@/components/signup-form"
 import { AuthShell } from "@/components/auth-shell"
 import { LightningPending } from "@/components/lightning-pending"
-import { Container, StatusPill } from "@/components/ui"
+import { Container, EmptyState, PageHeader, Panel, StatusPill } from "@/components/ui"
 import { auth } from "@/auth"
 import { notDemoCompanyWhere } from "@/lib/demo-accounts"
 import { findOpenInvite } from "@/lib/invites"
@@ -103,49 +103,60 @@ async function ReviewerQueue() {
 
   return (
     <Container className="page-frame">
-      <h1 className="text-3xl tracking-tight">{adminReviewer ? "Review queue" : "Your reviews"}</h1>
-      <p className="mt-2 text-muted">
-        {adminReviewer
-          ? "If you agree, they get paid. If you don’t, it comes back and nobody is charged."
-          : "These checks were assigned to you. Add where you get paid, then review."}
-      </p>
-      <section className="form-surface mt-6 max-w-xl">
-        <h2 className="text-lg">Where you get paid</h2>
+      <PageHeader
+        title={adminReviewer ? "Review queue" : "Your reviews"}
+        description={
+          adminReviewer
+            ? "If you agree, they get paid. If you don’t, it comes back and nobody is charged."
+            : "These checks were assigned to you. Add where you get paid, then review."
+        }
+      />
+      <section className="form-surface mt-10 max-w-xl">
+        <h2 className="text-lg tracking-tight">Where you get paid</h2>
         <p className="mt-1 text-sm text-muted">Approved reviews pay this wallet.</p>
         <div className="mt-4">
           <ReviewerLightningForm current={me?.lightningAddress ?? ""} />
         </div>
       </section>
       {payouts.length > 0 ? (
-        <div className="mt-6 space-y-2">
+        <div className="mt-8 space-y-3">
           {payouts.map((payout) => (
             <LightningPending key={payout.id} who="Reviewer" status={payout.status} amountSats={payout.amountSats} />
           ))}
         </div>
       ) : null}
-      <ul className="mt-8 divide-y divide-line rounded-lg border border-line bg-card">
+      <h2 className="mt-12 mb-4 text-xl tracking-tight">Waiting for you</h2>
+      <Panel>
         {queue.length === 0 ? (
-          <li className="px-4 py-4 text-sm text-muted">
-            {adminReviewer
-              ? "Nothing is waiting for review. An evaluator has to submit a check first."
-              : "No reviews are assigned to you yet."}
-          </li>
+          <EmptyState
+            title={adminReviewer ? "Nothing waiting" : "No reviews yet"}
+            body={
+              adminReviewer
+                ? "An evaluator has to submit a check first."
+                : "When a check is assigned to you, it will show up here."
+            }
+          />
         ) : (
-          queue.map((evaluation) => (
-            <li key={evaluation.id}>
-              <Link className="flex flex-wrap items-center justify-between gap-3 px-4 py-4" href={`/reviewer/evaluations/${evaluation.id}`}>
-                <span>
-                  <span className="block font-medium">{evaluation.prompt}</span>
-                  <span className="text-sm text-muted">
-                    {evaluation.company.companyName} · {evaluation.language} · {evaluation.context}
+          <ul className="divide-y divide-[#12382b]/8">
+            {queue.map((evaluation) => (
+              <li key={evaluation.id}>
+                <Link
+                  className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 transition hover:bg-[#12382b]/4"
+                  href={`/reviewer/evaluations/${evaluation.id}`}
+                >
+                  <span>
+                    <span className="block font-medium">{evaluation.prompt}</span>
+                    <span className="text-sm text-muted">
+                      {evaluation.company.companyName} · {evaluation.language} · {evaluation.context}
+                    </span>
                   </span>
-                </span>
-                <StatusPill status={evaluation.status} />
-              </Link>
-            </li>
-          ))
+                  <StatusPill status={evaluation.status} />
+                </Link>
+              </li>
+            ))}
+          </ul>
         )}
-      </ul>
+      </Panel>
     </Container>
   )
 }

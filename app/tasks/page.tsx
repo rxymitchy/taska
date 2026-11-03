@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import type { Prisma } from "@prisma/client"
 import { TaskCard } from "@/components/task-card"
-import { Container } from "@/components/ui"
+import { Container, EmptyState, PageHeader } from "@/components/ui"
 import { categories, languages } from "@/lib/catalog"
 import { notDemoCompanyWhere } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
@@ -39,13 +39,11 @@ export default async function TasksPage({
 
   return (
     <Container className="page-frame">
-      <header className="page-intro">
-        <h1 className="text-3xl tracking-tight">Tasks</h1>
-        <p className="mt-2 max-w-2xl text-muted">
-          Small, clearly defined pieces of digital work. AI response evaluation can be completed and paid here.
-        </p>
-      </header>
-      <form className="content-surface mt-6 grid gap-3 sm:grid-cols-4" method="get">
+      <PageHeader
+        title="Tasks"
+        description="Small, clearly defined pieces of digital work. AI response evaluation can be completed and paid here."
+      />
+      <form className="content-surface mt-10 grid gap-3 sm:grid-cols-4" method="get">
         <label className="space-y-1">
           <span className={labelClass}>Category</span>
           <select className={inputClass} name="category" defaultValue={params.category ?? ""}>
@@ -90,12 +88,16 @@ export default async function TasksPage({
         </div>
       </form>
       {open.length === 0 ? (
-        <div className="content-surface mt-8">
-          <h2 className="font-medium">No tasks match these filters</h2>
-          <p className="mt-1 text-sm text-muted">Try widening the language, reward, or time filters.</p>
-          <Link className="mt-4 inline-flex text-sm font-semibold text-accent underline underline-offset-4" href="/tasks">
-            Show all tasks
-          </Link>
+        <div className="mt-8 overflow-hidden rounded-[24px] border border-[#12382b]/10 bg-[#fbf7ee]">
+          <EmptyState
+            title="No tasks match these filters"
+            body="Try widening the language, reward, or time filters."
+            action={
+              <Link className="text-sm font-semibold text-accent underline underline-offset-4" href="/tasks">
+                Show all tasks
+              </Link>
+            }
+          />
         </div>
       ) : (
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

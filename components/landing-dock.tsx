@@ -43,7 +43,7 @@ export function LandingDock() {
         <a
           key={id}
           aria-current={active === id ? "location" : undefined}
-          className={`rounded-full px-3.5 py-[11px] text-[13px] font-semibold transition-colors ${active === id ? "bg-lime text-ink" : "text-[#cfe3d7] hover:bg-white/10"}`}
+          className={`rounded-full px-3.5 py-[11px] text-[13px] font-semibold transition-colors ${active === id ? "bg-[#f7f3e8] text-[#12382b]" : "text-[#cfe3d7] hover:bg-white/10"}`}
           href={`#${id}`}
         >
           {label}

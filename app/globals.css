@@ -40,11 +40,16 @@
 }
 
 body {
-  background: var(--paper);
+  background: #f4efe4;
   color: var(--ink);
   font-family: var(--font-dm-sans), var(--font-manrope), "Manrope", sans-serif;
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+body:has(.landing-home),
+body:has(.auth-page) {
+  background: var(--paper);
 }
 
 input[type="radio"],
@@ -77,22 +82,21 @@ h1, h2, h3, .font-display {
 }
 
 .page-frame {
-  padding-block: clamp(32px, 5vw, 64px);
+  padding-block: clamp(40px, 7vw, 80px);
 }
 
 .form-surface {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  background: var(--card);
-  padding: clamp(20px, 4vw, 32px);
-  box-shadow: 0 30px 60px -30px rgba(15, 42, 32, .2);
+  border: 1px solid rgba(18, 56, 43, 0.1);
+  border-radius: 28px;
+  background: #fbf7ee;
+  padding: clamp(24px, 4vw, 36px);
 }
 
 .content-surface {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  background: var(--card);
-  padding: clamp(16px, 3vw, 24px);
+  border: 1px solid rgba(18, 56, 43, 0.1);
+  border-radius: 24px;
+  background: #fbf7ee;
+  padding: clamp(20px, 3vw, 28px);
 }
 
 .page-intro {
@@ -118,19 +122,8 @@ textarea:user-invalid {
 
 .form-surface,
 .content-surface,
-.lagoon-raised,
-.rounded-lg.border.border-line.bg-card {
-  border-radius: 18px;
+.lagoon-raised {
   box-shadow: none;
-}
-
-[class~="bg-hl"] {
-  border-radius: 999px;
-  background-color: var(--hl);
-  color: #2a1d00;
-  padding: 3px 11px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
 }
 
 :focus-visible {

@@ -62,14 +62,14 @@ function PayMethod({
       type="button"
       onClick={onSelect}
       aria-pressed={checked}
-      className={`rounded-2xl border px-4 py-3 text-left transition ${
-        checked ? "border-2 border-accent bg-tint" : "border-line bg-card hover:border-accent/50"
+      className={`rounded-2xl border px-4 py-4 text-left transition ${
+        checked ? "border-[#12382b] bg-[#12382b]/5" : "border-[#12382b]/12 bg-[#fbf7ee] hover:border-[#12382b]/30"
       }`}
     >
       <span className="flex items-center justify-between gap-2">
         <span className="font-semibold">{title}</span>
         {badge ? (
-          <span className="rounded-full bg-hl px-2 py-0.5 text-xs font-semibold text-ink">{badge}</span>
+          <span className="rounded-full bg-[#12382b] px-2 py-0.5 text-xs font-semibold text-[#f7f3e8]">{badge}</span>
         ) : null}
       </span>
       <span className="mt-1 block text-sm text-muted">{hint}</span>

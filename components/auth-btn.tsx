@@ -8,17 +8,15 @@ type Variant = "primary" | "secondary"
 const variants: Record<Variant, { surface: string; chip: string; glow: string }> = {
   // orange: evaluators / sign up
   primary: {
-    surface:
-      "border-[#c8732a]/40 bg-[linear-gradient(135deg,#f6c9a0,#f0ac6e_45%,#e0883a)] text-[#12382b] shadow-[0_14px_30px_-14px_rgba(224,136,58,.95)] hover:shadow-[0_22px_40px_-14px_rgba(224,136,58,1)]",
+    surface: "border-[#c8732a]/25 bg-[#e8964f] text-[#12382b] hover:bg-[#de8538]",
     chip: "bg-[#12382b] text-[#f6c9a0]",
-    glow: "rgba(255,238,214,.65)",
+    glow: "rgba(255,238,214,.4)",
   },
   // green: companies / log in
   secondary: {
-    surface:
-      "border-[#8fb8a3]/35 bg-[linear-gradient(135deg,#2f6b53,#12382b)] text-[#f7f3e8] shadow-[0_14px_30px_-14px_rgba(18,56,43,.95)] hover:shadow-[0_22px_40px_-14px_rgba(18,56,43,1)]",
+    surface: "border-[#12382b]/20 bg-[#12382b] text-[#f7f3e8] hover:bg-[#1c4a3a]",
     chip: "bg-[#f0ac6e] text-[#12382b]",
-    glow: "rgba(143,184,163,.5)",
+    glow: "rgba(143,184,163,.35)",
   },
 }
 
@@ -87,8 +85,6 @@ export function AuthBtn({
     const y = e.clientY - r.top
     el.style.setProperty("--bx", `${x}px`)
     el.style.setProperty("--by", `${y}px`)
-    // leans a little toward the cursor
-    el.style.transform = `translate(${((x / r.width - 0.5) * 8).toFixed(1)}px, ${((y / r.height - 0.5) * 6 - 2).toFixed(1)}px)`
   }
 
   const onLeave = (e: PointerEvent<HTMLElement>) => {

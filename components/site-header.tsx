@@ -3,12 +3,12 @@ import { auth, signOut } from "@/auth"
 import { AuthBtn } from "@/components/auth-btn"
 import { StaffNav } from "@/components/staff-nav"
 import { brand } from "@/lib/brand"
+import { btnSecondary } from "@/lib/styles"
 import { clearStaffSide, getStaffSide } from "@/lib/staff-side"
-// quiet pill links: green text, soft wash on hover, press scale.
-// On login/signup the link sits over the dark green panel on small screens, so it turns cream there.
+
 const navLink =
-  "inline-flex items-center rounded-full px-3.5 py-2 text-[14px] font-semibold text-[#12382b]/80 transition duration-200 " +
-  "hover:bg-[#12382b]/8 hover:text-[#12382b] active:scale-95 " +
+  "inline-flex items-center rounded-full px-3.5 py-2 text-[14px] font-medium text-[#12382b]/70 transition duration-200 " +
+  "hover:bg-[#12382b]/6 hover:text-[#12382b] " +
   "group-has-[.auth-page]:max-lg:text-[#f7f3e8]/85 group-has-[.auth-page]:max-lg:hover:bg-[#f7f3e8]/10 group-has-[.auth-page]:max-lg:hover:text-[#f7f3e8] " +
   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2f6b53]"
 
@@ -20,23 +20,23 @@ export async function SiteHeader() {
   const side = session ? await getStaffSide() : null
 
   return (
-    <header className="sticky top-0 z-20 border-b border-[#12382b]/10 bg-[linear-gradient(90deg,rgba(230,240,230,.92),rgba(241,240,220,.92)_55%,rgba(248,230,207,.92))] backdrop-blur-md group-has-[.landing-home,.auth-page]:absolute group-has-[.landing-home,.auth-page]:inset-x-0 group-has-[.landing-home,.auth-page]:top-0 group-has-[.landing-home,.auth-page]:border-0 group-has-[.landing-home,.auth-page]:bg-none group-has-[.landing-home,.auth-page]:backdrop-blur-none">
-      <div className="mx-auto flex min-h-18 w-full max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-5 lg:px-16 group-has-[.landing-home]:min-h-14 group-has-[.landing-home]:max-w-[1040px] group-has-[.landing-home]:lg:px-5 group-has-[.auth-page]:min-h-14 group-has-[.auth-page]:max-w-none group-has-[.auth-page]:sm:px-8 group-has-[.auth-page]:lg:px-16">
+    <header className="sticky top-0 z-20 border-b border-[#12382b]/8 bg-[#f4efe4]/88 backdrop-blur-md group-has-[.landing-home,.auth-page]:absolute group-has-[.landing-home,.auth-page]:inset-x-0 group-has-[.landing-home,.auth-page]:top-0 group-has-[.landing-home,.auth-page]:border-0 group-has-[.landing-home,.auth-page]:bg-none group-has-[.landing-home,.auth-page]:backdrop-blur-none">
+      <div className="mx-auto flex min-h-16 w-full max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-5 lg:px-12 group-has-[.landing-home]:min-h-14 group-has-[.landing-home]:max-w-[1040px] group-has-[.landing-home]:lg:px-5 group-has-[.auth-page]:min-h-14 group-has-[.auth-page]:max-w-none group-has-[.auth-page]:sm:px-8 group-has-[.auth-page]:lg:px-16">
         <Link
           href="/"
           aria-label={`${brand.name} home`}
-          className="group/logo inline-flex items-center gap-2.5 rounded-full font-display text-2xl tracking-[-0.03em] text-[#12382b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2f6b53] group-has-[.landing-home,.auth-page]:text-lg group-has-[.auth-page]:text-[#f7f3e8] group-has-[.auth-page]:focus-visible:outline-[#f0ac6e]"
+          className="group/logo inline-flex items-center gap-2.5 rounded-full font-display text-xl tracking-[-0.03em] text-[#12382b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2f6b53] group-has-[.landing-home,.auth-page]:text-lg group-has-[.auth-page]:text-[#f7f3e8] group-has-[.auth-page]:focus-visible:outline-[#f0ac6e]"
         >
           <span
             aria-hidden="true"
-            className="pointer-events-none size-7 rounded-full bg-[radial-gradient(circle_at_30%_30%,#f0ac6e,#2f6b53)] shadow-[0_6px_14px_-6px_rgba(18,56,43,.8)] transition duration-300 group-hover/logo:rotate-12 group-hover/logo:scale-110 group-has-[.landing-home,.auth-page]:size-4.25"
+            className="pointer-events-none size-6 rounded-full bg-[radial-gradient(circle_at_30%_30%,#f0ac6e,#2f6b53)] group-has-[.landing-home,.auth-page]:size-4.25"
           />
           {brand.name}
         </Link>
 
         <nav
           aria-label="Main navigation"
-          className="flex w-full flex-wrap items-center gap-1 border-t border-[#12382b]/10 pt-2 sm:ml-auto sm:w-auto sm:justify-end sm:border-0 sm:pt-0 group-has-[.landing-home,.auth-page]:w-auto group-has-[.landing-home,.auth-page]:border-t-0 group-has-[.landing-home,.auth-page]:pt-0"
+          className="flex w-full flex-wrap items-center gap-0.5 border-t border-[#12382b]/8 pt-2 sm:ml-auto sm:w-auto sm:justify-end sm:border-0 sm:pt-0 group-has-[.landing-home,.auth-page]:w-auto group-has-[.landing-home,.auth-page]:border-t-0 group-has-[.landing-home,.auth-page]:pt-0"
         >
           {role === "WORKER" ? (
             <>
@@ -66,9 +66,9 @@ export async function SiteHeader() {
                 await signOut({ redirectTo: "/" })
               }}
             >
-              <AuthBtn type="submit" variant="secondary" size="sm">
+              <button className={`${btnSecondary} ml-1 min-h-[38px] px-4 text-[13px]`} type="submit">
                 Log out
-              </AuthBtn>
+              </button>
             </form>
           ) : (
             <>

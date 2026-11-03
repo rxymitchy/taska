@@ -46,7 +46,7 @@ export function EvaluationClient({
     <form action={onSubmit} className="space-y-6">
       <input type="hidden" name="taskItemId" value={item.id} />
       <section className="rounded-lg border border-line bg-card p-5">
-        <p className="text-xs font-medium uppercase tracking-wider text-muted">Question</p>
+        <p className="text-[13px] text-muted">Question</p>
         <p className="mt-2 text-base leading-relaxed">{item.prompt}</p>
       </section>
       <div className="grid gap-3 md:grid-cols-2">
@@ -101,9 +101,9 @@ function ResponseCard({
     <button
       type="button"
       onClick={onSelect}
-      className={`rounded-lg p-5 text-left transition ${selected ? "border-2 border-accent bg-card shadow-[0_20px_40px_-28px_rgba(15,42,32,.4)]" : "border border-line bg-card hover:border-accent/50"}`}
+      className={`rounded-[20px] p-5 text-left transition ${selected ? "border-2 border-[#12382b] bg-[#fbf7ee]" : "border border-[#12382b]/10 bg-[#fbf7ee] hover:border-[#12382b]/30"}`}
     >
-      <p className="text-xs font-medium uppercase tracking-wider text-muted">{title}</p>
+      <p className="text-[13px] text-muted">{title}</p>
       <p className="mt-2 text-sm leading-relaxed">{body}</p>
     </button>
   )

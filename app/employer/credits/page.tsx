@@ -5,7 +5,7 @@ import { DownloadReceiptButton } from "@/components/download-receipt-button"
 import { ConfirmDepositButton, CreditsForm } from "@/components/credits-form"
 import { PendingCreditWatcher } from "@/components/pending-credit-watcher"
 import { PendingInvoiceActions } from "@/components/pending-invoice-actions"
-import { Container, SatsAmount, StatusPill } from "@/components/ui"
+import { Container, PageHeader, Panel, SatsAmount, StatCard, StatusPill } from "@/components/ui"
 import { formatSats } from "@/lib/money"
 import { settlePaidDeposits } from "@/lib/credits"
 import { companyCostPerEvaluation, evaluatorPayoutSats, reviewerPayoutSats, lightningProviderName } from "@/lib/pricing"
@@ -41,38 +41,28 @@ export default async function CreditsPage() {
 
   return (
     <Container className="page-frame max-w-2xl!">
-      <header className="page-intro">
-      <h1 className="text-3xl tracking-tight">Add credit so people can get paid</h1>
-      <p className="mt-2 text-muted">
-        Pay once, then send answers to check. Each agreed check costs {formatSats(cost)} (
-        {formatSats(evaluatorPayoutSats())} to the person who checked it, {formatSats(reviewerPayoutSats())} to the
-        reviewer). If the check is sent back, that hold comes back to you. Pay by card at full price, or by Bitcoin for
-        10% off.
-        {rail === "breez"
-          ? " A Lightning invoice adds the credit when the payment arrives."
-          : " Demo: you can mark a Bitcoin payment as paid to try the flow."}
-      </p>
-      </header>
-      <dl className="mt-6 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-lg border border-line bg-card px-4 py-3">
-          <dt className="text-xs font-medium uppercase tracking-wider text-muted">Available</dt>
-          <dd className="mt-1"><SatsAmount sats={company.prepaidSats} /></dd>
-        </div>
-        <div className="rounded-lg border border-line bg-card px-4 py-3">
-          <dt className="text-xs font-medium uppercase tracking-wider text-muted">Held for open work</dt>
-          <dd className="mt-1"><SatsAmount sats={company.heldSats} /></dd>
-        </div>
+      <PageHeader
+        title="Add credit so people can get paid"
+        description={`Pay once, then send answers to check. Each agreed check costs ${formatSats(cost)} (${formatSats(evaluatorPayoutSats())} to the person who checked it, ${formatSats(reviewerPayoutSats())} to the reviewer). Pay by card at full price, or by Bitcoin for 10% off.${rail === "breez" ? " A Lightning invoice adds the credit when the payment arrives." : " Demo: you can mark a Bitcoin payment as paid to try the flow."}`}
+      />
+      <dl className="mt-10 grid gap-4 sm:grid-cols-2">
+        <StatCard label="Available">
+          <SatsAmount sats={company.prepaidSats} />
+        </StatCard>
+        <StatCard label="Held for open work">
+          <SatsAmount sats={company.heldSats} />
+        </StatCard>
       </dl>
-      <div className="form-surface mt-6">
+      <div className="form-surface mt-10">
         {rail === "breez" ? <PendingCreditWatcher depositIds={pendingIds} /> : null}
         <CreditsForm mock={mock} />
       </div>
       {company.creditDeposits.length > 0 ? (
-        <section className="mt-10">
-          <h2 className="text-lg">Invoices</h2>
-          <ul className="mt-3 divide-y divide-line border-y border-line bg-card">
+        <section className="mt-12">
+          <h2 className="text-lg tracking-tight">Invoices</h2>
+          <ul className="mt-4 divide-y divide-[#12382b]/8 overflow-hidden rounded-[24px] border border-[#12382b]/10 bg-[#fbf7ee]">
             {company.creditDeposits.map((deposit) => (
-              <li key={deposit.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
+              <li key={deposit.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 text-sm">
                 <span>
                   <SatsAmount sats={deposit.amountSats} size="sm" />
                   <span className="mt-1 block"><StatusPill status={deposit.status} /></span>
@@ -94,11 +84,11 @@ export default async function CreditsPage() {
         </section>
       ) : null}
       {company.creditLedger.length > 0 ? (
-        <section className="mt-10">
-          <h2 className="text-lg">Recent activity</h2>
-          <ul className="mt-3 divide-y divide-line border-y border-line text-sm text-muted">
+        <section className="mt-12">
+          <h2 className="text-lg tracking-tight">Recent activity</h2>
+          <ul className="mt-4 divide-y divide-[#12382b]/8 text-sm text-muted">
             {company.creditLedger.map((row) => (
-              <li key={row.id} className="py-3">
+              <li key={row.id} className="py-4">
                 <span>{row.kind} · </span>
                 <SatsAmount sats={row.amountSats} size="sm" />
                 {row.note ? ` · ${row.note}` : ""}

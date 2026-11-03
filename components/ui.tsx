@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import { avatarColor, initials } from "@/lib/format"
 import { formatSats, formatUsd } from "@/lib/money"
 
@@ -12,16 +13,69 @@ export function SatsAmount({
 }) {
   return (
     <span className="inline-flex flex-col">
-      <span
-        className={`inline-flex w-fit rounded-md bg-hl px-2 font-semibold tabular-nums text-ink ${
-          size === "lg" ? "py-1 font-display text-2xl" : "py-0.5 text-sm"
-        }`}
-      >
+      <span className={`font-semibold tabular-nums text-ink ${size === "lg" ? "font-display text-3xl tracking-tight" : "text-sm"}`}>
         {prefix}
         {formatSats(sats)}
       </span>
       <span className={`mt-1 font-semibold text-good ${size === "lg" ? "text-sm" : "text-xs"}`}>{formatUsd(sats)}</span>
     </span>
+  )
+}
+
+export function PageHeader({
+  title,
+  description,
+  actions,
+}: {
+  title: string
+  description?: string
+  actions?: ReactNode
+}) {
+  return (
+    <header className="flex flex-wrap items-end justify-between gap-5">
+      <div className="max-w-2xl">
+        <h1 className="text-[clamp(1.75rem,3vw,2.5rem)] tracking-tight">{title}</h1>
+        {description ? <p className="mt-2 text-[15px] leading-relaxed text-muted">{description}</p> : null}
+      </div>
+      {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+    </header>
+  )
+}
+
+export function StatCard({
+  label,
+  children,
+}: {
+  label: string
+  children: ReactNode
+}) {
+  return (
+    <div className="rounded-[24px] border border-[#12382b]/10 bg-[#fbf7ee] px-5 py-5">
+      <p className="text-[13px] text-muted">{label}</p>
+      <div className="mt-3">{children}</div>
+    </div>
+  )
+}
+
+export function Panel({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <div className={`overflow-hidden rounded-[24px] border border-[#12382b]/10 bg-[#fbf7ee] ${className}`}>{children}</div>
+}
+
+export function EmptyState({
+  title,
+  body,
+  action,
+}: {
+  title: string
+  body: string
+  action?: ReactNode
+}) {
+  return (
+    <div className="px-6 py-16 text-center">
+      <p className="font-display text-xl tracking-tight">{title}</p>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted">{body}</p>
+      {action ? <div className="mt-6">{action}</div> : null}
+    </div>
   )
 }
 
@@ -45,14 +99,14 @@ export function Container({
   children: React.ReactNode
   className?: string
 }) {
-  return <div className={`mx-auto w-full max-w-7xl px-5 lg:px-16 ${className}`}>{children}</div>
+  return <div className={`mx-auto w-full max-w-6xl px-5 lg:px-12 ${className}`}>{children}</div>
 }
 
 export function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="rounded-lg border border-line bg-card px-4 py-4">
-      <p className="text-xs font-medium uppercase tracking-wider text-muted">{label}</p>
-      <p className="mt-2 font-display text-3xl tracking-tight text-ink">{value}</p>
+    <div className="rounded-[24px] border border-[#12382b]/10 bg-[#fbf7ee] px-5 py-5">
+      <p className="text-[13px] text-muted">{label}</p>
+      <p className="mt-3 font-display text-3xl tracking-tight text-ink">{value}</p>
       {hint ? <p className="mt-1 text-sm text-muted">{hint}</p> : null}
     </div>
   )
@@ -84,7 +138,7 @@ export function StatusPill({ status, label }: { status: string; label?: string }
   }
   const text = label ?? labels[status] ?? status.charAt(0) + status.slice(1).toLowerCase()
   return (
-    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${styles[status] ?? "border border-line bg-paper text-muted"}`}>
+    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${styles[status] ?? "border border-line bg-paper text-muted"}`}>
       {text}
     </span>
   )

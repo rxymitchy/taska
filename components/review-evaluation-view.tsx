@@ -1,6 +1,6 @@
 import { decideEvaluation } from "@/app/actions/evaluations"
 import { AiHumanComparison } from "@/components/ai-human-comparison"
-import { Container } from "@/components/ui"
+import { Container, PageHeader } from "@/components/ui"
 import { btnPrimary, btnSecondary } from "@/lib/styles"
 
 type Evaluation = {
@@ -40,7 +40,7 @@ export function ReviewEvaluationView({
         {evaluation.language} · {evaluation.context}
         {evaluation.assignedWorker ? ` · ${evaluation.assignedWorker.name}` : ""}
       </p>
-      <h1 className="mt-2 text-3xl tracking-tight">Does this check hold?</h1>
+      <PageHeader title="Does this check hold?" />
       {pay === "need-address" ? (
         <p className="mt-4 rounded-md border border-line bg-card px-3 py-2 text-sm">
           They need a real pay address on their profile, and so do you, before anyone gets paid.
@@ -48,11 +48,11 @@ export function ReviewEvaluationView({
       ) : null}
       <section className="content-surface mt-6 space-y-4">
         <div>
-          <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Question</h2>
+          <h2 className="text-[13px] text-muted">Question</h2>
           <p className="mt-1 whitespace-pre-wrap">{evaluation.prompt}</p>
         </div>
         <div>
-          <h2 className="text-sm font-medium uppercase tracking-wider text-muted">AI response</h2>
+          <h2 className="text-[13px] text-muted">AI response</h2>
           <p className="mt-1 whitespace-pre-wrap">{evaluation.aiResponse}</p>
           <p className="mt-1 text-sm text-muted">Model: {evaluation.aiModel}</p>
         </div>
@@ -72,7 +72,7 @@ export function ReviewEvaluationView({
         {answers.comment ? <p className="text-sm text-muted">{answers.comment}</p> : null}
         {answers.betterAnswer ? (
           <div>
-            <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Evaluator’s better answer</h2>
+            <h2 className="text-[13px] text-muted">Evaluator’s better answer</h2>
             <p className="mt-1 whitespace-pre-wrap">{answers.betterAnswer}</p>
           </div>
         ) : null}

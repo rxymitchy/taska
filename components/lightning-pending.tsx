@@ -17,15 +17,10 @@ export function LightningPending({
   amountSats?: number
 }) {
   return (
-    <p className="flex flex-wrap items-center gap-1.5 rounded-md border border-line bg-card px-3 py-2 text-sm">
-      {who}
-      {amountSats ? (
-        <>
-          <span aria-hidden="true">·</span>
-          <SatsAmount sats={amountSats} size="sm" />
-        </>
-      ) : null}
-      <span>— {labels[status]}</span>
+    <p className="flex flex-wrap items-center gap-2 text-sm">
+      <span className="text-muted">{who}</span>
+      {amountSats ? <SatsAmount sats={amountSats} size="sm" /> : null}
+      <span className="text-muted">· {labels[status]}</span>
     </p>
   )
 }

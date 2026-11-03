@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { promoteEvaluatorToReviewer } from "@/app/actions/invites"
 import { InviteForm, ReviewerLightningForm } from "@/components/invite-form"
-import { Container } from "@/components/ui"
+import { Container, PageHeader, Panel } from "@/components/ui"
 import { notDemoEmailWhere } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 import { btnSecondary } from "@/lib/styles"
@@ -32,26 +32,28 @@ export default async function InvitePage() {
 
   return (
     <Container className="page-frame max-w-2xl!">
-      <h1 className="text-3xl tracking-tight">Invite staff</h1>
-      <p className="mt-2 text-muted">
-        Invite a reviewer, an admin, or both.{" "}
+      <PageHeader
+        title="Invite staff"
+        description="Invite a reviewer, an admin, or both."
+      />
+      <p className="mt-4 text-sm">
         <Link className="text-accent underline" href="/admin/people">
           Fix roles on People
         </Link>
-        .
       </p>
-      <div className="form-surface mt-8">
+      <div className="form-surface mt-10">
         <InviteForm />
       </div>
       <section className="mt-12">
-        <h2 className="text-lg">Promote an evaluator</h2>
+        <h2 className="text-lg tracking-tight">Promote an evaluator</h2>
         <p className="mt-1 text-sm text-muted">They keep their profile. They stop receiving new evaluation work.</p>
         {evaluators.length === 0 ? (
           <p className="mt-4 text-sm text-muted">No evaluators to promote yet.</p>
         ) : (
-          <ul className="mt-4 divide-y divide-line border-y border-line bg-card">
+          <Panel className="mt-4">
+          <ul className="divide-y divide-[#12382b]/8">
             {evaluators.map((evaluator) => (
-              <li key={evaluator.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
+              <li key={evaluator.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 text-sm">
                 <span>
                   <span className="block font-medium">{evaluator.workerProfile?.name || evaluator.email}</span>
                   <span className="text-muted">
@@ -74,6 +76,7 @@ export default async function InvitePage() {
               </li>
             ))}
           </ul>
+          </Panel>
         )}
       </section>
       <section className="mt-12">

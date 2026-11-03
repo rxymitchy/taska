@@ -38,11 +38,11 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
       <h1 className="mt-3 text-3xl tracking-tight">Evaluation</h1>
       <section className="content-surface mt-6 space-y-4">
         <div>
-          <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Question</h2>
+          <h2 className="text-[13px] text-muted">Question</h2>
           <p className="mt-1 whitespace-pre-wrap">{report.prompt}</p>
         </div>
         <div>
-          <h2 className="text-sm font-medium uppercase tracking-wider text-muted">AI response</h2>
+          <h2 className="text-[13px] text-muted">AI response</h2>
           <p className="mt-1 whitespace-pre-wrap">{report.aiResponse}</p>
           <p className="mt-1 text-sm text-muted">Model: {report.aiModel}</p>
         </div>
@@ -66,7 +66,7 @@ export default async function CompanyEvaluationPage({ params }: { params: Promis
             <section className="content-surface mt-4">
               {report.betterAnswer ? (
                 <div>
-                  <h3 className="text-sm font-medium uppercase tracking-wider text-muted">Better answer</h3>
+                  <h3 className="text-[13px] text-muted">Better answer</h3>
                   <p className="mt-1 whitespace-pre-wrap">{report.betterAnswer}</p>
                 </div>
               ) : null}

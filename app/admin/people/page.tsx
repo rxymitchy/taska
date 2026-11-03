@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { setAccountKind, setStaffKind } from "@/app/actions/staff"
-import { Container } from "@/components/ui"
+import { Container, PageHeader, Panel } from "@/components/ui"
 import { notDemoEmailWhere } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 import { staffLabel } from "@/lib/staff"
@@ -20,16 +20,17 @@ export default async function PeoplePage() {
 
   return (
     <Container className="page-frame max-w-3xl!">
-      <h1 className="text-3xl tracking-tight">People and roles</h1>
-      <p className="mt-2 text-muted">
-        Give someone admin, reviewer, or both. If they signed up on the wrong side, switch company and evaluator.
-      </p>
-      <ul className="mt-8 divide-y divide-line rounded-lg border border-line bg-card">
+      <PageHeader
+        title="People and roles"
+        description="Give someone admin, reviewer, or both. If they signed up on the wrong side, switch company and evaluator."
+      />
+      <Panel className="mt-10">
+      <ul className="divide-y divide-[#12382b]/8">
         {people.length === 0 ? (
           <li className="px-4 py-4 text-sm text-muted">No accounts yet.</li>
         ) : (
           people.map((person) => (
-            <li key={person.id} className="space-y-3 px-4 py-4 text-sm">
+            <li key={person.id} className="space-y-3 px-5 py-5 text-sm">
               <div>
                 <p className="font-medium">
                   {person.workerProfile?.name || person.employerProfile?.companyName || person.email}
@@ -68,6 +69,7 @@ export default async function PeoplePage() {
           ))
         )}
       </ul>
+      </Panel>
     </Container>
   )
 }

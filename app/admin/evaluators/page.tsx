@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { Container } from "@/components/ui"
+import { Container, EmptyState, PageHeader, Panel } from "@/components/ui"
 import { notDemoEmailWhere } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 import { requireAdmin } from "@/lib/session"
@@ -21,28 +21,32 @@ export default async function AdminEvaluatorsPage() {
 
   return (
     <Container className="page-frame max-w-3xl!">
-      <h1 className="text-3xl tracking-tight">Evaluators</h1>
-      <p className="mt-2 text-muted">Look in if someone needs help with their assigned work.</p>
-      <ul className="mt-8 divide-y divide-line rounded-lg border border-line bg-card">
+      <PageHeader title="Evaluators" description="Look in if someone needs help with their assigned work." />
+      <Panel className="mt-10">
         {evaluators.length === 0 ? (
-          <li className="px-4 py-4 text-sm text-muted">No evaluators yet.</li>
+          <EmptyState title="No evaluators yet" body="When someone signs up to check answers, they will show up here." />
         ) : (
-          evaluators.map((evaluator) => (
-            <li key={evaluator.id}>
-              <Link className="flex flex-wrap items-center justify-between gap-3 px-4 py-4" href={`/admin/evaluators/${evaluator.id}`}>
-                <span>
-                  <span className="block font-medium">{evaluator.name}</span>
-                  <span className="text-sm text-muted">
-                    {evaluator.user.email} · {evaluator.country}
-                    {evaluator.languages.length ? ` · ${evaluator.languages.join(", ")}` : ""}
+          <ul className="divide-y divide-[#12382b]/8">
+            {evaluators.map((evaluator) => (
+              <li key={evaluator.id}>
+                <Link
+                  className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 transition hover:bg-[#12382b]/4"
+                  href={`/admin/evaluators/${evaluator.id}`}
+                >
+                  <span>
+                    <span className="block font-medium">{evaluator.name}</span>
+                    <span className="text-sm text-muted">
+                      {evaluator.user.email} · {evaluator.country}
+                      {evaluator.languages.length ? ` · ${evaluator.languages.join(", ")}` : ""}
+                    </span>
                   </span>
-                </span>
-                <span className="text-sm text-muted">{evaluator._count.assignedEvaluations} assigned</span>
-              </Link>
-            </li>
-          ))
+                  <span className="text-sm text-muted">{evaluator._count.assignedEvaluations} assigned</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         )}
-      </ul>
+      </Panel>
     </Container>
   )
 }

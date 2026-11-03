@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { CompanyStatus } from "@/components/company-status"
-import { Container } from "@/components/ui"
+import { Container, PageHeader, Panel } from "@/components/ui"
 import { isDemoAccountEmail } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
 import { requireAdmin } from "@/lib/session"
@@ -28,17 +28,17 @@ export default async function AdminEvaluatorPage({ params }: { params: Promise<{
           Evaluators
         </Link>
       </p>
-      <h1 className="mt-2 text-3xl tracking-tight">{evaluator.name}</h1>
-      <p className="mt-2 text-muted">
-        {evaluator.user.email} · {evaluator.country}
-        {evaluator.languages.length ? ` · ${evaluator.languages.join(", ")}` : ""}
-      </p>
-      <ul className="mt-8 divide-y divide-line rounded-lg border border-line bg-card">
+      <PageHeader
+        title={evaluator.name}
+        description={`${evaluator.user.email} · ${evaluator.country}${evaluator.languages.length ? ` · ${evaluator.languages.join(", ")}` : ""}`}
+      />
+      <Panel className="mt-8">
+      <ul className="divide-y divide-[#12382b]/8">
         {evaluator.assignedEvaluations.length === 0 ? (
-          <li className="px-4 py-4 text-sm text-muted">No assigned evaluations.</li>
+          <li className="px-5 py-4 text-sm text-muted">No assigned evaluations.</li>
         ) : (
           evaluator.assignedEvaluations.map((evaluation) => (
-            <li key={evaluation.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-4">
+            <li key={evaluation.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
               <span>
                 <span className="block font-medium">{evaluation.prompt}</span>
                 <span className="text-sm text-muted">
@@ -50,6 +50,7 @@ export default async function AdminEvaluatorPage({ params }: { params: Promise<{
           ))
         )}
       </ul>
+      </Panel>
     </Container>
   )
 }

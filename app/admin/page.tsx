@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { retryFailedPayouts } from "@/app/actions/payouts"
-import { Container, SatsAmount } from "@/components/ui"
+import { Container, PageHeader, Panel, SatsAmount, StatCard } from "@/components/ui"
 import { lightningProviderName } from "@/lib/pricing"
 import { notDemoCompanyWhere } from "@/lib/demo-accounts"
 import { prisma } from "@/lib/prisma"
@@ -36,44 +36,46 @@ export default async function AdminPage() {
 
   return (
     <Container className="page-frame">
-      <h1 className="text-3xl tracking-tight">Admin</h1>
-      <p className="mt-2 text-muted">People, payouts, and the till.</p>
-      <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold">
-        <Link className="text-accent underline" href="/admin/people">
-          People and roles
+      <PageHeader title="Admin" description="People, payouts, and the till." />
+      <div className="mt-8 flex flex-wrap gap-3 text-sm">
+        <Link className={btnSecondary} href="/admin/people">
+          People
         </Link>
-        <Link className="text-accent underline" href="/admin/companies">
+        <Link className={btnSecondary} href="/admin/companies">
           Companies
         </Link>
-        <Link className="text-accent underline" href="/admin/evaluators">
+        <Link className={btnSecondary} href="/admin/evaluators">
           Evaluators
         </Link>
       </div>
       {till.kind === "ok" ? (
-        <div className="mt-6 rounded-lg border border-line bg-card px-4 py-3">
-          <p className="text-xs font-medium uppercase tracking-wider text-muted">Bitcoin in the till</p>
-          <p className="mt-2">
+        <div className="mt-10 max-w-md">
+          <StatCard label="Bitcoin in the till">
             <SatsAmount sats={till.balanceSats} />
-          </p>
-          <p className="mt-1 text-sm text-muted">What companies have paid in, minus what we have paid out.</p>
+            <p className="mt-3 text-sm leading-relaxed text-muted">
+              What companies have paid in, minus what we have paid out.
+            </p>
+          </StatCard>
         </div>
       ) : till.kind === "error" ? (
-        <div className="mt-6 rounded-lg border border-line bg-card px-4 py-3">
+        <Panel className="mt-10 px-5 py-5">
           <p className="text-sm text-muted">{till.message}</p>
-        </div>
+        </Panel>
       ) : null}
       {failedPayouts.length > 0 ? (
-        <form action={retryFailedPayouts} className="mt-6 rounded-lg border border-line bg-card px-4 py-3">
-          <p className="text-sm">
-            {failedPayouts.length === 1 ? "One payment failed." : `${failedPayouts.length} payments failed.`}{" "}
-            Retry pays the address on the profile now. It does not pay a row that already says Sent.
-          </p>
-          <button className={`${btnSecondary} mt-3`} type="submit">
-            Retry failed payouts
-          </button>
+        <form action={retryFailedPayouts} className="mt-8 max-w-md">
+          <Panel className="px-5 py-5">
+            <p className="text-sm leading-relaxed">
+              {failedPayouts.length === 1 ? "One payment failed." : `${failedPayouts.length} payments failed.`} Retry
+              pays the address on the profile now. It does not pay a row that already says Sent.
+            </p>
+            <button className={`${btnSecondary} mt-4`} type="submit">
+              Retry failed payouts
+            </button>
+          </Panel>
         </form>
       ) : (
-        <p className="mt-6 text-sm text-muted">No failed payouts right now.</p>
+        <p className="mt-8 text-sm text-muted">No failed payouts right now.</p>
       )}
     </Container>
   )

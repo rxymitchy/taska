@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { startTask } from "@/app/actions/tasks"
-import { Container, SatsAmount, StatusPill } from "@/components/ui"
+import { Container, PageHeader, SatsAmount, StatCard, StatusPill } from "@/components/ui"
 import { auth } from "@/auth"
 import { formatSats } from "@/lib/money"
 import { prisma } from "@/lib/prisma"
@@ -36,35 +36,26 @@ export default async function TaskDetailPage({
 
   return (
     <Container className="page-frame max-w-3xl!">
-      <header className="page-intro">
-        <p className="text-sm font-bold text-accent">{task.category}</p>
-        <h1 className="mt-2 text-4xl tracking-tight">{task.title}</h1>
-        <p className="mt-4 max-w-3xl leading-relaxed text-muted">{task.description}</p>
-      </header>
+      <p className="text-sm text-muted">{task.category}</p>
+      <PageHeader title={task.title} description={task.description} />
       <dl className="mt-8 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-lg border border-line bg-card p-4">
-          <dt className="text-xs uppercase tracking-wider text-muted">Reward</dt>
-          <dd className="mt-2 text-lg font-medium">
-            <SatsAmount sats={task.rewardSats} />
-          </dd>
-        </div>
-        <div className="rounded-lg border border-line bg-card p-4">
-          <dt className="text-xs uppercase tracking-wider text-muted">Estimated time</dt>
-          <dd className="mt-1 text-lg font-medium">~{task.estimatedMinutes} min</dd>
-        </div>
-        <div className="rounded-lg border border-line bg-card p-4">
-          <dt className="text-xs uppercase tracking-wider text-muted">Available</dt>
-          <dd className="mt-1 text-lg font-medium">
+        <StatCard label="Reward">
+          <SatsAmount sats={task.rewardSats} />
+        </StatCard>
+        <StatCard label="Estimated time">
+          <p className="font-display text-3xl tracking-tight">~{task.estimatedMinutes} min</p>
+        </StatCard>
+        <StatCard label="Available">
+          <p className="font-display text-3xl tracking-tight">
             {available} of {task.quantity}
-          </dd>
-        </div>
-        <div className="rounded-lg border border-line bg-card p-4">
-          <dt className="text-xs uppercase tracking-wider text-muted">Language</dt>
-          <dd className="mt-1 text-lg font-medium">{task.language}</dd>
-        </div>
+          </p>
+        </StatCard>
+        <StatCard label="Language">
+          <p className="font-display text-3xl tracking-tight">{task.language}</p>
+        </StatCard>
       </dl>
       <p className="mt-5 text-sm leading-relaxed text-muted">
-        Skills: {task.requiredSkills.join(", ")} · Budget <span className="inline-flex rounded-md bg-hl px-2 py-0.5 font-semibold tabular-nums text-ink">{formatSats(budget)}</span> · <StatusPill status={task.status} />
+        Skills: {task.requiredSkills.join(", ")} · Budget {formatSats(budget)} · <StatusPill status={task.status} />
       </p>
       <section className="content-surface mt-8">
         <h2 className="text-xl">Instructions</h2>

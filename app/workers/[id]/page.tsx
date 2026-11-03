@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { Avatar, Container, StatusPill } from "@/components/ui"
+import { Avatar, Container, PageHeader, StatCard, StatusPill } from "@/components/ui"
 import { formatDay, formatWhen } from "@/lib/format"
 import { portraitFor } from "@/lib/portraits"
 import { isDemoAccountEmail } from "@/lib/demo-accounts"
@@ -43,29 +43,27 @@ export default async function WorkerPage({ params }: { params: Promise<{ id: str
           <Avatar name={worker.name} size="lg" />
         )}
         <div>
-          <h1 className="text-4xl tracking-tight">{worker.name}</h1>
-          <p className="mt-1 text-muted">{worker.country}</p>
-          <p className="mt-1 text-sm text-muted">Member since {formatDay(worker.createdAt)}</p>
+          <PageHeader
+            title={worker.name}
+            description={`${worker.country} · Member since ${formatDay(worker.createdAt)}`}
+          />
         </div>
       </div>
       {worker.bio ? <p className="mt-6 max-w-2xl leading-relaxed">{worker.bio}</p> : null}
-      <dl className="mt-6 grid gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-3">
-        <div className="bg-card p-4">
-          <dt className="text-xs uppercase tracking-wider text-muted">Tasks completed</dt>
-          <dd className="mt-1 text-2xl">{worker.tasksCompleted}</dd>
-        </div>
-        <div className="bg-card p-4">
-          <dt className="text-xs uppercase tracking-wider text-muted">Approval rate</dt>
-          <dd className="mt-1 text-2xl">
+      <dl className="mt-8 grid gap-4 sm:grid-cols-3">
+        <StatCard label="Tasks completed">
+          <p className="font-display text-3xl tracking-tight">{worker.tasksCompleted}</p>
+        </StatCard>
+        <StatCard label="Approval rate">
+          <p className="font-display text-3xl tracking-tight">
             {worker.tasksCompleted === 0 ? "—" : `${Math.round(worker.approvalRate)}%`}
-          </dd>
-        </div>
-        <div className="bg-card p-4">
-          <dt className="text-xs uppercase tracking-wider text-muted">Quality score</dt>
-          <dd className="mt-1 text-2xl">
+          </p>
+        </StatCard>
+        <StatCard label="Quality score">
+          <p className="font-display text-3xl tracking-tight">
             {worker.tasksCompleted === 0 ? "—" : Math.round(worker.qualityScore)}
-          </dd>
-        </div>
+          </p>
+        </StatCard>
       </dl>
       <div className="mt-8 flex flex-wrap gap-2">
         {worker.skills.map((skill) => (

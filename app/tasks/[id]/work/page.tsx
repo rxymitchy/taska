@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { EvaluationClient } from "@/components/evaluation-client"
-import { Container } from "@/components/ui"
+import { Container, PageHeader } from "@/components/ui"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/lib/session"
 
@@ -48,11 +48,8 @@ export default async function WorkPage({ params }: { params: Promise<{ id: strin
 
   return (
     <Container className="page-frame max-w-3xl!">
-      <header className="page-intro">
-        <p className="text-sm font-bold text-accent">{task.category}</p>
-        <h1 className="mt-2 text-3xl tracking-tight">{task.title}</h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted">{task.instructions}</p>
-      </header>
+      <p className="text-sm text-muted">{task.category}</p>
+      <PageHeader title={task.title} description={task.instructions} />
       {!worker.lightningAddress ? (
         <p className="mt-5 rounded-md border border-accent/20 bg-tint px-4 py-3 text-sm text-ink">
           Add a Lightning address on your <Link className="underline" href="/profile">profile</Link> before you submit.

@@ -21,7 +21,7 @@ export function TaskCard({
 }) {
   const available = Math.max(task.quantity - task.completedQuantity, 0)
   return (
-    <article className="flex h-full flex-col rounded-lg border border-line bg-card p-4">
+    <article className="flex h-full flex-col rounded-[24px] border border-[#12382b]/10 bg-[#fbf7ee] p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="font-display text-xl leading-snug tracking-tight">{task.title}</h2>
