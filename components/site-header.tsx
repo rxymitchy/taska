@@ -20,7 +20,7 @@ export async function SiteHeader() {
   const side = session ? await getStaffSide() : null
 
   return (
-    <header className="sticky top-0 z-20 border-b border-[#12382b]/8 bg-[#f4efe4]/88 backdrop-blur-md group-has-[.landing-home,.auth-page]:absolute group-has-[.landing-home,.auth-page]:inset-x-0 group-has-[.landing-home,.auth-page]:top-0 group-has-[.landing-home,.auth-page]:border-0 group-has-[.landing-home,.auth-page]:bg-none group-has-[.landing-home,.auth-page]:backdrop-blur-none">
+    <header className="sticky top-0 z-20 border-b border-[#12382b]/8 bg-[#f4efe4] group-has-[.landing-home,.auth-page]:absolute group-has-[.landing-home,.auth-page]:inset-x-0 group-has-[.landing-home,.auth-page]:top-0 group-has-[.landing-home,.auth-page]:border-0 group-has-[.landing-home,.auth-page]:bg-transparent">
       <div className="mx-auto flex min-h-16 w-full max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-5 lg:px-12 group-has-[.landing-home]:min-h-14 group-has-[.landing-home]:max-w-[1040px] group-has-[.landing-home]:lg:px-5 group-has-[.auth-page]:min-h-14 group-has-[.auth-page]:max-w-none group-has-[.auth-page]:sm:px-8 group-has-[.auth-page]:lg:px-16">
         <Link
           href="/"
